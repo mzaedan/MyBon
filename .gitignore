@@ -12,6 +12,10 @@
 .vscode/
 .idea/
 
+# Agent skills / local agent tooling
+.agents/
+skills-lock.json
+
 # NuGet
 *.nupkg
 packages/
