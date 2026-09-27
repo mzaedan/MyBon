@@ -2,4 +2,77 @@
     ViewData["Title"] = "Barang";
 }
 
-<p class="page-placeholder">Daftar barang akan tampil di sini.</p>
+<div class="barang-page">
+    <hr class="page-rule" />
+
+    <div class="barang-search" aria-hidden="true">
+        <div class="barang-search-row">
+            <i class="bi bi-search barang-search-icon"></i>
+            <span class="barang-search-text">Cari barang</span>
+        </div>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="barang-list-title">8 barang di buku</div>
+
+    <div class="barang-cards">
+        <div class="barang-card">
+            <div class="barang-card-info">
+                <div class="barang-card-name">Beras Ramos 5 kg</div>
+                <div class="barang-card-unit">karung</div>
+            </div>
+            <div class="barang-card-price">Rp 78.000</div>
+        </div>
+        <div class="barang-card">
+            <div class="barang-card-info">
+                <div class="barang-card-name">Minyak Goreng 2 L</div>
+                <div class="barang-card-unit">botol</div>
+            </div>
+            <div class="barang-card-price">Rp 34.000</div>
+        </div>
+        <div class="barang-card">
+            <div class="barang-card-info">
+                <div class="barang-card-name">Gula Pasir</div>
+                <div class="barang-card-unit">kg</div>
+            </div>
+            <div class="barang-card-price">Rp 17.500</div>
+        </div>
+        <div class="barang-card">
+            <div class="barang-card-info">
+                <div class="barang-card-name">Telur Ayam</div>
+                <div class="barang-card-unit">kg</div>
+            </div>
+            <div class="barang-card-price">Rp 28.000</div>
+        </div>
+        <div class="barang-card">
+            <div class="barang-card-info">
+                <div class="barang-card-name">Mie Instan</div>
+                <div class="barang-card-unit">dus</div>
+            </div>
+            <div class="barang-card-price">Rp 125.000</div>
+        </div>
+        <div class="barang-card">
+            <div class="barang-card-info">
+                <div class="barang-card-name">Kopi Sachet</div>
+                <div class="barang-card-unit">renceng</div>
+            </div>
+            <div class="barang-card-price">Rp 12.000</div>
+        </div>
+        <div class="barang-card">
+            <div class="barang-card-info">
+                <div class="barang-card-name">Sabun Mandi</div>
+                <div class="barang-card-unit">pcs</div>
+            </div>
+            <div class="barang-card-price">Rp 4.500</div>
+        </div>
+        <div class="barang-card">
+            <div class="barang-card-info">
+                <div class="barang-card-name">Garam Dapur</div>
+                <div class="barang-card-unit">bungkus</div>
+            </div>
+            <div class="barang-card-price">Rp 3.000</div>
+        </div>
+    </div>
+
+    <a class="cta-catat-bon" asp-controller="Barang" asp-action="Create">Tulis barang baru</a>
+</div>

@@ -1,0 +1,52 @@
+@{
+    ViewData["Title"] = "Barang baru";
+    ViewData["BackHref"] = Url.Action("Index", "Barang");
+}
+
+<hr class="page-rule" />
+
+<form method="get" asp-action="Create" class="pelanggan-form">
+    <div class="pelanggan-field">
+        <label class="pelanggan-field-label" for="namaBarang">Nama Barang</label>
+        <input id="namaBarang"
+               type="text"
+               name="namaBarang"
+               class="pelanggan-field-input"
+               placeholder="Tulis nama barang"
+               autocomplete="off"
+               value="" />
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-field">
+        <label class="pelanggan-field-label" for="satuan">Satuan</label>
+        <input id="satuan"
+               type="text"
+               name="satuan"
+               class="pelanggan-field-input"
+               placeholder="Tulis satuan"
+               autocomplete="off"
+               value="" />
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-field">
+        <label class="pelanggan-field-label" for="harga">Harga</label>
+        <input id="harga"
+               type="text"
+               name="harga"
+               inputmode="decimal"
+               class="pelanggan-field-input"
+               placeholder="Tulis harga"
+               autocomplete="off"
+               value="" />
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-form-actions">
+        <a class="pelanggan-btn pelanggan-btn-batal"
+           asp-controller="Barang"
+           asp-action="Index">Batal</a>
+        <button type="submit" class="pelanggan-btn pelanggan-btn-simpan">Simpan barang</button>
+    </div>
+</form>
