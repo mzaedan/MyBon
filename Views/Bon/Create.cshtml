@@ -1,0 +1,299 @@
+@{
+    ViewData["Title"] = "Bon baru";
+    ViewData["BackHref"] = Url.Action("Index", "Bon");
+}
+
+<hr class="page-rule" />
+
+<form method="get" asp-action="Create" class="pelanggan-form">
+    <div class="pelanggan-field">
+        <label class="pelanggan-field-label" for="pelanggan">Pelanggan</label>
+        <div class="bon-field-with-icon">
+            <select id="pelanggan" name="pelanggan" class="pelanggan-field-input bon-select">
+                <option value="" selected>Pilih pelanggan</option>
+                <option value="Siti Aminah">Siti Aminah</option>
+                <option value="Budi Santoso">Budi Santoso</option>
+                <option value="Rina Wahyuni">Rina Wahyuni</option>
+                <option value="Agus Salim">Agus Salim</option>
+            </select>
+            <i class="bi bi-chevron-down bon-field-icon" aria-hidden="true"></i>
+        </div>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-field">
+        <label class="pelanggan-field-label" for="tanggal">Tanggal</label>
+        <div class="bon-field-with-icon">
+            <input id="tanggal"
+                   type="date"
+                   name="tanggal"
+                   class="pelanggan-field-input bon-date"
+                   value="" />
+            <i class="bi bi-calendar bon-field-icon" aria-hidden="true"></i>
+        </div>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-field">
+        <label class="pelanggan-field-label" for="totalBayar">Total Bayar</label>
+        <input id="totalBayar"
+               type="text"
+               name="totalBayar"
+               inputmode="decimal"
+               class="pelanggan-field-input bon-money-input"
+               placeholder="Tulis total bayar"
+               autocomplete="off"
+               value="" />
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-field">
+        <label class="pelanggan-field-label" for="catatan">Catatan</label>
+        <textarea id="catatan"
+                  name="catatan"
+                  class="pelanggan-field-input pelanggan-field-textarea"
+                  placeholder="Tulis catatan"
+                  rows="2"></textarea>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="bon-daftar-head">
+        <div class="bon-daftar-title">Daftar barang</div>
+        <div class="bon-tambah" aria-hidden="true">
+            <i class="bi bi-plus"></i>
+            <span>Tambah barang</span>
+        </div>
+    </div>
+
+    <div class="bon-line">
+        <div class="bon-field-with-icon">
+            <input type="hidden" id="barang" name="barang" value="" />
+            <button type="button"
+                    id="barangTrigger"
+                    class="bon-picker-trigger is-empty"
+                    aria-haspopup="dialog"
+                    aria-expanded="false"
+                    aria-controls="bonPicker">
+                <span id="barangTriggerLabel">Pilih barang</span>
+            </button>
+            <i class="bi bi-chevron-down bon-field-icon" aria-hidden="true"></i>
+        </div>
+        <hr class="page-rule" />
+
+        <div class="bon-line-metrics">
+            <div class="bon-line-col">
+                <div class="pelanggan-field-label">Harga</div>
+                <div class="bon-line-money" id="barangHarga">Rp 0</div>
+            </div>
+            <div class="bon-line-col bon-line-col--qty">
+                <label class="pelanggan-field-label" for="jumlah">Jumlah</label>
+                <input id="jumlah"
+                       type="number"
+                       name="jumlah"
+                       min="1"
+                       value="1"
+                       class="bon-line-qty" />
+            </div>
+            <div class="bon-line-col">
+                <div class="pelanggan-field-label">Satuan</div>
+                <div class="bon-line-satuan" id="barangSatuan">-</div>
+            </div>
+        </div>
+
+        <div class="bon-line-subtotal">
+            <div class="bon-line-col">
+                <div class="pelanggan-field-label">Subtotal</div>
+                <div class="bon-line-money">Rp 0</div>
+            </div>
+            <div class="bon-hapus" aria-hidden="true">
+                <i class="bi bi-trash"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bon-total-row">
+        <div class="bon-total-label">Total belanja</div>
+        <div class="bon-total-value">Rp 0</div>
+    </div>
+
+    <div class="pelanggan-form-actions">
+        <a class="pelanggan-btn pelanggan-btn-batal"
+           asp-controller="Bon"
+           asp-action="Index">Batal</a>
+        <button type="submit" class="pelanggan-btn pelanggan-btn-simpan">Simpan catatan</button>
+    </div>
+</form>
+
+<div id="bonPicker" class="bon-picker" hidden>
+    <div class="bon-picker-scrim" data-bon-picker-close></div>
+    <div class="bon-picker-sheet"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="bonPickerTitle">
+        <div class="bon-picker-head">
+            <div id="bonPickerTitle" class="bon-picker-title">Pilih barang</div>
+            <button type="button"
+                    class="bon-picker-close"
+                    data-bon-picker-close
+                    aria-label="Tutup">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="bon-picker-search" aria-hidden="true">
+            <div class="bon-picker-search-row">
+                <i class="bi bi-search bon-picker-search-icon"></i>
+                <span class="bon-picker-search-text">Cari barang</span>
+            </div>
+            <hr class="page-rule" />
+        </div>
+        <div class="bon-picker-list">
+            <button type="button" class="bon-picker-item" data-nama="Beras Ramos 5 kg" data-satuan="karung" data-harga="Rp 78.000">
+                <span class="bon-picker-item-info">
+                    <span class="bon-picker-item-name">Beras Ramos 5 kg</span>
+                    <span class="bon-picker-item-unit">karung</span>
+                </span>
+                <span class="bon-picker-item-price">Rp 78.000</span>
+            </button>
+            <hr class="page-rule" />
+            <button type="button" class="bon-picker-item" data-nama="Minyak Goreng 2 L" data-satuan="botol" data-harga="Rp 34.000">
+                <span class="bon-picker-item-info">
+                    <span class="bon-picker-item-name">Minyak Goreng 2 L</span>
+                    <span class="bon-picker-item-unit">botol</span>
+                </span>
+                <span class="bon-picker-item-price">Rp 34.000</span>
+            </button>
+            <hr class="page-rule" />
+            <button type="button" class="bon-picker-item" data-nama="Gula Pasir" data-satuan="kg" data-harga="Rp 17.500">
+                <span class="bon-picker-item-info">
+                    <span class="bon-picker-item-name">Gula Pasir</span>
+                    <span class="bon-picker-item-unit">kg</span>
+                </span>
+                <span class="bon-picker-item-price">Rp 17.500</span>
+            </button>
+            <hr class="page-rule" />
+            <button type="button" class="bon-picker-item" data-nama="Telur Ayam" data-satuan="kg" data-harga="Rp 28.000">
+                <span class="bon-picker-item-info">
+                    <span class="bon-picker-item-name">Telur Ayam</span>
+                    <span class="bon-picker-item-unit">kg</span>
+                </span>
+                <span class="bon-picker-item-price">Rp 28.000</span>
+            </button>
+            <hr class="page-rule" />
+            <button type="button" class="bon-picker-item" data-nama="Mie Instan" data-satuan="dus" data-harga="Rp 125.000">
+                <span class="bon-picker-item-info">
+                    <span class="bon-picker-item-name">Mie Instan</span>
+                    <span class="bon-picker-item-unit">dus</span>
+                </span>
+                <span class="bon-picker-item-price">Rp 125.000</span>
+            </button>
+            <hr class="page-rule" />
+            <button type="button" class="bon-picker-item" data-nama="Kopi Sachet" data-satuan="renceng" data-harga="Rp 12.000">
+                <span class="bon-picker-item-info">
+                    <span class="bon-picker-item-name">Kopi Sachet</span>
+                    <span class="bon-picker-item-unit">renceng</span>
+                </span>
+                <span class="bon-picker-item-price">Rp 12.000</span>
+            </button>
+            <hr class="page-rule" />
+            <button type="button" class="bon-picker-item" data-nama="Sabun Mandi" data-satuan="pcs" data-harga="Rp 4.500">
+                <span class="bon-picker-item-info">
+                    <span class="bon-picker-item-name">Sabun Mandi</span>
+                    <span class="bon-picker-item-unit">pcs</span>
+                </span>
+                <span class="bon-picker-item-price">Rp 4.500</span>
+            </button>
+            <hr class="page-rule" />
+            <button type="button" class="bon-picker-item" data-nama="Garam Dapur" data-satuan="bungkus" data-harga="Rp 3.000">
+                <span class="bon-picker-item-info">
+                    <span class="bon-picker-item-name">Garam Dapur</span>
+                    <span class="bon-picker-item-unit">bungkus</span>
+                </span>
+                <span class="bon-picker-item-price">Rp 3.000</span>
+            </button>
+            <hr class="page-rule" />
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var picker = document.getElementById("bonPicker");
+            var trigger = document.getElementById("barangTrigger");
+            var triggerLabel = document.getElementById("barangTriggerLabel");
+            var hidden = document.getElementById("barang");
+            var hargaEl = document.getElementById("barangHarga");
+            var satuanEl = document.getElementById("barangSatuan");
+            var shell = document.querySelector(".app-shell");
+            if (!picker || !trigger || !shell) return;
+
+            shell.appendChild(picker);
+
+            var sheet = picker.querySelector(".bon-picker-sheet");
+            var lastFocus = null;
+
+            function focusables() {
+                return Array.prototype.slice.call(
+                    sheet.querySelectorAll("button:not([disabled])")
+                );
+            }
+
+            function openPicker() {
+                lastFocus = document.activeElement;
+                picker.hidden = false;
+                picker.classList.add("is-open");
+                trigger.setAttribute("aria-expanded", "true");
+                var first = focusables()[0];
+                if (first) first.focus();
+            }
+
+            function closePicker() {
+                picker.hidden = true;
+                picker.classList.remove("is-open");
+                trigger.setAttribute("aria-expanded", "false");
+                if (lastFocus) lastFocus.focus();
+            }
+
+            function pick(item) {
+                var nama = item.getAttribute("data-nama") || "";
+                hidden.value = nama;
+                triggerLabel.textContent = nama;
+                trigger.classList.remove("is-empty");
+                hargaEl.textContent = item.getAttribute("data-harga") || "Rp 0";
+                satuanEl.textContent = item.getAttribute("data-satuan") || "-";
+                closePicker();
+            }
+
+            trigger.addEventListener("click", openPicker);
+
+            picker.addEventListener("click", function (event) {
+                if (event.target.closest("[data-bon-picker-close]")) {
+                    closePicker();
+                    return;
+                }
+                var item = event.target.closest(".bon-picker-item");
+                if (item) pick(item);
+            });
+
+            picker.addEventListener("keydown", function (event) {
+                if (event.key === "Escape") {
+                    event.preventDefault();
+                    closePicker();
+                    return;
+                }
+                if (event.key !== "Tab") return;
+                var list = focusables();
+                if (list.length === 0) return;
+                var first = list[0];
+                var last = list[list.length - 1];
+                if (event.shiftKey && document.activeElement === first) {
+                    event.preventDefault();
+                    last.focus();
+                } else if (!event.shiftKey && document.activeElement === last) {
+                    event.preventDefault();
+                    first.focus();
+                }
+            });
+        })();
+    </script>
+}
