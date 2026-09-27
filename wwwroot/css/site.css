@@ -46,9 +46,11 @@ a {
 }
 
 button,
-input {
+input,
+textarea {
   font-family: inherit;
 }
+
 
 /* Shell */
 .app-shell {
@@ -98,6 +100,28 @@ input {
   padding: 8px 20px 0;
 }
 
+.app-header-back {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-left: -10px;
+  color: #000000;
+  border-radius: 8px;
+}
+
+.app-header-back i {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.app-header-back:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
 .app-header-text {
   flex: 1 1 0;
   min-width: 0;
@@ -105,6 +129,7 @@ input {
   flex-direction: column;
   gap: 4px;
 }
+
 
 .app-wordmark {
   margin: 0;
@@ -275,15 +300,26 @@ input {
 }
 
 .cta-catat-bon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 48px;
+  min-height: 48px;
   border: 0;
   border-radius: 8px;
   background: var(--accent);
   color: #ffffff;
+  font-family: var(--font);
   font-size: 16px;
   font-weight: 600;
+  text-align: center;
+  text-decoration: none;
   cursor: pointer;
+}
+
+a.cta-catat-bon {
+  color: #ffffff;
 }
 
 .cta-catat-bon:active {
@@ -294,6 +330,7 @@ input {
   outline: 2px solid var(--text);
   outline-offset: 2px;
 }
+
 
 .pelanggan-page {
   display: flex;
@@ -351,6 +388,19 @@ input {
   border-radius: 10px;
 }
 
+a.pelanggan-card {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a.pelanggan-card:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+
+
 .pelanggan-card-name {
   font-size: 15px;
   font-weight: 600;
@@ -387,11 +437,129 @@ input {
   outline-offset: 2px;
 }
 
+/* Tambah Pelanggan form */
+.pelanggan-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-top: 8px;
+  padding-bottom: 24px;
+}
+
+.pelanggan-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 0;
+}
+
+.pelanggan-field-label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+  line-height: normal;
+}
+
+.pelanggan-field-input {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.4;
+  outline: none;
+  resize: none;
+}
+
+.pelanggan-field-input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+.pelanggan-field-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.pelanggan-field-textarea {
+  min-height: 2.8em;
+}
+
+.pelanggan-field-value {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+
+.pelanggan-form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.pelanggan-btn {
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 48px;
+  height: 48px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pelanggan-btn:active {
+  opacity: 0.9;
+}
+
+.pelanggan-btn:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.pelanggan-btn-batal {
+  background: #000000;
+  color: #ffffff;
+}
+
+a.pelanggan-btn-batal {
+  color: #ffffff;
+}
+
+.pelanggan-btn-simpan {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+a.pelanggan-btn-simpan {
+  color: #ffffff;
+}
+
+
 .page-placeholder {
   margin: 16px 0 0;
   font-size: 14px;
   color: var(--muted);
 }
+
 
 /* Shared content helpers (ready when pages need them) */
 .page-section {

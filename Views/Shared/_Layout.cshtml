@@ -19,10 +19,18 @@
         var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Dashboard";
         bool IsActive(string controller) =>
             string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase);
+        var backHref = ViewData["BackHref"] as string;
+        var showBack = !string.IsNullOrWhiteSpace(backHref);
     }
     <div class="app-shell">
         <header class="app-header">
             <div class="app-header-inner">
+                @if (showBack)
+                {
+                    <a class="app-header-back" href="@backHref" aria-label="Kembali">
+                        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                    </a>
+                }
                 <div class="app-header-text">
                     <p class="app-wordmark">MY BON</p>
                     <h1 class="app-screen-title">@ViewData["Title"]</h1>

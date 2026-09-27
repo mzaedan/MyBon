@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Siti Aminah";
+    ViewData["BackHref"] = Url.Action("Index", "Pelanggan");
+}
+
+<hr class="page-rule" />
+
+<div class="pelanggan-form">
+    <div class="pelanggan-field">
+        <div class="pelanggan-field-label">Nama</div>
+        <p class="pelanggan-field-value">Siti Aminah</p>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-field">
+        <div class="pelanggan-field-label">Nomor HP</div>
+        <p class="pelanggan-field-value">0812 3456 7890</p>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-field">
+        <div class="pelanggan-field-label">Alamat</div>
+        <p class="pelanggan-field-value">Jl. Melati No. 12, Sukajadi</p>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-form-actions">
+        <a class="pelanggan-btn pelanggan-btn-batal"
+           asp-controller="Pelanggan"
+           asp-action="Index">Ubah data</a>
+        <a class="pelanggan-btn pelanggan-btn-simpan"
+           asp-controller="Pelanggan"
+           asp-action="Index">Hapus dari buku</a>
+    </div>
+</div>
