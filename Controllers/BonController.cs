@@ -7,4 +7,6 @@ public class BonController : Controller
     public IActionResult Index() => View();
 
     public IActionResult Create() => View();
+
+    public IActionResult Details() => View();
 }

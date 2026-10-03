@@ -642,6 +642,18 @@ a.pelanggan-btn-simpan {
   outline-offset: -0.5px;
   border-radius: 10px;
 }
+a.bon-card {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a.bon-card:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+
 
 .bon-card-top {
   display: flex;
@@ -1270,4 +1282,220 @@ a.pelanggan-btn-simpan {
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.5;
+}
+
+/* Bon detail sheet */
+
+.bon-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 24px;
+}
+
+.bon-detail-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bon-detail-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.bon-detail-sub {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.bon-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: var(--surface);
+  outline: 1px solid var(--border);
+  outline-offset: -0.5px;
+  border-radius: 10px;
+}
+
+.bon-summary-title {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.bon-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.bon-summary-label {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text);
+}
+
+.bon-summary-value {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.bon-summary-value--lg {
+  font-size: 20px;
+}
+
+.bon-detail-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.bon-action {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 48px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.bon-action--bayar {
+  background: var(--text);
+  color: #ffffff;
+}
+
+.bon-action--barang {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.bon-action:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.bon-detail-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.bon-detail-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.bon-history {
+  display: flex;
+  flex-direction: column;
+  padding-top: 8px;
+}
+
+.bon-history-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+}
+
+.bon-history-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bon-history-jenis {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.bon-history-date {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.bon-history-amount {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.bon-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 0;
+}
+
+.bon-item-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.bon-item-rinci {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.bon-item-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.bon-item-date {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.bon-item-sub {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.bon-item-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+}
+
+.bon-item-total-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.bon-item-total-value {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
 }

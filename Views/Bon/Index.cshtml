@@ -16,7 +16,7 @@
     <div class="bon-list-title">4 bon di buku</div>
 
     <div class="bon-cards">
-        <div class="bon-card">
+        <a class="bon-card" asp-controller="Bon" asp-action="Details">
             <div class="bon-card-top">
                 <div class="bon-card-no">BN-014</div>
                 <div class="bon-card-status">Belum lunas</div>
@@ -33,9 +33,9 @@
                     <div class="bon-amount-value">Rp 185.000</div>
                 </div>
             </div>
-        </div>
+        </a>
 
-        <div class="bon-card">
+        <a class="bon-card" asp-controller="Bon" asp-action="Details">
             <div class="bon-card-top">
                 <div class="bon-card-no">BN-013</div>
                 <div class="bon-card-status">Belum lunas</div>
@@ -52,9 +52,9 @@
                     <div class="bon-amount-value">Rp 92.000</div>
                 </div>
             </div>
-        </div>
+        </a>
 
-        <div class="bon-card">
+        <a class="bon-card" asp-controller="Bon" asp-action="Details">
             <div class="bon-card-top">
                 <div class="bon-card-no">BN-012</div>
                 <div class="bon-card-status">Belum lunas</div>
@@ -71,9 +71,9 @@
                     <div class="bon-amount-value">Rp 48.500</div>
                 </div>
             </div>
-        </div>
+        </a>
 
-        <div class="bon-card">
+        <a class="bon-card" asp-controller="Bon" asp-action="Details">
             <div class="bon-card-top">
                 <div class="bon-card-no">BN-011</div>
                 <div class="bon-card-status bon-card-status--lunas">Lunas</div>
@@ -90,7 +90,7 @@
                     <div class="bon-amount-value">Rp 0</div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
 
     <a class="cta-catat-bon" asp-controller="Bon" asp-action="Create">Catat bon baru</a>

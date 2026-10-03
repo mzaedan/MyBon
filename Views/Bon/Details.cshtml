@@ -1,0 +1,92 @@
+@{
+    ViewData["Title"] = "BN-014";
+    ViewData["BackHref"] = Url.Action("Index", "Bon");
+}
+
+<div class="bon-detail-page">
+    <hr class="page-rule" />
+
+    <div class="bon-detail-meta">
+        <div class="bon-detail-name">Siti Aminah</div>
+        <div class="bon-detail-sub">12 Maret 2026 · Belum lunas</div>
+    </div>
+
+    <div class="bon-summary">
+        <div class="bon-summary-title">Ringkasan</div>
+        <div class="bon-summary-row">
+            <div class="bon-summary-label">Total belanja</div>
+            <div class="bon-summary-value">Rp 140.000</div>
+        </div>
+        <div class="bon-summary-row">
+            <div class="bon-summary-label">Total bayar</div>
+            <div class="bon-summary-value">Rp 50.000</div>
+        </div>
+        <hr class="page-rule" />
+        <div class="bon-summary-row bon-summary-row--sisa">
+            <div class="bon-summary-label">Sisa hutang</div>
+            <div class="bon-summary-value bon-summary-value--lg">Rp 90.000</div>
+        </div>
+    </div>
+
+    <div class="bon-detail-actions">
+        <a class="bon-action bon-action--bayar" asp-controller="Bon" asp-action="Index">Catat pembayaran</a>
+        <a class="bon-action bon-action--barang" asp-controller="Bon" asp-action="Create">
+            <i class="bi bi-plus" aria-hidden="true"></i>
+            <span>Tambah barang</span>
+        </a>
+    </div>
+
+    <div class="bon-detail-section">
+        <div class="bon-detail-title">Riwayat pembayaran</div>
+        <div class="bon-history">
+            <div class="bon-history-row">
+                <div class="bon-history-info">
+                    <div class="bon-history-jenis">Cicilan 1</div>
+                    <div class="bon-history-date">12 Maret 2026</div>
+                </div>
+                <div class="bon-history-amount">Rp 50.000</div>
+            </div>
+            <hr class="page-rule" />
+        </div>
+    </div>
+
+    <div class="bon-detail-section">
+        <div class="bon-detail-title">Daftar barang</div>
+
+        <div class="bon-item">
+            <div class="bon-item-name">Beras Ramos 5 kg</div>
+            <div class="bon-item-rinci">Rp 78.000 × 1 karung</div>
+            <div class="bon-item-bottom">
+                <div class="bon-item-date">12 Maret 2026</div>
+                <div class="bon-item-sub">Rp 78.000</div>
+            </div>
+        </div>
+        <hr class="page-rule" />
+
+        <div class="bon-item">
+            <div class="bon-item-name">Minyak Goreng 2 L</div>
+            <div class="bon-item-rinci">Rp 34.000 × 1 botol</div>
+            <div class="bon-item-bottom">
+                <div class="bon-item-date">12 Maret 2026</div>
+                <div class="bon-item-sub">Rp 34.000</div>
+            </div>
+        </div>
+        <hr class="page-rule" />
+
+        <div class="bon-item">
+            <div class="bon-item-name">Telur Ayam</div>
+            <div class="bon-item-rinci">Rp 28.000 × 1 kg</div>
+            <div class="bon-item-bottom">
+                <div class="bon-item-date">15 Maret 2026</div>
+                <div class="bon-item-sub">Rp 28.000</div>
+            </div>
+        </div>
+        <hr class="page-rule" />
+
+        <div class="bon-item-total">
+            <div class="bon-item-total-label">Total belanja</div>
+            <div class="bon-item-total-value">Rp 140.000</div>
+        </div>
+    </div>
+</div>
+
