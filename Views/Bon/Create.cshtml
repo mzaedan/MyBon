@@ -59,61 +59,19 @@
 
     <div class="bon-daftar-head">
         <div class="bon-daftar-title">Daftar barang</div>
-        <div class="bon-tambah" aria-hidden="true">
+        <button type="button" id="tambahBarangBtn" class="bon-tambah" style="pointer-events: auto">
             <i class="bi bi-plus"></i>
             <span>Tambah barang</span>
-        </div>
+        </button>
     </div>
 
-    <div class="bon-line">
-        <div class="bon-field-with-icon">
-            <input type="hidden" id="barang" name="barang" value="" />
-            <button type="button"
-                    id="barangTrigger"
-                    class="bon-picker-trigger is-empty"
-                    aria-haspopup="dialog"
-                    aria-expanded="false"
-                    aria-controls="bonPicker">
-                <span id="barangTriggerLabel">Pilih barang</span>
-            </button>
-            <i class="bi bi-chevron-down bon-field-icon" aria-hidden="true"></i>
-        </div>
-        <hr class="page-rule" />
-
-        <div class="bon-line-metrics">
-            <div class="bon-line-col">
-                <div class="pelanggan-field-label">Harga</div>
-                <div class="bon-line-money" id="barangHarga">Rp 0</div>
-            </div>
-            <div class="bon-line-col bon-line-col--qty">
-                <label class="pelanggan-field-label" for="jumlah">Jumlah</label>
-                <input id="jumlah"
-                       type="number"
-                       name="jumlah"
-                       min="1"
-                       value="1"
-                       class="bon-line-qty" />
-            </div>
-            <div class="bon-line-col">
-                <div class="pelanggan-field-label">Satuan</div>
-                <div class="bon-line-satuan" id="barangSatuan">-</div>
-            </div>
-        </div>
-
-        <div class="bon-line-subtotal">
-            <div class="bon-line-col">
-                <div class="pelanggan-field-label">Subtotal</div>
-                <div class="bon-line-money">Rp 0</div>
-            </div>
-            <div class="bon-hapus" aria-hidden="true">
-                <i class="bi bi-trash"></i>
-            </div>
-        </div>
+    <div id="bonLinesContainer">
+        <!-- baris barang akan ditambahkan oleh JavaScript -->
     </div>
 
     <div class="bon-total-row">
         <div class="bon-total-label">Total belanja</div>
-        <div class="bon-total-value">Rp 0</div>
+        <div class="bon-total-value" id="totalBelanja">Rp 0</div>
     </div>
 
     <div class="pelanggan-form-actions">
@@ -123,6 +81,52 @@
         <button type="submit" class="pelanggan-btn pelanggan-btn-simpan">Simpan catatan</button>
     </div>
 </form>
+
+<template id="bonLineTemplate">
+    <div class="bon-line" data-line-index="">
+        <div class="bon-field-with-icon">
+            <input type="hidden" class="barang-hidden" value="" />
+            <button type="button"
+                    class="bon-picker-trigger is-empty barang-trigger"
+                    aria-haspopup="dialog"
+                    aria-expanded="false"
+                    aria-controls="bonPicker">
+                <span class="barang-trigger-label">Pilih barang</span>
+            </button>
+            <i class="bi bi-chevron-down bon-field-icon" aria-hidden="true"></i>
+        </div>
+        <hr class="page-rule" />
+
+        <div class="bon-line-metrics">
+            <div class="bon-line-col">
+                <div class="pelanggan-field-label">Harga</div>
+                <div class="bon-line-money barang-harga">Rp 0</div>
+            </div>
+            <div class="bon-line-col bon-line-col--qty">
+                <label class="pelanggan-field-label">Jumlah</label>
+                <input type="number"
+                       name="jumlah"
+                       min="1"
+                       value="1"
+                       class="bon-line-qty barang-jumlah" />
+            </div>
+            <div class="bon-line-col">
+                <div class="pelanggan-field-label">Satuan</div>
+                <div class="bon-line-satuan barang-satuan">-</div>
+            </div>
+        </div>
+
+        <div class="bon-line-subtotal">
+            <div class="bon-line-col">
+                <div class="pelanggan-field-label">Subtotal</div>
+                <div class="bon-line-money barang-subtotal">Rp 0</div>
+            </div>
+            <button type="button" class="bon-hapus hapus-barang" aria-label="Hapus barang" style="pointer-events: auto">
+                <i class="bi bi-trash" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</template>
 
 <div id="bonPicker" class="bon-picker" hidden>
     <div class="bon-picker-scrim" data-bon-picker-close></div>
@@ -219,18 +223,20 @@
     <script>
         (function () {
             var picker = document.getElementById("bonPicker");
-            var trigger = document.getElementById("barangTrigger");
-            var triggerLabel = document.getElementById("barangTriggerLabel");
-            var hidden = document.getElementById("barang");
-            var hargaEl = document.getElementById("barangHarga");
-            var satuanEl = document.getElementById("barangSatuan");
             var shell = document.querySelector(".app-shell");
-            if (!picker || !trigger || !shell) return;
+            var container = document.getElementById("bonLinesContainer");
+            var template = document.getElementById("bonLineTemplate");
+            var tambahBtn = document.getElementById("tambahBarangBtn");
+            var totalEl = document.getElementById("totalBelanja");
+
+            if (!picker || !shell || !container || !template || !tambahBtn) return;
 
             shell.appendChild(picker);
 
             var sheet = picker.querySelector(".bon-picker-sheet");
             var lastFocus = null;
+            var currentLine = null;
+            var lineCounter = 0;
 
             function focusables() {
                 return Array.prototype.slice.call(
@@ -238,11 +244,12 @@
                 );
             }
 
-            function openPicker() {
+            function openPicker(triggerBtn) {
+                currentLine = triggerBtn.closest(".bon-line");
                 lastFocus = document.activeElement;
                 picker.hidden = false;
                 picker.classList.add("is-open");
-                trigger.setAttribute("aria-expanded", "true");
+                triggerBtn.setAttribute("aria-expanded", "true");
                 var first = focusables()[0];
                 if (first) first.focus();
             }
@@ -250,21 +257,111 @@
             function closePicker() {
                 picker.hidden = true;
                 picker.classList.remove("is-open");
-                trigger.setAttribute("aria-expanded", "false");
-                if (lastFocus) lastFocus.focus();
+                if (lastFocus) {
+                    var trigger = lastFocus.closest(".bon-picker-trigger");
+                    if (trigger) trigger.setAttribute("aria-expanded", "false");
+                    lastFocus.focus();
+                }
             }
 
             function pick(item) {
+                if (!currentLine) return;
+
                 var nama = item.getAttribute("data-nama") || "";
-                hidden.value = nama;
-                triggerLabel.textContent = nama;
-                trigger.classList.remove("is-empty");
-                hargaEl.textContent = item.getAttribute("data-harga") || "Rp 0";
-                satuanEl.textContent = item.getAttribute("data-satuan") || "-";
+                var harga = item.getAttribute("data-harga") || "Rp 0";
+                var satuan = item.getAttribute("data-satuan") || "-";
+
+                var hidden = currentLine.querySelector(".barang-hidden");
+                var trigger = currentLine.querySelector(".barang-trigger");
+                var label = currentLine.querySelector(".barang-trigger-label");
+                var hargaEl = currentLine.querySelector(".barang-harga");
+                var satuanEl = currentLine.querySelector(".barang-satuan");
+
+                if (hidden) hidden.value = nama;
+                if (label) label.textContent = nama;
+                if (trigger) trigger.classList.remove("is-empty");
+                if (hargaEl) hargaEl.textContent = harga;
+                if (satuanEl) satuanEl.textContent = satuan;
+
+                hitungSubtotal(currentLine);
+                hitungTotalBelanja();
+                hitungSubtotal(currentLine);
+                hitungTotalBelanja();
                 closePicker();
             }
 
-            trigger.addEventListener("click", openPicker);
+            function hitungSubtotal(line) {
+                var hargaText = (line.querySelector(".barang-harga") || {}).textContent || "Rp 0";
+                var jumlah = parseInt((line.querySelector(".barang-jumlah") || {}).value, 10) || 1;
+                var angka = parseInt(hargaText.replace(/[^0-9]/g, ""), 10) || 0;
+                var subtotal = angka * jumlah;
+                var subEl = line.querySelector(".barang-subtotal");
+                if (subEl) subEl.textContent = "Rp " + subtotal.toLocaleString("id-ID");
+            }
+
+            function hitungTotalBelanja() {
+                var lines = container.querySelectorAll(".bon-line");
+                var total = 0;
+                lines.forEach(function (line) {
+                    var subText = (line.querySelector(".barang-subtotal") || {}).textContent || "Rp 0";
+                    total += parseInt(subText.replace(/[^0-9]/g, ""), 10) || 0;
+                });
+                totalEl.textContent = "Rp " + total.toLocaleString("id-ID");
+            }
+
+            function buatBaris() {
+                var index = lineCounter++;
+                var clone = template.content.cloneNode(true);
+                var lineDiv = clone.querySelector(".bon-line");
+                lineDiv.setAttribute("data-line-index", index);
+
+                var trigger = lineDiv.querySelector(".barang-trigger");
+                trigger.addEventListener("click", function () {
+                    openPicker(trigger);
+                });
+
+                var jumlahInput = lineDiv.querySelector(".barang-jumlah");
+                jumlahInput.addEventListener("input", function () {
+                    hitungSubtotal(lineDiv);
+                    hitungTotalBelanja();
+                });
+
+                var hapusBtn = lineDiv.querySelector(".hapus-barang");
+                hapusBtn.addEventListener("click", function () {
+                    if (container.querySelectorAll(".bon-line").length <= 1) {
+                        resetBaris(lineDiv);
+                        return;
+                    }
+                    lineDiv.remove();
+                    hitungTotalBelanja();
+                });
+
+                container.appendChild(clone);
+                return lineDiv;
+            }
+
+            function resetBaris(line) {
+                var hidden = line.querySelector(".barang-hidden");
+                var trigger = line.querySelector(".barang-trigger");
+                var label = line.querySelector(".barang-trigger-label");
+                var hargaEl = line.querySelector(".barang-harga");
+                var satuanEl = line.querySelector(".barang-satuan");
+                var jumlah = line.querySelector(".barang-jumlah");
+                var subEl = line.querySelector(".barang-subtotal");
+
+                if (hidden) hidden.value = "";
+                if (label) label.textContent = "Pilih barang";
+                if (trigger) trigger.classList.add("is-empty");
+                if (hargaEl) hargaEl.textContent = "Rp 0";
+                if (satuanEl) satuanEl.textContent = "-";
+                if (jumlah) jumlah.value = "1";
+                if (subEl) subEl.textContent = "Rp 0";
+                hitungTotalBelanja();
+            }
+
+            buatBaris();
+
+            tambahBtn.addEventListener("click", buatBaris);
 
             picker.addEventListener("click", function (event) {
                 if (event.target.closest("[data-bon-picker-close]")) {

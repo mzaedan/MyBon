@@ -805,17 +805,29 @@ a.bon-card:focus-visible {
   align-items: center;
   gap: 6px;
   height: 44px;
-  padding: 0 4px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--font);
   font-size: 14px;
   font-weight: 600;
   color: var(--text);
   white-space: nowrap;
+  cursor: pointer;
   pointer-events: none;
 }
 
 .bon-tambah .bi {
   font-size: 16px;
   line-height: 1;
+  color: var(--text);
+}
+
+.bon-tambah:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 .bon-line {
@@ -910,7 +922,12 @@ a.bon-card:focus-visible {
   justify-content: center;
   width: 44px;
   height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
   flex-shrink: 0;
+  cursor: pointer;
   pointer-events: none;
 }
 
@@ -918,6 +935,12 @@ a.bon-card:focus-visible {
   font-size: 20px;
   line-height: 1;
   color: var(--text);
+}
+
+.bon-hapus:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+  border-radius: 8px;
 }
 
 .bon-total-row {

@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      tailwind = { config: { corePlugins: { preflight: false } } };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree%3Awght%40300..900&family=Fraunces%3Awght%40100..900&family=Inter%3Awght%40100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *, ::before, ::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+      }
+    </style>
+
+    <style>
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body style="background-color: #FFFFFF">
+    <div
+      data-pencil-name="Detail Catat Bon"
+      class="box-border w-[390px] h-fit flex flex-col gap-0 justify-start items-start bg-[#FFFFFF] overflow-hidden"
+    >
+      <div
+        data-pencil-name="Status Bar"
+        class="box-border w-full h-[62px] shrink-0 flex flex-row gap-0 p-[0px_20px] justify-between items-center"
+      >
+        <div
+          data-pencil-name="Time"
+          class="text-[15px]/[normal] box-border text-[#000000] font-[Inter,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+        >
+          09.41
+        </div>
+        <div
+          data-pencil-name="Status Icons"
+          class="box-border w-fit shrink-0 h-fit flex flex-row gap-[6px] justify-start items-center"
+        >
+          <svg
+            data-pencil-name="Signal"
+            data-icon-name="cell-signal-full"
+            data-icon-set="phosphor"
+            viewBox="0 0 14 14"
+            preserveAspectRatio="xMidYMid meet"
+            xmlns="http://www.w3.org/2000/svg"
+            class="box-border w-[16px] shrink-0 h-[16px]"
+          >
+            <path
+              d="M10.82813 1.53125q-0.21875-0.05469-0.49219 0-0.27344 0.05469-0.4375 0.21875l-9.02344 9.02344q-0.16406 0.16406-0.21875 0.4375-0.05469 0.27344 0.02734 0.51953 0.08203 0.24609 0.30079 0.38281 0.21875 0.13672 0.49218 0.13672l9.02344 0q0.38281 0 0.62891-0.24609 0.24609-0.24609 0.24609-0.62891l0-9.02344q0-0.27344-0.13672-0.49218-0.13672-0.21875-0.41015-0.32813z m-6.01563 6.50781l1.3125-1.3125 0 4.64844-1.3125 0 0-3.33594z m-0.875 3.33594l-2.46094 0 2.46094-2.46094 0 2.46094z m3.0625-5.52344l1.3125-1.3125 0 6.83594-1.3125 0 0-5.52344z m3.5 5.52344l-1.3125 0 0-7.71094 1.3125-1.3125 0 9.02344z"
+              fill="#000000"
+            ></path>
+          </svg>
+          <svg
+            data-pencil-name="Wifi"
+            data-icon-name="wifi-high"
+            data-icon-set="phosphor"
+            viewBox="0 0 14 14"
+            preserveAspectRatio="xMidYMid meet"
+            xmlns="http://www.w3.org/2000/svg"
+            class="box-border w-[16px] shrink-0 h-[16px]"
+          >
+            <path
+              d="M9.24219 8.75q0.10938 0.16406 0.10937 0.32813 0 0.16406-0.13672 0.30078-0.13672 0.13672-0.30078 0.13672-0.16406 0-0.32812-0.10938-0.65625-0.65625-1.58594-0.65625-0.92969 0-1.58594 0.65625-0.21875 0.16406-0.46484 0.10938-0.24609-0.05469-0.30078-0.32813-0.05469-0.27344 0.10937-0.4375 0.65625-0.54688 1.44922-0.76563 0.79297-0.21875 1.58594 0.00001 0.79297 0.21875 1.44922 0.76562z m-2.24219-3.5q-1.14844 0-2.21484 0.4375-1.06641 0.4375-1.88672 1.20313-0.16406 0.21875-0.10938 0.46484 0.05469 0.24609 0.30078 0.30078 0.24609 0.05469 0.46485-0.10938 0.92969-0.92969 2.1875-1.25781 1.25781-0.32813 2.51562 0 1.25781 0.32813 2.1875 1.25782 0.16406 0.10938 0.38281 0.10937 0.21875 0 0.32813-0.27344 0.10938-0.27344-0.05469-0.49218-0.82031-0.76563-1.88672-1.20313-1.06641-0.4375-2.21484-0.4375z m5.96094-0.21875q-1.64063-1.58594-3.80078-2.13281-2.16016-0.54688-4.32032 0-2.16016 0.54688-3.80078 2.1875-0.10938 0.10938-0.10937 0.27344 0 0.16406 0.13672 0.30078 0.13672 0.13672 0.30078 0.13672 0.16406 0 0.32812-0.10938 1.42188-1.42188 3.36328-1.94141 1.94141-0.51953 3.88282 0 1.94141 0.51953 3.36328 1.94141 0.16406 0.10938 0.38281 0.10938 0.21875 0 0.32812-0.27344 0.10938-0.27344-0.05468-0.4375l0-0.05469z m-5.96094 5.25q-0.27344 0-0.46484 0.19141-0.19141 0.19141-0.19141 0.46484 0 0.27344 0.19141 0.46484 0.19141 0.19141 0.46484 0.19141 0.27344 0 0.46484-0.19141 0.19141-0.19141 0.19141-0.46484 0-0.27344-0.19141-0.46484-0.19141-0.19141-0.46484-0.19141z"
+              fill="#000000"
+            ></path>
+          </svg>
+          <svg
+            data-pencil-name="Battery"
+            data-icon-name="battery-full"
+            data-icon-set="phosphor"
+            viewBox="0 0 14 14"
+            preserveAspectRatio="xMidYMid meet"
+            xmlns="http://www.w3.org/2000/svg"
+            class="box-border w-[22px] shrink-0 h-[16px]"
+          >
+            <path
+              d="M14 5.25l0 3.5q0 0.16406-0.13672 0.30078-0.13672 0.13672-0.30078 0.13672-0.16406 0-0.30078-0.13672-0.13672-0.13672-0.13672-0.30078l0-3.5q0-0.16406 0.13672-0.30078 0.13672-0.13672 0.30078-0.13672 0.16406 0 0.30078 0.13672 0.13672 0.13672 0.13672 0.30078z m-1.75-1.3125l0 6.125q0 0.54688-0.38281 0.92969-0.38281 0.38281-0.92969 0.38281l-8.3125 0q-0.54688 0-0.92969-0.38281-0.38281-0.38281-0.38281-0.92969l0-6.125q0-0.54688 0.38281-0.92969 0.38281-0.38281 0.92969-0.38281l8.3125 0q0.54688 0 0.92969 0.38281 0.38281 0.38281 0.38281 0.92969z m-0.875 0q0-0.16406-0.13672-0.30078-0.13672-0.13672-0.30078-0.13672l-8.3125 0q-0.16406 0-0.30078 0.13672-0.13672 0.13672-0.13672 0.30078l0 6.125q0 0.16406 0.13672 0.30078 0.13672 0.13672 0.30078 0.13672l8.3125 0q0.16406 0 0.30078-0.13672 0.13672-0.13672 0.13672-0.30078l0-6.125z m-3.60938 0.4375q-0.16406 0-0.30078 0.13672-0.13672 0.13672-0.13672 0.30078l0 4.375q0 0.16406 0.13672 0.30078 0.13672 0.13672 0.32813 0.13672 0.19141 0 0.30078-0.13672 0.10938-0.13672 0.10937-0.30078l0-4.375q0-0.16406-0.10937-0.30078-0.10938-0.13672-0.32813-0.13672z m-1.96875 0q-0.21875 0-0.32812 0.13672-0.10938 0.13672-0.10938 0.30078l0 4.375q0 0.16406 0.10938 0.30078 0.10938 0.13672 0.30078 0.13672 0.19141 0 0.32813-0.13672 0.13672-0.13672 0.13671-0.30078l0-4.375q0-0.16406-0.13671-0.30078-0.13672-0.13672-0.30079-0.13672z m-2.02343 0q-0.21875 0-0.32813 0.13672-0.10938 0.13672-0.10937 0.30078l0 4.375q0 0.16406 0.10937 0.30078 0.10938 0.13672 0.30078 0.13672 0.19141 0 0.32813-0.13672 0.13672-0.13672 0.13672-0.30078l0-4.375q0-0.16406-0.13672-0.30078-0.13672-0.13672-0.30078-0.13672z m6.01562 0q-0.16406 0-0.30078 0.13672-0.13672 0.13672-0.13672 0.30078l0 4.375q0 0.16406 0.13672 0.30078 0.13672 0.13672 0.32813 0.13672 0.19141 0 0.30078-0.13672 0.10937-0.13672 0.10937-0.30078l0-4.375q0-0.16406-0.10937-0.30078-0.10938-0.13672-0.32813-0.13672z"
+              fill="#000000"
+            ></path>
+          </svg>
+        </div>
+      </div>
+      <div
+        data-pencil-name="Content"
+        class="box-border w-full h-fit shrink-0 flex flex-col gap-[24px] p-[8px_20px_24px_20px] justify-start items-start"
+      >
+        <div
+          data-pencil-name="Header"
+          class="box-border w-full h-fit shrink-0 flex flex-row gap-[8px] justify-start items-center"
+        >
+          <div
+            data-pencil-name="Back"
+            class="box-border w-[44px] shrink-0 h-[44px] flex flex-row gap-0 justify-center items-center"
+          >
+            <svg
+              data-pencil-name="Back Icon"
+              data-icon-name="caret-left"
+              data-icon-set="phosphor"
+              viewBox="0 0 14 14"
+              preserveAspectRatio="xMidYMid meet"
+              xmlns="http://www.w3.org/2000/svg"
+              class="box-border w-[22px] shrink-0 h-[22px]"
+            >
+              <path
+                d="M8.75 11.8125q-0.16406 0-0.32813-0.10938l-4.375-4.375q-0.10938-0.16406-0.10937-0.32812 0-0.16406 0.10937-0.32813l4.375-4.375q0.16406-0.10938 0.32813-0.08203 0.16406 0.02734 0.27344 0.13672 0.10938 0.10938 0.13672 0.27344 0.02734 0.16406-0.08204 0.32812l-4.10156 4.04688 4.10156 4.04688q0.10938 0.16406 0.10938 0.32812 0 0.16406-0.13672 0.30078-0.13672 0.13672-0.30078 0.13672z"
+                fill="#000000"
+              ></path>
+            </svg>
+          </div>
+          <div
+            data-pencil-name="Header Text"
+            class="box-border w-fit shrink-0 h-fit flex flex-col gap-[2px] justify-start items-start"
+          >
+            <div
+              data-pencil-name="Shop"
+              class="text-[12px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              MY BON
+            </div>
+            <div
+              data-pencil-name="Screen Title"
+              class="text-[22px]/[normal] box-border text-[#000000] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              BN-014
+            </div>
+          </div>
+        </div>
+        <div
+          data-pencil-name="Rule Top"
+          class="box-border w-full h-[1px] shrink-0 bg-[#E5E5E5]"
+        ></div>
+        <div
+          data-pencil-name="Bon Meta"
+          class="box-border w-full h-fit shrink-0 flex flex-col gap-[4px] justify-start items-start"
+        >
+          <div
+            data-pencil-name="Nama Pelanggan"
+            class="text-[16px]/[normal] box-border text-[#000000] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+          >
+            Siti Aminah
+          </div>
+          <div
+            data-pencil-name="Bon Meta Line"
+            class="text-[13px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+          >
+            12 Maret 2026 · Belum lunas
+          </div>
+        </div>
+        <div
+          data-pencil-name="Ringkasan"
+          class="box-border w-full h-fit shrink-0 flex flex-col gap-[10px] p-[14px] justify-start items-start bg-[#FFFFFF] [outline:1px_solid_#E5E5E5] [outline-offset:-0.5px] rounded-[10px]"
+        >
+          <div
+            data-pencil-name="Ringkasan Title"
+            class="text-[12px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+          >
+            Ringkasan
+          </div>
+          <div
+            data-pencil-name="Total Belanja"
+            class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-between items-center"
+          >
+            <div
+              data-pencil-name="Total Belanja Label"
+              class="text-[14px]/[normal] box-border text-[#000000] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Total belanja
+            </div>
+            <div
+              data-pencil-name="Total Belanja Value"
+              class="text-[16px]/[normal] box-border text-[#000000] font-[Fraunces,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+            >
+              Rp 140.000
+            </div>
+          </div>
+          <div
+            data-pencil-name="Total Bayar"
+            class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-between items-center"
+          >
+            <div
+              data-pencil-name="Total Bayar Label"
+              class="text-[14px]/[normal] box-border text-[#000000] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Total bayar
+            </div>
+            <div
+              data-pencil-name="Total Bayar Value"
+              class="text-[16px]/[normal] box-border text-[#000000] font-[Fraunces,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+            >
+              Rp 50.000
+            </div>
+          </div>
+          <div
+            data-pencil-name="Ringkasan Rule"
+            class="box-border w-full h-[1px] shrink-0 bg-[#E5E5E5]"
+          ></div>
+          <div
+            data-pencil-name="Sisa Hutang"
+            class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-between items-center"
+          >
+            <div
+              data-pencil-name="Sisa Hutang Label"
+              class="text-[14px]/[normal] box-border text-[#000000] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Sisa hutang
+            </div>
+            <div
+              data-pencil-name="Sisa Hutang Value"
+              class="text-[20px]/[normal] box-border text-[#000000] font-[Fraunces,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+            >
+              Rp 90.000
+            </div>
+          </div>
+        </div>
+        <div
+          data-pencil-name="Aksi Bon"
+          class="box-border w-full h-fit shrink-0 flex flex-row gap-[12px] justify-start items-start"
+        >
+          <div
+            data-pencil-name="Catat Bayar Button"
+            class="box-border [flex:1_1_0] h-[48px] flex flex-row gap-0 p-[14px_16px] justify-center items-center bg-[#000000] rounded-[8px]"
+          >
+            <div
+              data-pencil-name="Catat Bayar Label"
+              class="text-[15px]/[normal] box-border text-[#FFFFFF] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+            >
+              Catat pembayaran
+            </div>
+          </div>
+          <div
+            data-pencil-name="Tambah Barang Button"
+            class="box-border [flex:1_1_0] h-[48px] flex flex-row gap-[6px] p-[14px_16px] justify-center items-center bg-[#1877F2] rounded-[8px]"
+          >
+            <svg
+              data-pencil-name="Tambah Ikon"
+              data-icon-name="plus"
+              data-icon-set="phosphor"
+              viewBox="0 0 14 14"
+              preserveAspectRatio="xMidYMid meet"
+              xmlns="http://www.w3.org/2000/svg"
+              class="box-border w-[16px] shrink-0 h-[16px]"
+            >
+              <path
+                d="M12.25 7q0 0.16406-0.13672 0.30078-0.13672 0.13672-0.30078 0.13672l-4.375 0 0 4.375q0 0.16406-0.13672 0.30078-0.13672 0.13672-0.30078 0.13672-0.16406 0-0.30078-0.13672-0.13672-0.13672-0.13672-0.30078l0-4.375-4.375 0q-0.16406 0-0.30078-0.13672-0.13672-0.13672-0.13672-0.30078 0-0.16406 0.13672-0.30078 0.13672-0.13672 0.30078-0.13672l4.375 0 0-4.375q0-0.16406 0.13672-0.30078 0.13672-0.13672 0.30078-0.13672 0.16406 0 0.30078 0.13672 0.13672 0.13672 0.13672 0.30078l0 4.375 4.375 0q0.16406 0 0.30078 0.13672 0.13672 0.13672 0.13672 0.30078z"
+                fill="#FFFFFF"
+              ></path>
+            </svg>
+            <div
+              data-pencil-name="Tambah Barang Label"
+              class="text-[15px]/[normal] box-border text-[#FFFFFF] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+            >
+              Tambah barang
+            </div>
+          </div>
+        </div>
+        <div
+          data-pencil-name="Riwayat Bayar"
+          class="box-border w-full h-fit shrink-0 flex flex-col gap-[8px] justify-start items-start"
+        >
+          <div
+            data-pencil-name="Riwayat Title"
+            class="text-[15px]/[normal] box-border text-[#000000] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+          >
+            Riwayat pembayaran
+          </div>
+          <div
+            data-pencil-name="Bayar 1"
+            class="box-border w-full h-fit shrink-0 flex flex-row gap-0 p-[12px_0px] justify-between items-center"
+          >
+            <div
+              data-pencil-name="Bayar 1 Info"
+              class="box-border [flex:1_1_0] h-fit flex flex-col gap-[2px] justify-start items-start"
+            >
+              <div
+                data-pencil-name="Bayar 1 Jenis"
+                class="text-[15px]/[normal] box-border text-[#000000] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+              >
+                Cicilan 1
+              </div>
+              <div
+                data-pencil-name="Bayar 1 Tgl"
+                class="text-[12px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+              >
+                12 Maret 2026
+              </div>
+            </div>
+            <div
+              data-pencil-name="Bayar 1 Jumlah"
+              class="text-[16px]/[normal] box-border text-[#000000] font-[Fraunces,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+            >
+              Rp 50.000
+            </div>
+          </div>
+          <div
+            data-pencil-name="Bayar Rule"
+            class="box-border w-full h-[1px] shrink-0 bg-[#E5E5E5]"
+          ></div>
+        </div>
+        <div
+          data-pencil-name="Daftar Barang"
+          class="box-border w-full h-fit shrink-0 flex flex-col gap-0 justify-start items-start"
+        >
+          <div
+            data-pencil-name="Daftar Title"
+            class="text-[15px]/[normal] box-border text-[#000000] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+          >
+            Daftar barang
+          </div>
+          <div
+            data-pencil-name="Beras Ramos 5 kg"
+            class="box-border w-full h-fit shrink-0 flex flex-col gap-[6px] p-[14px_0px] justify-start items-start"
+          >
+            <div
+              data-pencil-name="Beras Ramos 5 kg Nama"
+              class="text-[15px]/[normal] box-border text-[#000000] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+            >
+              Beras Ramos 5 kg
+            </div>
+            <div
+              data-pencil-name="Beras Ramos 5 kg Rinci"
+              class="text-[13px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Rp 78.000 × 1 karung
+            </div>
+            <div
+              data-pencil-name="Beras Ramos 5 kg Bawah"
+              class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-between items-center"
+            >
+              <div
+                data-pencil-name="Beras Ramos 5 kg Tgl"
+                class="text-[12px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+              >
+                12 Maret 2026
+              </div>
+              <div
+                data-pencil-name="Beras Ramos 5 kg Sub"
+                class="text-[16px]/[normal] box-border text-[#000000] font-[Fraunces,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+              >
+                Rp 78.000
+              </div>
+            </div>
+          </div>
+          <div
+            data-pencil-name="Beras Ramos 5 kg Rule"
+            class="box-border w-full h-[1px] shrink-0 bg-[#E5E5E5]"
+          ></div>
+          <div
+            data-pencil-name="Minyak Goreng 2 L"
+            class="box-border w-full h-fit shrink-0 flex flex-col gap-[6px] p-[14px_0px] justify-start items-start"
+          >
+            <div
+              data-pencil-name="Minyak Goreng 2 L Nama"
+              class="text-[15px]/[normal] box-border text-[#000000] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+            >
+              Minyak Goreng 2 L
+            </div>
+            <div
+              data-pencil-name="Minyak Goreng 2 L Rinci"
+              class="text-[13px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Rp 34.000 × 1 botol
+            </div>
+            <div
+              data-pencil-name="Minyak Goreng 2 L Bawah"
+              class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-between items-center"
+            >
+              <div
+                data-pencil-name="Minyak Goreng 2 L Tgl"
+                class="text-[12px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+              >
+                12 Maret 2026
+              </div>
+              <div
+                data-pencil-name="Minyak Goreng 2 L Sub"
+                class="text-[16px]/[normal] box-border text-[#000000] font-[Fraunces,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+              >
+                Rp 34.000
+              </div>
+            </div>
+          </div>
+          <div
+            data-pencil-name="Minyak Goreng 2 L Rule"
+            class="box-border w-full h-[1px] shrink-0 bg-[#E5E5E5]"
+          ></div>
+          <div
+            data-pencil-name="Telur Ayam"
+            class="box-border w-full h-fit shrink-0 flex flex-col gap-[6px] p-[14px_0px] justify-start items-start"
+          >
+            <div
+              data-pencil-name="Telur Ayam Nama"
+              class="text-[15px]/[normal] box-border text-[#000000] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+            >
+              Telur Ayam
+            </div>
+            <div
+              data-pencil-name="Telur Ayam Rinci"
+              class="text-[13px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Rp 28.000 × 1 kg
+            </div>
+            <div
+              data-pencil-name="Telur Ayam Bawah"
+              class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-between items-center"
+            >
+              <div
+                data-pencil-name="Telur Ayam Tgl"
+                class="text-[12px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+              >
+                15 Maret 2026
+              </div>
+              <div
+                data-pencil-name="Telur Ayam Sub"
+                class="text-[16px]/[normal] box-border text-[#000000] font-[Fraunces,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+              >
+                Rp 28.000
+              </div>
+            </div>
+          </div>
+          <div
+            data-pencil-name="Telur Ayam Rule"
+            class="box-border w-full h-[1px] shrink-0 bg-[#E5E5E5]"
+          ></div>
+          <div
+            data-pencil-name="Total Belanja Footer"
+            class="box-border w-full h-fit shrink-0 flex flex-row gap-0 p-[14px_0px] justify-between items-center"
+          >
+            <div
+              data-pencil-name="Total Footer Label"
+              class="text-[15px]/[normal] box-border text-[#000000] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+            >
+              Total belanja
+            </div>
+            <div
+              data-pencil-name="Total Footer Value"
+              class="text-[18px]/[normal] box-border text-[#000000] font-[Fraunces,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+            >
+              Rp 140.000
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        data-pencil-name="Tab Wrap"
+        class="box-border w-full h-fit shrink-0 flex flex-row gap-0 p-[0px_16px] justify-start items-start"
+      >
+        <div
+          data-pencil-name="Tab Bar"
+          class="box-border [flex:1_1_0] h-fit flex flex-row gap-0 p-[6px_4px] justify-start items-start bg-[#FFFFFF] [outline:1px_solid_#E5E5E5] [outline-offset:-0.5px] rounded-[16px]"
+        >
+          <div
+            data-pencil-name="Dashboard"
+            class="box-border [flex:1_1_0] h-fit flex flex-col gap-[3px] p-[10px_4px] justify-center items-center"
+          >
+            <svg
+              data-pencil-name="Icon"
+              data-icon-name="house"
+              data-icon-set="phosphor"
+              viewBox="0 0 14 14"
+              preserveAspectRatio="xMidYMid meet"
+              xmlns="http://www.w3.org/2000/svg"
+              class="box-border w-[22px] h-[22px] shrink-0"
+            >
+              <path
+                d="M11.375 12.25l-2.625 0q-0.38281 0-0.62891-0.24609-0.24609-0.24609-0.24609-0.62891l0-2.625-1.75 0 0 2.625q0 0.38281-0.24609 0.62891-0.24609 0.24609-0.62891 0.24609l-2.625 0q-0.38281 0-0.62891-0.24609-0.24609-0.24609-0.24609-0.62891l0-5.08594q0-0.38281 0.27344-0.60156l4.375-3.99219q0.27344-0.21875 0.60156-0.21875 0.32813 0 0.60156 0.21875l4.375 3.99219q0.27344 0.21875 0.27344 0.60156l0 5.08594q0 0.38281-0.24609 0.62891-0.24609 0.24609-0.62891 0.24609z m-5.25-4.375l1.75 0q0.38281 0 0.62891 0.24609 0.24609 0.24609 0.24609 0.62891l0 2.625 2.625 0 0-5.08594-4.375-3.9375-4.375 3.9375 0 5.08594 2.625 0 0-2.625q0-0.38281 0.24609-0.62891 0.24609-0.24609 0.62891-0.24609z"
+                fill="#5C5C5C"
+              ></path>
+            </svg>
+            <div
+              data-pencil-name="Label"
+              class="text-[10px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Dashboard
+            </div>
+          </div>
+          <div
+            data-pencil-name="Pelanggan"
+            class="box-border [flex:1_1_0] h-fit flex flex-col gap-[3px] p-[10px_4px] justify-center items-center"
+          >
+            <svg
+              data-pencil-name="Icon"
+              data-icon-name="users"
+              data-icon-set="phosphor"
+              viewBox="0 0 14 14"
+              preserveAspectRatio="xMidYMid meet"
+              xmlns="http://www.w3.org/2000/svg"
+              class="box-border w-[22px] h-[22px] shrink-0"
+            >
+              <path
+                d="M6.61719 8.64063q0.92969-0.60156 1.28515-1.61329 0.35547-1.01172 0.05469-2.05078-0.30078-1.03906-1.17578-1.69531-0.875-0.65625-1.96875-0.65625-1.09375 0-1.96875 0.65625-0.875 0.65625-1.17578 1.69531-0.30078 1.03906 0.05469 2.05078 0.35547 1.01172 1.28515 1.61329-1.53125 0.54688-2.46093 1.91406-0.21875 0.21875-0.10938 0.46484 0.10938 0.24609 0.38281 0.2461 0.27344 0 0.38282-0.21875 0.65625-0.875 1.58593-1.36719 0.92969-0.49219 2.02344-0.49219 1.09375 0 2.02344 0.49219 0.92969 0.49219 1.53125 1.36719 0.16406 0.21875 0.4375 0.21875 0.27344 0 0.38281-0.2461 0.10938-0.24609-0.05469-0.46484-0.98438-1.36719-2.51562-1.91406z m-4.21094-2.73438q0-0.98438 0.71094-1.69531 0.71094-0.71094 1.69531-0.71094 0.98438 0 1.69531 0.71094 0.71094 0.71094 0.71094 1.69531 0 0.98438-0.71094 1.69531-0.71094 0.71094-1.69531 0.71094-0.98438 0-1.69531-0.71094-0.71094-0.71094-0.71094-1.69531z m11.04688 5.25q-0.16406 0.10938-0.32813 0.08203-0.16406-0.02734-0.27344-0.1914-0.60156-0.875-1.55859-1.36719-0.95703-0.49219-1.99609-0.49219-0.21875 0-0.32813-0.13672-0.10938-0.13672-0.10938-0.30078 0-0.16406 0.10938-0.30078 0.10938-0.13672 0.32812-0.13672 0.98438 0 1.69532-0.71094 0.71094-0.71094 0.68359-1.69531-0.02734-0.98438-0.71094-1.69531-0.68359-0.71094-1.72265-0.71094-0.32813 0-0.60157 0.10938-0.21875 0.05469-0.35546-0.05469-0.13672-0.10938-0.19141-0.27344-0.05469-0.16406 0.02734-0.32812 0.08203-0.16406 0.2461-0.21875 0.4375-0.10938 0.92968-0.10938 1.03906 0 1.91407 0.65625 0.875 0.65625 1.20312 1.69531 0.32813 1.03906-0.05469 2.05078-0.38281 1.01172-1.25781 1.61328 1.53125 0.54688 2.46094 1.91407 0.10938 0.16406 0.08203 0.32812-0.02734 0.16406-0.1914 0.27344z"
+                fill="#5C5C5C"
+              ></path>
+            </svg>
+            <div
+              data-pencil-name="Label"
+              class="text-[10px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Pelanggan
+            </div>
+          </div>
+          <div
+            data-pencil-name="Barang"
+            class="box-border [flex:1_1_0] h-fit flex flex-col gap-[3px] p-[10px_4px] justify-center items-center"
+          >
+            <svg
+              data-pencil-name="Icon"
+              data-icon-name="package"
+              data-icon-set="phosphor"
+              viewBox="0 0 14 14"
+              preserveAspectRatio="xMidYMid meet"
+              xmlns="http://www.w3.org/2000/svg"
+              class="box-border w-[22px] h-[22px] shrink-0"
+            >
+              <path
+                d="M12.57813 3.88281q-0.10938-0.21875-0.32813-0.32812l-4.8125-2.73438q-0.4375-0.21875-0.875 0l-4.8125 2.73438q-0.16406 0.10938-0.32813 0.32812-0.10938 0.21875-0.10937 0.4375l0 5.35938q0 0.27344 0.13672 0.46484 0.13672 0.19141 0.30078 0.30078l4.8125 2.73438q0.21875 0.10937 0.38281 0.10937l0.10938 0q0.21875 0 0.38281-0.10937l4.8125-2.73438q0.21875-0.10937 0.32813-0.30078 0.10938-0.19141 0.10937-0.46484l0-5.35938q0-0.27344-0.10937-0.4375z m-5.57813-2.29687l4.375 2.46094-1.69531 0.92968-4.375-2.40625 1.69531-0.98437z m0.05469 4.92187l-4.375-2.46094 1.69531-0.98437 4.42969 2.46094-1.75 0.98437z m-4.86719-1.69531l4.42969 2.46094-0.05469 4.86719-4.375-2.46094 0-4.86719z m5.25 7.32813l0.05469-4.86719 1.75-1.03906 0 2.07812q0 0.21875 0.13672 0.32813 0.13672 0.10938 0.30078 0.10937 0.16406 0 0.30078-0.10937 0.13672-0.10938 0.13672-0.27344l0-2.625 1.69531-0.92969 0 4.86719-4.375 2.46094z"
+                fill="#5C5C5C"
+              ></path>
+            </svg>
+            <div
+              data-pencil-name="Label"
+              class="text-[10px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Barang
+            </div>
+          </div>
+          <div
+            data-pencil-name="Catat Bon"
+            class="box-border [flex:1_1_0] h-fit flex flex-col gap-[3px] p-[10px_4px] justify-center items-center"
+          >
+            <svg
+              data-pencil-name="Icon"
+              data-icon-name="notepad"
+              data-icon-set="phosphor"
+              viewBox="0 0 14 14"
+              preserveAspectRatio="xMidYMid meet"
+              xmlns="http://www.w3.org/2000/svg"
+              class="box-border w-[22px] h-[22px] shrink-0"
+            >
+              <path
+                d="M9.1875 7q0 0.16406-0.13672 0.30078-0.13672 0.13672-0.30078 0.13672l-3.5 0q-0.16406 0-0.30078-0.13672-0.13672-0.13672-0.13672-0.30078 0-0.16406 0.13672-0.30078 0.13672-0.13672 0.30078-0.13672l3.5 0q0.16406 0 0.30078 0.13672 0.13672 0.13672 0.13672 0.30078z m-0.4375 1.3125l-3.5 0q-0.16406 0-0.30078 0.13672-0.13672 0.13672-0.13672 0.30078 0 0.16406 0.13672 0.30078 0.13672 0.13672 0.30078 0.13672l3.5 0q0.16406 0 0.30078-0.13672 0.13672-0.13672 0.13672-0.30078 0-0.16406-0.13672-0.30078-0.13672-0.13672-0.30078-0.13672z m3.0625-5.6875l0 8.3125q0 0.71094-0.51953 1.23047-0.51953 0.51953-1.23047 0.51953l-6.125 0q-0.71094 0-1.23047-0.51953-0.51953-0.51953-0.51953-1.23047l0-8.3125q0-0.38281 0.24609-0.62891 0.24609-0.24609 0.62891-0.24609l0.875 0 0-0.4375q0-0.16406 0.13672-0.30078 0.13672-0.13672 0.30078-0.13672 0.16406 0 0.30078 0.13672 0.13672 0.13672 0.13672 0.30078l0 0.4375 1.75 0 0-0.4375q0-0.16406 0.13672-0.30078 0.13672-0.13672 0.30078-0.13672 0.16406 0 0.30078 0.13672 0.13672 0.13672 0.13672 0.30078l0 0.4375 1.75 0 0-0.4375q0-0.16406 0.13672-0.30078 0.13672-0.13672 0.30078-0.13672 0.16406 0 0.30078 0.13672 0.13672 0.13672 0.13672 0.30078l0 0.4375 0.875 0q0.38281 0 0.62891 0.24609 0.24609 0.24609 0.24609 0.62891z m-0.875 0l-0.875 0 0 0.4375q0 0.16406-0.13672 0.30078-0.13672 0.13672-0.30078 0.13672-0.16406 0-0.30078-0.13672-0.13672-0.13672-0.13672-0.30078l0-0.4375-1.75 0 0 0.4375q0 0.16406-0.13672 0.30078-0.13672 0.13672-0.30078 0.13672-0.16406 0-0.30078-0.13672-0.13672-0.13672-0.13672-0.30078l0-0.4375-1.75 0 0 0.4375q0 0.16406-0.13672 0.30078-0.13672 0.13672-0.30078 0.13672-0.16406 0-0.30078-0.13672-0.13672-0.13672-0.13672-0.30078l0-0.4375-0.875 0 0 8.3125q0 0.38281 0.24609 0.62891 0.24609 0.24609 0.62891 0.24609l6.125 0q0.38281 0 0.62891-0.24609 0.24609-0.24609 0.24609-0.62891l0-8.3125z"
+                fill="#1877F2"
+              ></path>
+            </svg>
+            <div
+              data-pencil-name="Label"
+              class="text-[10px]/[normal] box-border text-[#1877F2] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Catat Bon
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
