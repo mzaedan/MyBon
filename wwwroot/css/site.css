@@ -563,6 +563,77 @@ a.pelanggan-btn-simpan {
   color: #ffffff;
 }
 
+/* ── Pelanggan empty state ── */
+.pelanggan-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 100%;
+  padding-bottom: 24px;
+}
+
+.pelanggan-empty-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+}
+
+.pelanggan-empty-art {
+  width: 220px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pelanggan-empty-lottie {
+  width: 200px;
+  height: 200px;
+}
+
+.pelanggan-empty-copy {
+  margin: 0;
+  font-size: 15px;
+  line-height: 21px;
+  font-weight: 400;
+  color: var(--text);
+  text-align: center;
+  max-width: 280px;
+}
+
+.pelanggan-empty-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 14px 16px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.pelanggan-empty-btn:hover {
+  opacity: 0.92;
+}
+
+.pelanggan-empty-btn:active {
+  opacity: 0.85;
+}
+
+.pelanggan-empty-btn:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
 .barang-page {
   display: flex;
   flex-direction: column;

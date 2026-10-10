@@ -4,38 +4,81 @@
     ViewData["Title"] = "Pelanggan";
 }
 
-<div class="pelanggan-page">
-    <hr class="page-rule" />
-
-    <div class="pelanggan-search" aria-hidden="true">
-        <div class="pelanggan-search-row">
-            <i class="bi bi-search pelanggan-search-icon"></i>
-            <span class="pelanggan-search-text">Cari nama</span>
-        </div>
+@if (Model.Count == 0)
+{
+    @* ── Empty state ── *@
+    <div class="pelanggan-empty">
         <hr class="page-rule" />
-    </div>
 
-    <div class="pelanggan-list-title">@Model.Count nama di buku</div>
+        <div class="pelanggan-empty-body">
+            <div class="pelanggan-empty-art">
+                @* Notebook animation (Lottie) *@
+                <div class="pelanggan-empty-lottie" id="lottie-notebook"></div>
+            </div>
 
-    <div class="pelanggan-cards">
-        @foreach (var p in Model)
-        {
-            <a class="pelanggan-card" asp-controller="Pelanggan" asp-action="Details" asp-route-id="@p.Id">
-                <div class="pelanggan-card-name">@p.Nama</div>
-                @if (!string.IsNullOrEmpty(p.NomorHp))
-                {
-                    <div class="pelanggan-card-meta">@p.NomorHp</div>
-                }
-                @if (!string.IsNullOrEmpty(p.Alamat))
-                {
-                    <div class="pelanggan-card-meta">@p.Alamat</div>
-                }
+            <p class="pelanggan-empty-copy">
+                Belum ada nama di buku. Tulis nama, nomor HP, dan alamat pelanggan.
+            </p>
+
+            <a class="pelanggan-empty-btn" asp-controller="Pelanggan" asp-action="Create">
+                Tulis nama baru
             </a>
-        }
-
-        <button type="button" class="pelanggan-load-more">Muat nama berikutnya</button>
+        </div>
     </div>
+}
+else
+{
+    @* ── Populated state ── *@
+    <div class="pelanggan-page">
+        <hr class="page-rule" />
 
-    <a class="cta-catat-bon" asp-controller="Pelanggan" asp-action="Create">Tulis nama baru</a>
+        <div class="pelanggan-search" aria-hidden="true">
+            <div class="pelanggan-search-row">
+                <i class="bi bi-search pelanggan-search-icon"></i>
+                <span class="pelanggan-search-text">Cari nama</span>
+            </div>
+            <hr class="page-rule" />
+        </div>
 
-</div>
+        <div class="pelanggan-list-title">@Model.Count nama di buku</div>
+
+        <div class="pelanggan-cards">
+            @foreach (var p in Model)
+            {
+                <a class="pelanggan-card" asp-controller="Pelanggan" asp-action="Details" asp-route-id="@p.Id">
+                    <div class="pelanggan-card-name">@p.Nama</div>
+                    @if (!string.IsNullOrEmpty(p.NomorHp))
+                    {
+                        <div class="pelanggan-card-meta">@p.NomorHp</div>
+                    }
+                    @if (!string.IsNullOrEmpty(p.Alamat))
+                    {
+                        <div class="pelanggan-card-meta">@p.Alamat</div>
+                    }
+                </a>
+            }
+
+            <button type="button" class="pelanggan-load-more">Muat nama berikutnya</button>
+        </div>
+
+        <a class="cta-catat-bon" asp-controller="Pelanggan" asp-action="Create">Tulis nama baru</a>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var animContainer = document.getElementById('lottie-notebook');
+            if (animContainer) {
+                lottie.loadAnimation({
+                    container: animContainer,
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: true,
+                    path: '/lottie/Notebook with Pencil Icon Animation.json'
+                });
+            }
+        });
+    </script>
+}
