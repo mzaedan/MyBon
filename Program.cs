@@ -1,7 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+using MyBon.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Register DbContext
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("MyBonConnection")));
+
 
 var app = builder.Build();
 
