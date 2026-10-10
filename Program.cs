@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MyBon.Data;
+using MyBon.Domain.Interface;
+using MyBon.Domain.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,9 @@ builder.Services.AddControllersWithViews();
 // Register DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("MyBonConnection")));
+
+// Register services
+builder.Services.AddScoped<IPelangganService, PelangganService>();
 
 
 var app = builder.Build();

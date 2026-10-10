@@ -1,5 +1,7 @@
+@model MyBon.Models.Pelanggan
+
 @{
-    ViewData["Title"] = "Siti Aminah";
+    ViewData["Title"] = Model.Nama;
     ViewData["BackHref"] = Url.Action("Index", "Pelanggan");
 }
 
@@ -8,19 +10,19 @@
 <div class="pelanggan-form">
     <div class="pelanggan-field">
         <div class="pelanggan-field-label">Nama</div>
-        <p class="pelanggan-field-value">Siti Aminah</p>
+        <p class="pelanggan-field-value">@Model.Nama</p>
         <hr class="page-rule" />
     </div>
 
     <div class="pelanggan-field">
         <div class="pelanggan-field-label">Nomor HP</div>
-        <p class="pelanggan-field-value">0812 3456 7890</p>
+        <p class="pelanggan-field-value">@(Model.NomorHp ?? "—")</p>
         <hr class="page-rule" />
     </div>
 
     <div class="pelanggan-field">
         <div class="pelanggan-field-label">Alamat</div>
-        <p class="pelanggan-field-value">Jl. Melati No. 12, Sukajadi</p>
+        <p class="pelanggan-field-value">@(Model.Alamat ?? "—")</p>
         <hr class="page-rule" />
     </div>
 
