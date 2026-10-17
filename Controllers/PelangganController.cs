@@ -9,9 +9,15 @@ public class PelangganController(IPelangganService pelangganService) : BaseContr
     private readonly IPelangganService _pelangganService = pelangganService;
 
     public async Task<IActionResult> Index()
-        => ToActionResult(await _pelangganService.GetAllAsync(), data => View(data));
+    {
+        var result = await _pelangganService.GetAllAsync();
+        return ToActionResult(result, data => View(data));
+    }
 
-    public IActionResult Create() => View(new CreatePelangganRequest());
+    public IActionResult Create()
+    {
+        return View(new CreatePelangganRequest());
+    }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -37,11 +43,14 @@ public class PelangganController(IPelangganService pelangganService) : BaseContr
     }
 
     public async Task<IActionResult> Details(int id)
-        => ToActionResult(await _pelangganService.GetByIdAsync(id), pelanggan =>
+    {
+        var result = await _pelangganService.GetByIdAsync(id);
+        return ToActionResult(result, pelanggan =>
         {
             ViewData["Title"] = pelanggan.Nama;
             ViewData["BackHref"] = Url.Action(nameof(Index), "Pelanggan");
 
             return View(pelanggan);
         });
+    }
 }

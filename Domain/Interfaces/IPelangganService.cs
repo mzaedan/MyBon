@@ -9,7 +9,7 @@ namespace MyBon.Domain.Interfaces;
 /// </summary>
 public interface IPelangganService
 {
-    /// <summary>Returns every customer, ordered by name.</summary>
+    /// <summary>Returns every customer, ordered by entry date (newest first).</summary>
     Task<ErrorOr<IReadOnlyList<Pelanggan>>> GetAllAsync();
 
     /// <summary>Returns the customer with the given identifier.</summary>

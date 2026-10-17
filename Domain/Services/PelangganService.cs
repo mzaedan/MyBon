@@ -22,7 +22,7 @@ public class PelangganService(
     public async Task<ErrorOr<IReadOnlyList<Pelanggan>>> GetAllAsync()
     {
         var pelanggans = await _dbContext.Pelanggans
-            .OrderBy(p => p.Nama)
+            .OrderByDescending(p => p.CreatedAt)
             .AsNoTracking()
             .ToListAsync();
 
