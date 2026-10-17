@@ -1,0 +1,32 @@
+@model MyBon.Domain.Entities.Pelanggan
+
+@{
+    ViewData["Title"] = "Hapus dari buku";
+    ViewData["BackHref"] = Url.Action("Details", "Pelanggan", new { id = Model.Id });
+}
+
+<hr class="page-rule" />
+
+<div class="pelanggan-delete">
+    <div class="pelanggan-delete-body">
+        <div class="pelanggan-delete-art">
+            <div class="pelanggan-delete-lottie" id="lottie-trash"></div>
+        </div>
+
+        <p class="pelanggan-delete-copy">Nama, nomor HP, dan alamat hilang dari daftar.</p>
+    </div>
+
+    <form method="post" asp-action="Delete" class="pelanggan-form-actions pelanggan-delete-actions">
+        <input type="hidden" asp-for="Id" />
+        <a class="pelanggan-btn pelanggan-btn-batal"
+           asp-controller="Pelanggan"
+           asp-action="Details"
+           asp-route-id="@Model.Id">Batal</a>
+        <button type="submit" class="pelanggan-btn pelanggan-btn-simpan">Hapus data</button>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <script src="~/custom/features/pelanggan/delete.js" asp-append-version="true"></script>
+}

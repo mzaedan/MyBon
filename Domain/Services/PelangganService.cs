@@ -81,6 +81,69 @@ public class PelangganService(
             "Pelanggan tersimpan di buku", pelanggan);
     }
 
+    public async Task<ErrorOr<Pelanggan>> UpdateAsync(int id, UpdatePelangganRequest request)
+    {
+        var pelanggan = await _dbContext.Pelanggans
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (pelanggan is null)
+            return ErrorOr<Pelanggan>.CreateFailure(
+                "Pelanggan tidak ditemukan", ErrorType.NotFound);
+
+        pelanggan.Nama = (request.Nama ?? string.Empty).Trim();
+        pelanggan.NomorHp = Normalize(request.NomorHp);
+        pelanggan.Alamat = Normalize(request.Alamat);
+
+        if (pelanggan.Nama.Length == 0)
+            return ErrorOr<Pelanggan>.CreateValidationFailure(new Dictionary<string, string[]>
+            {
+                ["Nama"] = ["Nama wajib diisi"]
+            });
+
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+        catch (Exception ex) when (IsDatabaseFailure(ex))
+        {
+            _logger.LogError(ex, "Gagal memperbarui pelanggan {Id}.", id);
+
+            return ErrorOr<Pelanggan>.CreateFailure(
+                "Gagal memperbarui pelanggan. Coba simpan lagi.", ErrorType.Unexpected);
+        }
+
+        return ErrorOr<Pelanggan>.CreateSuccess(
+            "Data pelanggan diperbarui", pelanggan);
+    }
+
+    public async Task<ErrorOr> DeleteAsync(int id)
+    {
+        var pelanggan = await _dbContext.Pelanggans
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (pelanggan is null)
+            return ErrorOr.CreateFailure(
+                "Pelanggan tidak ditemukan", ErrorType.NotFound);
+
+        _dbContext.Pelanggans.Remove(pelanggan);
+
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+        catch (Exception ex) when (IsDatabaseFailure(ex))
+        {
+            _dbContext.Entry(pelanggan).State = EntityState.Detached;
+            _logger.LogError(ex, "Gagal menghapus pelanggan {Id}.", id);
+
+            return ErrorOr.CreateFailure(
+                "Gagal menghapus pelanggan. Coba hapus lagi.", ErrorType.Unexpected);
+        }
+
+        return ErrorOr.CreateSuccess(
+            "Pelanggan dihapus dari buku");
+    }
+
     private static string? Normalize(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 

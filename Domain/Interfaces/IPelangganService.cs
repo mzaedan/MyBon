@@ -17,4 +17,10 @@ public interface IPelangganService
 
     /// <summary>Persists a new customer built from <paramref name="request"/>.</summary>
     Task<ErrorOr<Pelanggan>> CreateAsync(CreatePelangganRequest request);
+
+    /// <summary>Updates an existing customer identified by <paramref name="id"/> using <paramref name="request"/>.</summary>
+    Task<ErrorOr<Pelanggan>> UpdateAsync(int id, UpdatePelangganRequest request);
+
+    /// <summary>Deletes the customer with the given identifier.</summary>
+    Task<ErrorOr> DeleteAsync(int id);
 }

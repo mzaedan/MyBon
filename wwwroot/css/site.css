@@ -663,6 +663,52 @@ a.pelanggan-btn-simpan {
   outline-offset: 2px;
 }
 
+/* ── Pelanggan delete confirmation ── */
+.pelanggan-delete {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 100%;
+  padding-bottom: 24px;
+}
+
+.pelanggan-delete-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+}
+
+.pelanggan-delete-art {
+  width: 220px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pelanggan-delete-lottie {
+  width: 180px;
+  height: 180px;
+}
+
+.pelanggan-delete-copy {
+  margin: 0;
+  font-size: 15px;
+  line-height: 21px;
+  font-weight: 400;
+  color: var(--text);
+  text-align: center;
+  max-width: 280px;
+}
+
+.pelanggan-delete-actions {
+  margin-top: 0;
+}
+
 .barang-page {
   display: flex;
   flex-direction: column;

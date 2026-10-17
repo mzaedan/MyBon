@@ -29,9 +29,11 @@
     <div class="pelanggan-form-actions">
         <a class="pelanggan-btn pelanggan-btn-batal"
            asp-controller="Pelanggan"
-           asp-action="Index">Ubah data</a>
+           asp-action="Edit"
+           asp-route-id="@Model.Id">Ubah data</a>
         <a class="pelanggan-btn pelanggan-btn-simpan"
            asp-controller="Pelanggan"
-           asp-action="Index">Hapus dari buku</a>
+           asp-action="Delete"
+           asp-route-id="@Model.Id">Hapus dari buku</a>
     </div>
 </div>
