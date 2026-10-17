@@ -3,9 +3,11 @@
 @{
     ViewData["Title"] = "Pelanggan";
     var status = TempData["PelangganStatus"] as string;
+    var query = (ViewData["SearchQuery"] as string ?? string.Empty).Trim();
+    var isSearching = query.Length > 0;
 }
 
-@if (Model.Count == 0)
+@if (Model.Count == 0 && !isSearching)
 {
     @* Empty state *@
     <div class="pelanggan-empty">
@@ -28,6 +30,10 @@
 }
 else
 {
+    var countTitle = isSearching
+        ? $"{Model.Count} nama cocok"
+        : $"{Model.Count} nama di buku";
+
     @* Populated state *@
     <div class="pelanggan-page">
         <hr class="page-rule" />
@@ -37,41 +43,20 @@ else
             <p class="pelanggan-notice" role="status">@status</p>
         }
 
-        <div class="pelanggan-search" aria-hidden="true">
+        <form class="pelanggan-search" method="get" asp-controller="Pelanggan" asp-action="Index" role="search">
             <div class="pelanggan-search-row">
-                <i class="bi bi-search pelanggan-search-icon"></i>
-                <span class="pelanggan-search-text">Cari nama</span>
+                <i class="bi bi-search pelanggan-search-icon" aria-hidden="true"></i>
+                <input class="pelanggan-search-input" id="pelanggan-search-input" type="search" name="q"
+                       value="@query" placeholder="Cari nama" autocomplete="off"
+                       aria-label="Cari nama pelanggan" />
             </div>
             <hr class="page-rule" />
-        </div>
+        </form>
 
-        <div class="pelanggan-list-title">@Model.Count nama di buku</div>
+        <div class="pelanggan-list-title@(Model.Count == 0 ? " pelanggan-hidden" : "")" id="pelanggan-list-title">@countTitle</div>
 
-        <div class="pelanggan-cards" id="pelanggan-cards">
-            @{
-                const int pageSize = 8;
-                var index = 0;
-            }
-            @foreach (var p in Model)
-            {
-                <a class="pelanggan-card@(index >= pageSize ? " pelanggan-card--hidden" : "")" asp-controller="Pelanggan" asp-action="Details" asp-route-id="@p.Id">
-                    <div class="pelanggan-card-name">@p.Nama</div>
-                    @if (!string.IsNullOrEmpty(p.NomorHp))
-                    {
-                        <div class="pelanggan-card-meta">@p.NomorHp</div>
-                    }
-                    @if (!string.IsNullOrEmpty(p.Alamat))
-                    {
-                        <div class="pelanggan-card-meta">@p.Alamat</div>
-                    }
-                </a>
-                index++;
-            }
-
-            @if (Model.Count > pageSize)
-            {
-                <button type="button" class="pelanggan-load-more" id="pelanggan-load-more">Muat nama berikutnya</button>
-            }
+        <div class="pelanggan-card-stack" id="pelanggan-card-stack" data-search-url="@(Url.Action("Search", "Pelanggan"))">
+            <partial name="_Cards" model="Model" />
         </div>
 
         <a class="cta-catat-bon" asp-controller="Pelanggan" asp-action="Create">Tulis nama baru</a>

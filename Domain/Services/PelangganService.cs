@@ -16,6 +16,9 @@ public class PelangganService(
     AppDbContext dbContext,
     ILogger<PelangganService> logger) : IPelangganService
 {
+    /// <summary>Escape character handed to Postgres ILIKE so a typed <c>%</c> or <c>_</c> matches literally.</summary>
+    private const string LikeEscapeCharacter = "\\";
+
     private readonly AppDbContext _dbContext = dbContext;
     private readonly ILogger<PelangganService> _logger = logger;
 
@@ -28,6 +31,29 @@ public class PelangganService(
 
         return ErrorOr<IReadOnlyList<Pelanggan>>.CreateSuccess(
             "Berhasil memuat daftar pelanggan", pelanggans);
+    }
+
+    public async Task<ErrorOr<IReadOnlyList<Pelanggan>>> SearchAsync(string? keyword)
+    {
+        var term = Normalize(keyword);
+
+        if (term is null)
+            return await GetAllAsync();
+
+        // Only the customer name is searched; the phone number and address are never matched.
+        var pattern = ToLikePattern(term);
+
+        var pelanggans = await _dbContext.Pelanggans
+            .Where(p => EF.Functions.ILike(p.Nama, pattern, LikeEscapeCharacter))
+            .OrderByDescending(p => p.CreatedAt)
+            .AsNoTracking()
+            .ToListAsync();
+
+        return ErrorOr<IReadOnlyList<Pelanggan>>.CreateSuccess(
+            pelanggans.Count == 0
+                ? $"Tidak ada pelanggan yang cocok dengan \"{term}\""
+                : $"Ditemukan {pelanggans.Count} pelanggan",
+            pelanggans);
     }
 
     public async Task<ErrorOr<Pelanggan>> GetByIdAsync(int id)
@@ -143,6 +169,10 @@ public class PelangganService(
         return ErrorOr.CreateSuccess(
             "Pelanggan dihapus dari buku");
     }
+
+    /// <summary>Wraps <paramref name="term"/> in wildcards, escaping the wildcards the user typed.</summary>
+    private static string ToLikePattern(string term) =>
+        $"%{term.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_")}%";
 
     private static string? Normalize(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();

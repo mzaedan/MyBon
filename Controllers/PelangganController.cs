@@ -10,10 +10,28 @@ public class PelangganController(IPelangganService pelangganService) : BaseContr
 {
     private readonly IPelangganService _pelangganService = pelangganService;
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? q)
     {
-        var result = await _pelangganService.GetAllAsync();
+        var result = await _pelangganService.SearchAsync(q);
+        ViewData["SearchQuery"] = q?.Trim();
+
         return ToActionResult(result, data => View(data));
+    }
+
+    public async Task<IActionResult> Search(string? q)
+    {
+        var result = await _pelangganService.SearchAsync(q);
+
+        if (IsAjaxRequest)
+        {
+            if (!result.Success || result.Data is null)
+                return Json(result);
+
+            return PartialView("_Cards", result.Data);
+        }
+
+        ViewData["SearchQuery"] = q?.Trim();
+        return ToActionResult(result, data => View(nameof(Index), data));
     }
 
     public IActionResult Create()

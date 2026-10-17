@@ -373,12 +373,44 @@ a.cta-catat-bon {
   color: var(--muted);
 }
 
+.pelanggan-search-input {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.pelanggan-search-input::placeholder {
+  color: var(--muted);
+}
+
+.pelanggan-search-input:focus {
+  outline: none;
+}
+
+/* The rule under the row carries the focus state; the bare input has no outline of its own. */
+.pelanggan-search-row:focus-within .page-rule {
+  background: var(--text);
+}
+
 .pelanggan-list-title,
 .barang-list-title,
 .bon-list-title {
   font-size: 13px;
   font-weight: 600;
   color: var(--muted);
+}
+
+.pelanggan-card-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .pelanggan-cards {
@@ -410,6 +442,11 @@ a.pelanggan-card:focus-visible {
 }
 
 .pelanggan-card--hidden {
+  display: none;
+}
+
+/* Toggled by the live search in custom/features/pelanggan/index.js. */
+.pelanggan-hidden {
   display: none;
 }
 
@@ -586,6 +623,13 @@ a.pelanggan-btn-simpan {
 }
 
 .pelanggan-notice {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.pelanggan-search-empty {
   margin: 0;
   font-size: 15px;
   line-height: 1.4;

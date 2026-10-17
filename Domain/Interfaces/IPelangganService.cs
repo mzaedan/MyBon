@@ -12,6 +12,13 @@ public interface IPelangganService
     /// <summary>Returns every customer, ordered by entry date (newest first).</summary>
     Task<ErrorOr<IReadOnlyList<Pelanggan>>> GetAllAsync();
 
+    /// <summary>
+    /// Returns every customer whose name contains <paramref name="keyword"/>,
+    /// ordered by entry date (newest first). Phone numbers and addresses are not
+    /// searched. A blank keyword returns the whole notebook.
+    /// </summary>
+    Task<ErrorOr<IReadOnlyList<Pelanggan>>> SearchAsync(string? keyword);
+
     /// <summary>Returns the customer with the given identifier.</summary>
     Task<ErrorOr<Pelanggan>> GetByIdAsync(int id);
 
