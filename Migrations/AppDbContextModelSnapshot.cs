@@ -22,7 +22,7 @@ namespace MyBon.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("MyBon.Models.Pelanggan", b =>
+            modelBuilder.Entity("MyBon.Domain.Entities.Pelanggan", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

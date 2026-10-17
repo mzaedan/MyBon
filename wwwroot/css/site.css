@@ -409,6 +409,10 @@ a.pelanggan-card:focus-visible {
   outline-offset: 2px;
 }
 
+.pelanggan-card--hidden {
+  display: none;
+}
+
 
 
 .pelanggan-card-name {
@@ -561,6 +565,31 @@ a.pelanggan-btn-batal {
 
 a.pelanggan-btn-simpan {
   color: #ffffff;
+}
+
+.pelanggan-field-error {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #B00020;
+}
+
+.pelanggan-field-error.field-validation-valid,
+.pelanggan-field-error.validation-summary-valid {
+  display: none;
+}
+
+.pelanggan-field:has(.input-validation-error) .page-rule {
+  background: #B00020;
+}
+
+.pelanggan-notice {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--muted);
 }
 
 /* ── Pelanggan empty state ── */

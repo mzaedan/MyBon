@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MyBon.Data;
-using MyBon.Domain.Interface;
-using MyBon.Domain.Service;
+using MyBon.Domain.Interfaces;
+using MyBon.Domain.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

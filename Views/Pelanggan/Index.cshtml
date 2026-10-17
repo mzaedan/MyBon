@@ -1,18 +1,18 @@
-@model IReadOnlyList<Pelanggan>
+@model IReadOnlyList<MyBon.Domain.Entities.Pelanggan>
 
 @{
     ViewData["Title"] = "Pelanggan";
+    var status = TempData["PelangganStatus"] as string;
 }
 
 @if (Model.Count == 0)
 {
-    @* ── Empty state ── *@
+    @* Empty state *@
     <div class="pelanggan-empty">
         <hr class="page-rule" />
 
         <div class="pelanggan-empty-body">
             <div class="pelanggan-empty-art">
-                @* Notebook animation (Lottie) *@
                 <div class="pelanggan-empty-lottie" id="lottie-notebook"></div>
             </div>
 
@@ -28,9 +28,14 @@
 }
 else
 {
-    @* ── Populated state ── *@
+    @* Populated state *@
     <div class="pelanggan-page">
         <hr class="page-rule" />
+
+        @if (!string.IsNullOrWhiteSpace(status))
+        {
+            <p class="pelanggan-notice" role="status">@status</p>
+        }
 
         <div class="pelanggan-search" aria-hidden="true">
             <div class="pelanggan-search-row">
@@ -42,10 +47,14 @@ else
 
         <div class="pelanggan-list-title">@Model.Count nama di buku</div>
 
-        <div class="pelanggan-cards">
+        <div class="pelanggan-cards" id="pelanggan-cards">
+            @{
+                const int pageSize = 8;
+                var index = 0;
+            }
             @foreach (var p in Model)
             {
-                <a class="pelanggan-card" asp-controller="Pelanggan" asp-action="Details" asp-route-id="@p.Id">
+                <a class="pelanggan-card@(index >= pageSize ? " pelanggan-card--hidden" : "")" asp-controller="Pelanggan" asp-action="Details" asp-route-id="@p.Id">
                     <div class="pelanggan-card-name">@p.Nama</div>
                     @if (!string.IsNullOrEmpty(p.NomorHp))
                     {
@@ -56,9 +65,13 @@ else
                         <div class="pelanggan-card-meta">@p.Alamat</div>
                     }
                 </a>
+                index++;
             }
 
-            <button type="button" class="pelanggan-load-more">Muat nama berikutnya</button>
+            @if (Model.Count > pageSize)
+            {
+                <button type="button" class="pelanggan-load-more" id="pelanggan-load-more">Muat nama berikutnya</button>
+            }
         </div>
 
         <a class="cta-catat-bon" asp-controller="Pelanggan" asp-action="Create">Tulis nama baru</a>
@@ -67,18 +80,5 @@ else
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var animContainer = document.getElementById('lottie-notebook');
-            if (animContainer) {
-                lottie.loadAnimation({
-                    container: animContainer,
-                    renderer: 'svg',
-                    loop: true,
-                    autoplay: true,
-                    path: '/lottie/Notebook with Pencil Icon Animation.json'
-                });
-            }
-        });
-    </script>
+    <script src="~/custom/features/pelanggan/index.js" asp-append-version="true"></script>
 }

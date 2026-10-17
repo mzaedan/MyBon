@@ -1,3 +1,5 @@
+@model CreatePelangganRequest
+
 @{
     ViewData["Title"] = "Nama baru";
     ViewData["BackHref"] = Url.Action("Index", "Pelanggan");
@@ -5,39 +7,39 @@
 
 <hr class="page-rule" />
 
-<form method="get" asp-action="Create" class="pelanggan-form">
+<form method="post" asp-action="Create" class="pelanggan-form">
+    <div asp-validation-summary="ModelOnly" class="pelanggan-field-error" role="alert"></div>
+
     <div class="pelanggan-field">
-        <label class="pelanggan-field-label" for="nama">Nama</label>
-        <input id="nama"
+        <label class="pelanggan-field-label" asp-for="Nama">Nama</label>
+        <input asp-for="Nama"
                type="text"
-               name="nama"
                class="pelanggan-field-input"
                placeholder="Tulis nama"
-               autocomplete="name"
-               value="" />
+               autocomplete="name" />
+        <span asp-validation-for="Nama" class="pelanggan-field-error"></span>
         <hr class="page-rule" />
     </div>
 
     <div class="pelanggan-field">
-        <label class="pelanggan-field-label" for="nomorHp">Nomor HP</label>
-        <input id="nomorHp"
+        <label class="pelanggan-field-label" asp-for="NomorHp">Nomor HP</label>
+        <input asp-for="NomorHp"
                type="tel"
-               name="nomorHp"
                class="pelanggan-field-input"
                placeholder="Tulis nomor HP"
-               autocomplete="tel"
-               value="" />
+               autocomplete="tel" />
+        <span asp-validation-for="NomorHp" class="pelanggan-field-error"></span>
         <hr class="page-rule" />
     </div>
 
     <div class="pelanggan-field">
-        <label class="pelanggan-field-label" for="alamat">Alamat</label>
-        <textarea id="alamat"
-                  name="alamat"
+        <label class="pelanggan-field-label" asp-for="Alamat">Alamat</label>
+        <textarea asp-for="Alamat"
                   class="pelanggan-field-input pelanggan-field-textarea"
                   placeholder="Tulis alamat"
                   rows="2"
                   autocomplete="street-address"></textarea>
+        <span asp-validation-for="Alamat" class="pelanggan-field-error"></span>
         <hr class="page-rule" />
     </div>
 
@@ -48,3 +50,7 @@
         <button type="submit" class="pelanggan-btn pelanggan-btn-simpan">Simpan pelanggan</button>
     </div>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

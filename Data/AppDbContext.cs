@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyBon.Models;
+using MyBon.Domain.Entities;
 
 namespace MyBon.Data;
 
