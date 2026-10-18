@@ -9,15 +9,12 @@ namespace MyBon.Domain.Interfaces;
 /// </summary>
 public interface IPelangganService
 {
-    /// <summary>Returns every customer, ordered by entry date (newest first).</summary>
-    Task<ErrorOr<IReadOnlyList<Pelanggan>>> GetAllAsync();
-
     /// <summary>
-    /// Returns every customer whose name contains <paramref name="keyword"/>,
-    /// ordered by entry date (newest first). Phone numbers and addresses are not
-    /// searched. A blank keyword returns the whole notebook.
+    /// Returns one page of the customers whose name contains <paramref name="keyword"/>, ordered by entry
+    /// date (newest first). Phone numbers and addresses are not searched. A blank keyword reads as the whole
+    /// notebook. Paging runs in the database, so a request never loads the rows it does not paint.
     /// </summary>
-    Task<ErrorOr<IReadOnlyList<Pelanggan>>> SearchAsync(string? keyword);
+    Task<ErrorOr<PagedResult<Pelanggan>>> SearchAsync(string? keyword, int page);
 
     /// <summary>Returns the customer with the given identifier.</summary>
     Task<ErrorOr<Pelanggan>> GetByIdAsync(int id);

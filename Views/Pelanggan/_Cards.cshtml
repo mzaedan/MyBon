@@ -1,15 +1,11 @@
-@model IReadOnlyList<MyBon.Domain.Entities.Pelanggan>
+@model MyBon.Models.Common.PagedResult<MyBon.Domain.Entities.Pelanggan>
 
-@{
-    // The live search script reads this back, so the reveal size stays in one place.
-    const int pageSize = 8;
-    var index = 0;
-}
-
-<div class="pelanggan-cards" id="pelanggan-cards" data-page-size="@pageSize">
-    @foreach (var pelanggan in Model)
+@* The search and load-more scripts read the total back, so the list title keeps reporting every match
+   while this page paints only the rows it was handed. *@
+<div class="pelanggan-cards" id="pelanggan-cards" data-total="@Model.Total">
+    @foreach (var pelanggan in Model.Items)
     {
-        <a class="pelanggan-card@(index >= pageSize ? " pelanggan-card--hidden" : "")" asp-controller="Pelanggan" asp-action="Details" asp-route-id="@pelanggan.Id">
+        <a class="pelanggan-card" asp-controller="Pelanggan" asp-action="Details" asp-route-id="@pelanggan.Id">
             <div class="pelanggan-card-name">@pelanggan.Nama</div>
             @if (!string.IsNullOrEmpty(pelanggan.NomorHp))
             {
@@ -20,16 +16,17 @@
                 <div class="pelanggan-card-meta">@pelanggan.Alamat</div>
             }
         </a>
-        index++;
     }
 </div>
 
-@if (Model.Count == 0)
+@if (Model.Total == 0)
 {
     <p class="pelanggan-search-empty">Belum ada nama yang cocok. Coba kata kunci lain.</p>
 }
 
-@if (Model.Count > pageSize)
+@if (Model.HasMore)
 {
-    <button type="button" class="pelanggan-load-more" id="pelanggan-load-more">Muat nama berikutnya</button>
+    @* A plain button: the next page comes from the server, and the server marks the last page by
+       not rendering this button at all. *@
+    <button type="button" class="pelanggan-load-more" id="pelanggan-load-more" data-next-page="@(Model.Page + 1)">Muat nama berikutnya</button>
 }

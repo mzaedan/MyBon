@@ -447,10 +447,10 @@ a.pelanggan-card:focus-visible {
   outline-offset: 2px;
 }
 
-/* Toggled by the load-more buttons in custom/features/pelanggan/index.js and barang/index.js.
-   The class is doubled on purpose: `.pelanggan-card` and `.barang-card` both set `display: flex`
-   further down the file, so a one-class selector with the same specificity would lose the cascade. */
-.pelanggan-card.pelanggan-card--hidden,
+/* Toggled by the load-more button in custom/features/barang/index.js.
+   The class is doubled on purpose: `.barang-card` sets `display: flex`
+   further down the file, so a one-class selector with the same specificity would lose the cascade.
+   The Pelanggan twin is gone: that list now fetches its next page from the server. */
 .barang-card.barang-card--hidden {
   display: none;
 }

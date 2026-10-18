@@ -5,6 +5,8 @@ Source: `d:\coding\Design\CatatHutang-export.html` (screen `data-pencil-name="Pe
 App: ASP.NET Core MVC MyBon  
 Depends on: shell already in `_Layout.cshtml` (header MY BON + title, four-tab bottom nav)
 
+> Update: **Muat nama berikutnya** is no longer visual only, so this slice's "no extra rows" constraint is superseded. The button keeps its look (`.pelanggan-load-more`, 44px, 8px radius, 1px black outline, Figtree semibold 15px) and is still a `<button type="button">`, but clicking it now asks the server for the next eight names instead of revealing cards the first paint already carried. `Views/Pelanggan/_Cards.cshtml` paints one `PagedResult<Pelanggan>` page and renders the button only while more rows exist. See `docs/plans/plan-pelanggan-muat-berikutnya-backend.md`.
+
 ## Goal
 
 Replace the Pelanggan placeholder with a static visual slice of the export list: search row, count line, ten customer cards, and a **Tulis nama baru** button. Layout and static UI only.

@@ -4,6 +4,8 @@ Date: 2026-10-17
 App: ASP.NET Core MVC MyBon  
 Depends on: Pelanggan list slice (`Views/Pelanggan/Index.cshtml`), `IPelangganService`, `BaseController`, `wwwroot/custom/features/pelanggan/index.js`
 
+> Update: paging on the server is no longer out of scope, so the non-goal below is superseded. `IPelangganService.SearchAsync(keyword, page)` returns `PagedResult<Pelanggan>` (`Items`, `Total`, `Page`, `PageSize`, `HasMore`) and `GetAllAsync` is gone; `Index` paints page 1 and `Search(q, page = 1)` serves every later page. The count line reads the server's `Total` (carried as `data-total` on the card container), not the number of cards in the DOM, and **Muat nama berikutnya** fetches the next page and appends it. See `docs/plans/plan-pelanggan-muat-berikutnya-backend.md`.
+
 ## Goal
 
 Make the list search row real: type a name and the card list narrows as you type, without leaving `/Pelanggan`.

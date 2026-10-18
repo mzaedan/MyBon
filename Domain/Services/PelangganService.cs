@@ -19,41 +19,54 @@ public class PelangganService(
     /// <summary>Escape character handed to Postgres ILIKE so a typed <c>%</c> or <c>_</c> matches literally.</summary>
     private const string LikeEscapeCharacter = "\\";
 
+    /// <summary>
+    /// Rows painted per request. The client only sends the page number, so a caller cannot ask
+    /// the database for the whole notebook.
+    /// </summary>
+    private const int PageSize = 8;
+
     private readonly AppDbContext _dbContext = dbContext;
     private readonly ILogger<PelangganService> _logger = logger;
 
-    public async Task<ErrorOr<IReadOnlyList<Pelanggan>>> GetAllAsync()
-    {
-        var pelanggans = await _dbContext.Pelanggans
-            .OrderByDescending(p => p.CreatedAt)
-            .AsNoTracking()
-            .ToListAsync();
-
-        return ErrorOr<IReadOnlyList<Pelanggan>>.CreateSuccess(
-            "Berhasil memuat daftar pelanggan", pelanggans);
-    }
-
-    public async Task<ErrorOr<IReadOnlyList<Pelanggan>>> SearchAsync(string? keyword)
+    public async Task<ErrorOr<PagedResult<Pelanggan>>> SearchAsync(string? keyword, int page)
     {
         var term = Normalize(keyword);
+        var currentPage = page < 1 ? 1 : page;
 
-        if (term is null)
-            return await GetAllAsync();
+        var query = _dbContext.Pelanggans.AsNoTracking();
 
-        // Only the customer name is searched; the phone number and address are never matched.
-        var pattern = ToLikePattern(term);
+        if (term is not null)
+        {
+            // Only the customer name is searched; the phone number and address are never matched.
+            var pattern = ToLikePattern(term);
+            query = query.Where(p => EF.Functions.ILike(p.Nama, pattern, LikeEscapeCharacter));
+        }
 
-        var pelanggans = await _dbContext.Pelanggans
-            .Where(p => EF.Functions.ILike(p.Nama, pattern, LikeEscapeCharacter))
+        // CreatedAt alone ties when rows are written in the same tick, so Id breaks the tie and keeps
+        // the order stable across requests; without it a page could repeat or skip a customer.
+        var ordered = query
             .OrderByDescending(p => p.CreatedAt)
-            .AsNoTracking()
+            .ThenByDescending(p => p.Id);
+
+        var total = await ordered.CountAsync();
+        var pelanggans = await ordered
+            .Skip((currentPage - 1) * PageSize)
+            .Take(PageSize)
             .ToListAsync();
 
-        return ErrorOr<IReadOnlyList<Pelanggan>>.CreateSuccess(
-            pelanggans.Count == 0
-                ? $"Tidak ada pelanggan yang cocok dengan \"{term}\""
-                : $"Ditemukan {pelanggans.Count} pelanggan",
-            pelanggans);
+        return ErrorOr<PagedResult<Pelanggan>>.CreateSuccess(
+            term is null
+                ? "Berhasil memuat daftar pelanggan"
+                : total == 0
+                    ? $"Tidak ada pelanggan yang cocok dengan \"{term}\""
+                    : $"Ditemukan {total} pelanggan",
+            new PagedResult<Pelanggan>
+            {
+                Items = pelanggans,
+                Total = total,
+                Page = currentPage,
+                PageSize = PageSize
+            });
     }
 
     public async Task<ErrorOr<Pelanggan>> GetByIdAsync(int id)

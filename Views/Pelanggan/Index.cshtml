@@ -1,4 +1,4 @@
-@model IReadOnlyList<MyBon.Domain.Entities.Pelanggan>
+@model MyBon.Models.Common.PagedResult<MyBon.Domain.Entities.Pelanggan>
 
 @{
     ViewData["Title"] = "Pelanggan";
@@ -7,7 +7,7 @@
     var isSearching = query.Length > 0;
 }
 
-@if (Model.Count == 0 && !isSearching)
+@if (Model.Total == 0 && !isSearching)
 {
     @* Empty state *@
     <div class="pelanggan-empty">
@@ -30,9 +30,10 @@
 }
 else
 {
+    // The total, not the page: the list reports every match while it paints eight at a time.
     var countTitle = isSearching
-        ? $"{Model.Count} nama cocok"
-        : $"{Model.Count} nama di buku";
+        ? $"{Model.Total} nama cocok"
+        : $"{Model.Total} nama di buku";
 
     @* Populated state *@
     <div class="pelanggan-page">
@@ -53,7 +54,7 @@ else
             <hr class="page-rule" />
         </form>
 
-        <div class="pelanggan-list-title@(Model.Count == 0 ? " pelanggan-hidden" : "")" id="pelanggan-list-title">@countTitle</div>
+        <div class="pelanggan-list-title@(Model.Total == 0 ? " pelanggan-hidden" : "")" id="pelanggan-list-title">@countTitle</div>
 
         <div class="pelanggan-card-stack" id="pelanggan-card-stack" data-search-url="@(Url.Action("Search", "Pelanggan"))">
             <partial name="_Cards" model="Model" />
