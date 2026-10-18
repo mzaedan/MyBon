@@ -809,6 +809,48 @@ a.pelanggan-btn-simpan {
   white-space: nowrap;
 }
 
+/* ── Barang empty state ── */
+.barang-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 100%;
+  padding-bottom: 24px;
+}
+
+.barang-empty-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+}
+
+.barang-empty-art {
+  width: 220px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.barang-empty-lottie {
+  width: 200px;
+  height: 200px;
+}
+
+.barang-empty-copy {
+  margin: 0;
+  font-size: 15px;
+  line-height: 21px;
+  font-weight: 400;
+  color: var(--text);
+  text-align: center;
+  max-width: 280px;
+}
+
 .bon-page {
   display: flex;
   flex-direction: column;

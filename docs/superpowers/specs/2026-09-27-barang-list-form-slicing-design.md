@@ -123,6 +123,8 @@ No ViewModels. `Index()` and `Create()` return `View()` with no arguments.
 
 List always shows the eight mockup rows. Form always shows the empty form. Do not add empty, loading, or error UI on these two pages. Existing `HomeController.Error` is unchanged.
 
+> Superseded for the list: `/Barang` now reads from the database and carries an empty state. See `2026-10-18-barang-empty-state-design.md`.
+
 ## Verification
 
 With `dotnet watch run`:
