@@ -86,3 +86,5 @@ With `dotnet watch run`:
 ## Non-goals
 
 Soft delete, undo, typed confirmation, per-customer copy, redirect targets other than the list, Tailwind utilities from the export, pixel-perfect Phosphor icons.
+
+> Update: the **Hapus data** submit now wears `.pelanggan-btn pelanggan-btn-hapus`, the shared `#B00020` destructive red, instead of `.pelanggan-btn-simpan` accent blue; this supersedes the blue-accent constraint above. **Batal** stays `.pelanggan-btn-batal` black, and the POST, `TempData["PelangganStatus"]`, and redirect behaviour are unchanged. See `docs/plans/plan-tombol-hapus-merah.md`.

@@ -604,6 +604,16 @@ a.pelanggan-btn-simpan {
   color: #ffffff;
 }
 
+/* Destructive action: the notebook's error red (#B00020), shared by every Hapus entry point. */
+.pelanggan-btn-hapus {
+  background: #B00020;
+  color: #ffffff;
+}
+
+a.pelanggan-btn-hapus {
+  color: #ffffff;
+}
+
 .pelanggan-field-error {
   margin: 0;
   padding: 0;

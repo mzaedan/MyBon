@@ -79,3 +79,5 @@ With `dotnet watch run` and the Postgres container up:
 ## Non-goals
 
 Item delete, live search on `/Barang`, stock or quantity, item photo, barcode, price history, `UpdatedAt`, Bon lines for the item, printing or sharing the sheet.
+
+> Update: the sheet now carries a second action, **Hapus barang**, so it matches the Pelanggan sheet's two-button row and supersedes the one-action constraint above. The button is an entry point only: no `Delete` action, no `DeleteAsync`, and no confirmation screen exist yet, so `/Barang/Delete/{id}` is a 404 until the delete flow is sliced. It wears `.pelanggan-btn .pelanggan-btn-hapus`, the `#B00020` red in the shared button block of `site.css`; the Pelanggan sheet's **Hapus dari buku** wears the same class, so every delete entry point reads red. See `docs/plans/plan-barang-hapus-entry.md` and `docs/plans/plan-tombol-hapus-merah.md`.

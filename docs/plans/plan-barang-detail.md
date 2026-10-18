@@ -34,3 +34,7 @@
 - [ ] Price reads `Rp 78.000` on both the card and the sheet; empty unit reads `—`.
 - [ ] **Ubah barang** opens the edit form with the item's values.
 - [ ] `/Barang/Details/99999` is a 404; an AJAX GET returns JSON.
+
+---
+
+> Update: the sheet now ends with two actions, **Ubah barang** (black) and **Hapus barang** (red), so it matches the Pelanggan sheet's row with a distinct destructive colour. See `docs/plans/plan-barang-hapus-entry.md`.

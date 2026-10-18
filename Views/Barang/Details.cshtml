@@ -33,9 +33,14 @@
     </div>
 
     <div class="pelanggan-form-actions">
-        <a class="pelanggan-btn pelanggan-btn-simpan"
+        <a class="pelanggan-btn pelanggan-btn-batal"
            asp-controller="Barang"
            asp-action="Edit"
            asp-route-id="@Model.Id">Ubah barang</a>
+        @* TODO: the delete flow is not built yet, so this is an entry point only and its target does not exist. *@
+        <a class="pelanggan-btn pelanggan-btn-hapus"
+           asp-controller="Barang"
+           asp-action="Delete"
+           asp-route-id="@Model.Id">Hapus barang</a>
     </div>
 </div>

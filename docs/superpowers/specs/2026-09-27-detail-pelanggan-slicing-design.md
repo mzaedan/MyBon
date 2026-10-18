@@ -128,3 +128,5 @@ With `dotnet watch run`:
 ## Non-goals
 
 Login, database, different detail per card, query-string binding, edit form, confirm-delete, Tailwind utilities from the export, pixel-perfect Phosphor icons.
+
+> Update: **Hapus dari buku** now wears `.pelanggan-btn pelanggan-btn-hapus`, the shared `#B00020` destructive red in `site.css`, instead of `.pelanggan-btn-simpan` accent blue. Layout, label, target, and the **Ubah data** button are unchanged. The confirm screen's **Hapus data** submit wears the same class; see `docs/plans/plan-tombol-hapus-merah.md`.
