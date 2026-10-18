@@ -1,4 +1,4 @@
-/* Barang > Index: notebook Lottie for the empty stock list, plus progressive card reveal. */
+/* Barang > Index: notebook Lottie for the empty stock list, live name search, and progressive card reveal. */
 document.addEventListener('DOMContentLoaded', function () {
     var animContainer = document.getElementById('lottie-barang-empty');
     if (animContainer) {
@@ -12,11 +12,67 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     var stack = document.getElementById('barang-card-stack');
-    if (!stack) {
+    var title = document.getElementById('barang-list-title');
+    var input = document.getElementById('barang-search-input');
+    if (!stack || !title || !input) {
         return;
     }
 
-    // Delegated on the stack, like the Pelanggan list, so the handler survives any re-render of the cards.
+    var searchUrl = stack.getAttribute('data-search-url');
+    var debounceMs = 250;
+    var timer = null;
+    var pending = null;
+
+    function updateTitle() {
+        var total = stack.querySelectorAll('.barang-card').length;
+        title.textContent = total + (input.value.trim() ? ' barang cocok' : ' barang di buku');
+        title.classList.toggle('barang-hidden', total === 0);
+    }
+
+    function renderCards(html) {
+        // Only the card stack is replaced, so the search input keeps focus and its text.
+        stack.innerHTML = html;
+        updateTitle();
+    }
+
+    function search() {
+        if (pending) {
+            // Drop the in-flight response: a newer keystroke already asked for the latest term.
+            pending.abort();
+        }
+
+        pending = $.ajax({
+            url: searchUrl,
+            method: 'GET',
+            data: { q: input.value.trim() },
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .done(renderCards)
+            .fail(function (xhr, status) {
+                if (status !== 'abort') {
+                    renderCards('<p class="barang-search-empty">Gagal memuat hasil pencarian. Coba lagi.</p>');
+                }
+            })
+            .always(function () {
+                pending = null;
+            });
+    }
+
+    input.addEventListener('input', function () {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(search, debounceMs);
+    });
+
+    if (input.form) {
+        // With scripting on, the list refreshes in place instead of reloading on Enter.
+        input.form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            window.clearTimeout(timer);
+            search();
+        });
+    }
+
+    // Delegated on the stack, like the Pelanggan list, so the handler survives every search re-render.
     stack.addEventListener('click', function (event) {
         var button = event.target.closest('.barang-load-more');
         var container = stack.querySelector('.barang-cards');

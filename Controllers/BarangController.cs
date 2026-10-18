@@ -11,11 +11,32 @@ public class BarangController(IBarangService barangService) : BaseController
 {
     private readonly IBarangService _barangService = barangService;
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? q)
     {
-        var result = await _barangService.GetAllAsync();
+        var result = await _barangService.SearchAsync(q);
+        ViewData["SearchQuery"] = q?.Trim();
 
         return ToActionResult(result, data => View(data));
+    }
+
+    /// <summary>
+    /// Serves the card list for the live search: AJAX callers get the cards partial, a plain page
+    /// request gets the list screen so <c>/Barang/Search?q=...</c> works without scripting.
+    /// </summary>
+    public async Task<IActionResult> Search(string? q)
+    {
+        var result = await _barangService.SearchAsync(q);
+
+        if (IsAjaxRequest)
+        {
+            if (!result.Success || result.Data is null)
+                return Json(result);
+
+            return PartialView("_Cards", result.Data);
+        }
+
+        ViewData["SearchQuery"] = q?.Trim();
+        return ToActionResult(result, data => View(nameof(Index), data));
     }
 
     public IActionResult Create()

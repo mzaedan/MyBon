@@ -365,7 +365,6 @@ a.cta-catat-bon {
 }
 
 .pelanggan-search-text,
-.barang-search-text,
 .bon-search-text {
   flex: 1 1 0;
   font-size: 15px;
@@ -373,7 +372,8 @@ a.cta-catat-bon {
   color: var(--muted);
 }
 
-.pelanggan-search-input {
+.pelanggan-search-input,
+.barang-search-input {
   flex: 1 1 0;
   min-width: 0;
   padding: 0;
@@ -386,16 +386,24 @@ a.cta-catat-bon {
   -webkit-appearance: none;
 }
 
-.pelanggan-search-input::placeholder {
+.pelanggan-search-input::placeholder,
+.barang-search-input::placeholder {
   color: var(--muted);
 }
 
-.pelanggan-search-input:focus {
+.pelanggan-search-input:focus,
+.barang-search-input:focus {
   outline: none;
 }
 
 /* The rule under the row carries the focus state; the bare input has no outline of its own. */
 .pelanggan-search-row:focus-within .page-rule {
+  background: var(--text);
+}
+
+/* Barang anchors on the form: its rule is the row's sibling, not a descendant of it, so
+   a `.barang-search-row:focus-within .page-rule` selector would never match. */
+.barang-search:focus-within .page-rule {
   background: var(--text);
 }
 
@@ -450,8 +458,9 @@ a.pelanggan-card:focus-visible {
   display: none;
 }
 
-/* Toggled by the live search in custom/features/pelanggan/index.js. */
-.pelanggan-hidden {
+/* Toggled by the live search in custom/features/pelanggan/index.js and custom/features/barang/index.js. */
+.pelanggan-hidden,
+.barang-hidden {
   display: none;
 }
 
@@ -647,7 +656,8 @@ a.pelanggan-btn-hapus {
   color: var(--muted);
 }
 
-.pelanggan-search-empty {
+.pelanggan-search-empty,
+.barang-search-empty {
   margin: 0;
   font-size: 15px;
   line-height: 1.4;

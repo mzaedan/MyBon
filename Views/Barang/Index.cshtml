@@ -3,9 +3,11 @@
 @{
     ViewData["Title"] = "Barang";
     var status = TempData["BarangStatus"] as string;
+    var query = (ViewData["SearchQuery"] as string ?? string.Empty).Trim();
+    var isSearching = query.Length > 0;
 }
 
-@if (Model.Count == 0)
+@if (Model.Count == 0 && !isSearching)
 {
     @* Empty state: same shape as the Pelanggan list, so an empty notebook reads the same on both screens. *@
     <div class="barang-empty">
@@ -26,6 +28,10 @@
 }
 else
 {
+    var countTitle = isSearching
+        ? $"{Model.Count} barang cocok"
+        : $"{Model.Count} barang di buku";
+
     <div class="barang-page">
         <hr class="page-rule" />
 
@@ -34,17 +40,20 @@ else
             <p class="barang-notice" role="status">@status</p>
         }
 
-        <div class="barang-search" aria-hidden="true">
+        @* A real field. Only the item name is matched, so a satuan typed in the box finds nothing. *@
+        <form class="barang-search" method="get" asp-controller="Barang" asp-action="Index" role="search">
             <div class="barang-search-row">
-                <i class="bi bi-search barang-search-icon"></i>
-                <span class="barang-search-text">Cari barang</span>
+                <i class="bi bi-search barang-search-icon" aria-hidden="true"></i>
+                <input class="barang-search-input" id="barang-search-input" type="search" name="q"
+                       value="@query" placeholder="Cari barang" autocomplete="off"
+                       aria-label="Cari nama barang" />
             </div>
             <hr class="page-rule" />
-        </div>
+        </form>
 
-        <div class="barang-list-title">@Model.Count barang di buku</div>
+        <div class="barang-list-title@(Model.Count == 0 ? " barang-hidden" : "")" id="barang-list-title">@countTitle</div>
 
-        <div class="barang-card-stack" id="barang-card-stack">
+        <div class="barang-card-stack" id="barang-card-stack" data-search-url="@(Url.Action("Search", "Barang"))">
             <partial name="_Cards" model="Model" />
         </div>
 

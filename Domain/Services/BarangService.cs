@@ -23,6 +23,9 @@ public class BarangService(
     /// <summary>Decimals the harga column keeps.</summary>
     private const int HargaScale = 2;
 
+    /// <summary>Escape character handed to Postgres ILIKE so a typed <c>%</c> or <c>_</c> matches literally.</summary>
+    private const string LikeEscapeCharacter = "\\";
+
     private readonly AppDbContext _dbContext = dbContext;
     private readonly ILogger<BarangService> _logger = logger;
 
@@ -35,6 +38,29 @@ public class BarangService(
 
         return ErrorOr<IReadOnlyList<Barang>>.CreateSuccess(
             "Berhasil memuat daftar barang", barangs);
+    }
+
+    public async Task<ErrorOr<IReadOnlyList<Barang>>> SearchAsync(string? keyword)
+    {
+        var term = Normalize(keyword);
+
+        if (term is null)
+            return await GetAllAsync();
+
+        // Only the item name is searched; the satuan column is never part of the predicate.
+        var pattern = ToLikePattern(term);
+
+        var barangs = await _dbContext.Barangs
+            .Where(b => EF.Functions.ILike(b.Nama, pattern, LikeEscapeCharacter))
+            .OrderByDescending(b => b.CreatedAt)
+            .AsNoTracking()
+            .ToListAsync();
+
+        return ErrorOr<IReadOnlyList<Barang>>.CreateSuccess(
+            barangs.Count == 0
+                ? $"Tidak ada barang yang cocok dengan \"{term}\""
+                : $"Ditemukan {barangs.Count} barang",
+            barangs);
     }
 
     public async Task<ErrorOr<Barang>> GetByIdAsync(int id)
@@ -212,6 +238,10 @@ public class BarangService(
         return decimal.TryParse(
             normalized, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out harga);
     }
+
+    /// <summary>Wraps <paramref name="term"/> in wildcards, escaping the wildcards the user typed.</summary>
+    private static string ToLikePattern(string term) =>
+        $"%{term.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_")}%";
 
     private static string? Normalize(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();
