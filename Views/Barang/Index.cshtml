@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Barang";
+    var status = TempData["BarangStatus"] as string;
 
     // Prices read like the export mockup: Rp 78.000, without decimals.
     string FormatRupiah(decimal harga) =>
@@ -32,6 +33,11 @@ else
 {
     <div class="barang-page">
         <hr class="page-rule" />
+
+        @if (!string.IsNullOrWhiteSpace(status))
+        {
+            <p class="barang-notice" role="status">@status</p>
+        }
 
         <div class="barang-search" aria-hidden="true">
             <div class="barang-search-row">

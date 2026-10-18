@@ -101,6 +101,8 @@ Empty values. No fake product names in the fields. GET submit re-renders Create;
 
 **Batal** and header back both go to `Barang/Index`.
 
+> Superseded for the form: `/Barang/Create` now saves the item and renders validation. See `2026-10-18-barang-create-persist-design.md`.
+
 ## Styling
 
 Add Barang-list classes in `site.css` (for example `.barang-page`, `.barang-search`, `.barang-card`, `.barang-card-price`). Search row metrics match Pelanggan search; group selectors if that avoids duplicated rules. Do not restyle Pelanggan cards to look like Barang cards.

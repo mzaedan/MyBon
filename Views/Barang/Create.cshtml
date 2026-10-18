@@ -1,3 +1,5 @@
+@model CreateBarangRequest
+
 @{
     ViewData["Title"] = "Barang baru";
     ViewData["BackHref"] = Url.Action("Index", "Barang");
@@ -5,41 +7,40 @@
 
 <hr class="page-rule" />
 
-<form method="get" asp-action="Create" class="pelanggan-form">
+<form method="post" asp-action="Create" class="pelanggan-form">
+    <div asp-validation-summary="ModelOnly" class="pelanggan-field-error" role="alert"></div>
+
     <div class="pelanggan-field">
-        <label class="pelanggan-field-label" for="namaBarang">Nama Barang</label>
-        <input id="namaBarang"
+        <label class="pelanggan-field-label" asp-for="Nama">Nama Barang</label>
+        <input asp-for="Nama"
                type="text"
-               name="namaBarang"
                class="pelanggan-field-input"
                placeholder="Tulis nama barang"
-               autocomplete="off"
-               value="" />
+               autocomplete="off" />
+        <span asp-validation-for="Nama" class="pelanggan-field-error"></span>
         <hr class="page-rule" />
     </div>
 
     <div class="pelanggan-field">
-        <label class="pelanggan-field-label" for="satuan">Satuan</label>
-        <input id="satuan"
+        <label class="pelanggan-field-label" asp-for="Satuan">Satuan</label>
+        <input asp-for="Satuan"
                type="text"
-               name="satuan"
                class="pelanggan-field-input"
                placeholder="Tulis satuan"
-               autocomplete="off"
-               value="" />
+               autocomplete="off" />
+        <span asp-validation-for="Satuan" class="pelanggan-field-error"></span>
         <hr class="page-rule" />
     </div>
 
     <div class="pelanggan-field">
-        <label class="pelanggan-field-label" for="harga">Harga</label>
-        <input id="harga"
+        <label class="pelanggan-field-label" asp-for="Harga">Harga</label>
+        <input asp-for="Harga"
                type="text"
-               name="harga"
                inputmode="decimal"
                class="pelanggan-field-input"
                placeholder="Tulis harga"
-               autocomplete="off"
-               value="" />
+               autocomplete="off" />
+        <span asp-validation-for="Harga" class="pelanggan-field-error"></span>
         <hr class="page-rule" />
     </div>
 
@@ -50,3 +51,7 @@
         <button type="submit" class="pelanggan-btn pelanggan-btn-simpan">Simpan barang</button>
     </div>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

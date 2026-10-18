@@ -1,4 +1,5 @@
 using MyBon.Domain.Entities;
+using MyBon.Models.Barang.Requests;
 using MyBon.Models.Common;
 
 namespace MyBon.Domain.Interfaces;
@@ -10,4 +11,7 @@ public interface IBarangService
 {
     /// <summary>Returns every item, ordered by entry date (newest first).</summary>
     Task<ErrorOr<IReadOnlyList<Barang>>> GetAllAsync();
+
+    /// <summary>Writes a new item into the stock list.</summary>
+    Task<ErrorOr<Barang>> CreateAsync(CreateBarangRequest request);
 }
