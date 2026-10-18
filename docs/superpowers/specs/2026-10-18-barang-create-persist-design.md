@@ -82,4 +82,6 @@ Run with `dotnet run` and the Postgres container up:
 
 ## Non-goals
 
-Item edit and delete, an item detail page, live search on `/Barang`, barcode or photo fields, duplicate detection, a unit picker, and currency formatting inside the input.
+Item edit and delete, an item detail page, live search on `/Barang`, barcode or photo fields, duplicate detection, and a unit picker.
+
+> Update: in-input thousands separators for Harga are now included (`wwwroot/custom/features/barang/create.js`). The field displays `1.000` while typing, and the dots are stripped on submit so the posted value is plain digits.

@@ -39,7 +39,8 @@
                inputmode="decimal"
                class="pelanggan-field-input"
                placeholder="Tulis harga"
-               autocomplete="off" />
+               autocomplete="off"
+               data-money-input />
         <span asp-validation-for="Harga" class="pelanggan-field-error"></span>
         <hr class="page-rule" />
     </div>
@@ -54,4 +55,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/custom/features/barang/create.js" asp-append-version="true"></script>
 }
