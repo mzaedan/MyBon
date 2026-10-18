@@ -13,15 +13,20 @@ public class BarangController(IBarangService barangService) : BaseController
 
     public async Task<IActionResult> Index(string? q)
     {
-        var result = await _barangService.SearchAsync(q);
+        // Only the first page is painted; the load-more button asks Search for the pages after it.
+        var result = await _barangService.SearchAsync(q, 1);
         ViewData["SearchQuery"] = q?.Trim();
 
         return ToActionResult(result, data => View(data));
     }
 
-    public async Task<IActionResult> Search(string? q)
+    /// <summary>
+    /// Renders one page of the card list. The list repaints itself through this action, so a keystroke
+    /// and the load-more button both land here instead of the page reloading with every row up front.
+    /// </summary>
+    public async Task<IActionResult> Search(string? q, int page = 1)
     {
-        var result = await _barangService.SearchAsync(q);
+        var result = await _barangService.SearchAsync(q, page);
 
         if (IsAjaxRequest)
         {

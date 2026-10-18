@@ -26,41 +26,54 @@ public class BarangService(
     /// <summary>Escape character handed to Postgres ILIKE so a typed <c>%</c> or <c>_</c> matches literally.</summary>
     private const string LikeEscapeCharacter = "\\";
 
+    /// <summary>
+    /// Rows painted per request. The client only sends the page number, so a caller cannot ask
+    /// the database for the whole stock list.
+    /// </summary>
+    private const int PageSize = 8;
+
     private readonly AppDbContext _dbContext = dbContext;
     private readonly ILogger<BarangService> _logger = logger;
 
-    public async Task<ErrorOr<IReadOnlyList<Barang>>> GetAllAsync()
-    {
-        var barangs = await _dbContext.Barangs
-            .OrderByDescending(b => b.CreatedAt)
-            .AsNoTracking()
-            .ToListAsync();
-
-        return ErrorOr<IReadOnlyList<Barang>>.CreateSuccess(
-            "Berhasil memuat daftar barang", barangs);
-    }
-
-    public async Task<ErrorOr<IReadOnlyList<Barang>>> SearchAsync(string? keyword)
+    public async Task<ErrorOr<PagedResult<Barang>>> SearchAsync(string? keyword, int page)
     {
         var term = Normalize(keyword);
+        var currentPage = page < 1 ? 1 : page;
 
-        if (term is null)
-            return await GetAllAsync();
+        var query = _dbContext.Barangs.AsNoTracking();
 
-        // Only the item name is searched; the satuan column is never part of the predicate.
-        var pattern = ToLikePattern(term);
+        if (term is not null)
+        {
+            // Only the item name is searched; the satuan column is never part of the predicate.
+            var pattern = ToLikePattern(term);
+            query = query.Where(b => EF.Functions.ILike(b.Nama, pattern, LikeEscapeCharacter));
+        }
 
-        var barangs = await _dbContext.Barangs
-            .Where(b => EF.Functions.ILike(b.Nama, pattern, LikeEscapeCharacter))
+        // CreatedAt alone ties when rows are written in the same tick, so Id breaks the tie and keeps
+        // the order stable across requests; without it a page could repeat or skip an item.
+        var ordered = query
             .OrderByDescending(b => b.CreatedAt)
-            .AsNoTracking()
+            .ThenByDescending(b => b.Id);
+
+        var total = await ordered.CountAsync();
+        var barangs = await ordered
+            .Skip((currentPage - 1) * PageSize)
+            .Take(PageSize)
             .ToListAsync();
 
-        return ErrorOr<IReadOnlyList<Barang>>.CreateSuccess(
-            barangs.Count == 0
-                ? $"Tidak ada barang yang cocok dengan \"{term}\""
-                : $"Ditemukan {barangs.Count} barang",
-            barangs);
+        return ErrorOr<PagedResult<Barang>>.CreateSuccess(
+            term is null
+                ? "Berhasil memuat daftar barang"
+                : total == 0
+                    ? $"Tidak ada barang yang cocok dengan \"{term}\""
+                    : $"Ditemukan {total} barang",
+            new PagedResult<Barang>
+            {
+                Items = barangs,
+                Total = total,
+                Page = currentPage,
+                PageSize = PageSize
+            });
     }
 
     public async Task<ErrorOr<Barang>> GetByIdAsync(int id)

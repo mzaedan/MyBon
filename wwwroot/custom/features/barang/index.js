@@ -1,4 +1,4 @@
-/* Barang > Index: notebook Lottie for the empty stock list, live name search, and progressive card reveal. */
+/* Barang > Index: notebook Lottie for the empty stock list, live name search, and server-paged card loading. */
 document.addEventListener('DOMContentLoaded', function () {
     var animContainer = document.getElementById('lottie-barang-empty');
     if (animContainer) {
@@ -24,9 +24,19 @@ document.addEventListener('DOMContentLoaded', function () {
     var pending = null;
 
     function updateTitle() {
-        var total = stack.querySelectorAll('.barang-card').length;
+        var container = stack.querySelector('.barang-cards');
+        // The server ships the total with every render, so the title keeps reporting every match
+        // instead of only the cards painted so far.
+        var total = container ? parseInt(container.getAttribute('data-total'), 10) || 0 : 0;
         title.textContent = total + (input.value.trim() ? ' barang cocok' : ' barang di buku');
         title.classList.toggle('barang-hidden', total === 0);
+    }
+
+    function clearLoadError() {
+        var error = stack.querySelector('.barang-load-more-error');
+        if (error) {
+            error.remove();
+        }
     }
 
     function renderCards(html) {
@@ -41,12 +51,16 @@ document.addEventListener('DOMContentLoaded', function () {
             pending.abort();
         }
 
-        pending = $.ajax({
+        var request = $.ajax({
             url: searchUrl,
             method: 'GET',
             data: { q: input.value.trim() },
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
+        });
+
+        pending = request;
+
+        request
             .done(renderCards)
             .fail(function (xhr, status) {
                 if (status !== 'abort') {
@@ -54,7 +68,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             })
             .always(function () {
-                pending = null;
+                // Only the newest request clears the slot: an aborted one answers after its successor exists.
+                if (pending === request) {
+                    pending = null;
+                }
             });
     }
 
@@ -80,14 +97,57 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        var pageSize = parseInt(container.getAttribute('data-page-size'), 10) || 8;
-        var hiddenCards = container.querySelectorAll('.barang-card--hidden');
-        for (var i = 0; i < pageSize && i < hiddenCards.length; i++) {
-            hiddenCards[i].classList.remove('barang-card--hidden');
+        // The server owns the page number: every render ships a button pointing at the page after it.
+        var nextPage = parseInt(button.getAttribute('data-next-page'), 10);
+        if (!nextPage) {
+            return;
         }
 
-        if (!container.querySelector('.barang-card--hidden')) {
-            button.remove();
+        if (pending) {
+            // A newer keystroke already claimed the stack, so this page would land on results it no longer shows.
+            pending.abort();
         }
+
+        var request = $.ajax({
+            url: searchUrl,
+            method: 'GET',
+            data: { q: input.value.trim(), page: nextPage },
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+
+        pending = request;
+
+        request
+            .done(function (html) {
+                // Parsed detached, so the wrapper the response carries cannot duplicate the ids already on the page.
+                var response = $('<div>').html(html);
+                var incoming = response.find('.barang-cards').html();
+                if (incoming) {
+                    container.insertAdjacentHTML('beforeend', incoming);
+                }
+
+                clearLoadError();
+
+                // No button in the response means the server has no page after this one.
+                var next = response.find('.barang-load-more');
+                if (next.length) {
+                    button.replaceWith(next[0]);
+                } else {
+                    button.remove();
+                }
+            })
+            .fail(function (xhr, status) {
+                if (status !== 'abort') {
+                    clearLoadError();
+                    // The button stays put, so the same page can be asked for again.
+                    button.insertAdjacentHTML('afterend',
+                        '<p class="barang-search-empty barang-load-more-error">Gagal memuat barang berikutnya. Coba lagi.</p>');
+                }
+            })
+            .always(function () {
+                if (pending === request) {
+                    pending = null;
+                }
+            });
     });
 });

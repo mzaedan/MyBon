@@ -9,16 +9,13 @@ namespace MyBon.Domain.Interfaces;
 /// </summary>
 public interface IBarangService
 {
-    /// <summary>Returns every item, ordered by entry date (newest first).</summary>
-    Task<ErrorOr<IReadOnlyList<Barang>>> GetAllAsync();
-
     /// <summary>
-    /// Returns every item whose name contains <paramref name="keyword"/>,
-    /// ordered by entry date (newest first). Units are not searched, so a
-    /// keyword typed from the stock list only ever matches item names. A blank
-    /// keyword returns the whole stock list.
+    /// Returns one page of the items whose name contains <paramref name="keyword"/>, ordered by entry date
+    /// (newest first). Units are not searched, so a keyword typed from the stock list only ever matches item
+    /// names. A blank keyword reads as the whole stock list. Paging runs in the database, so a request never
+    /// loads the rows it does not paint.
     /// </summary>
-    Task<ErrorOr<IReadOnlyList<Barang>>> SearchAsync(string? keyword);
+    Task<ErrorOr<PagedResult<Barang>>> SearchAsync(string? keyword, int page);
 
     /// <summary>Returns the item with the given identifier.</summary>
     Task<ErrorOr<Barang>> GetByIdAsync(int id);

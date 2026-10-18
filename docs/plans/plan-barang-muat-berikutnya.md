@@ -5,6 +5,9 @@
 **Spec:** `docs/superpowers/specs/2026-09-27-barang-list-form-slicing-design.md` (its "Do not add Muat berikutnya" constraint is superseded by an update note)
 
 **Architecture:** The same two pieces the Pelanggan list uses — a `_Cards` partial that hides every card past the eighth and renders the button, plus a click handler in `wwwroot/custom/features/barang/index.js` delegated on the card stack. Client-side only: no controller, service, interface, model, or migration change, and no server-side paging, because `GetAllAsync` already returns the whole stock list.
+> Update: the reveal is gone, so the architecture above is superseded. The list now pages on the server, like `/Pelanggan`: `IBarangService.SearchAsync(keyword, page)` returns `PagedResult<Barang>` and the click handler fetches the next page instead of unhiding rows the first paint already carried. See `docs/plans/plan-barang-muat-berikutnya-backend.md`.
+
+
 
 ## File map
 

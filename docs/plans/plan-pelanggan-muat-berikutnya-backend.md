@@ -6,7 +6,7 @@
 
 **Architecture:** The button stays a `<button type="button" class="pelanggan-load-more">` and the UI does not change: one control, no page numbers, no `?page=` deep link, no URL change. What changes is where the rows come from. `IPelangganService.SearchAsync(keyword, page)` now runs `Count` plus `Skip/Take` in the database, sized by a private `PageSize = 8`, and returns `PagedResult<Pelanggan>` (`Items`, `Total`, `Page`, `PageSize`, `HasMore`). `Index` asks for page 1; `Search` takes the page number and answers an XHR with the same `_Cards` partial. The partial renders the button only while `HasMore`, carrying `data-next-page`; the script fetches that page and appends the cards it gets back, then swaps in the button the response ships. So the server still owns both the button markup and the "last page" decision, and the client holds no page state of its own.
 
-Barang is untouched: `Views/Barang/_Cards.cshtml` still hides rows past the eighth, and `.barang-card.barang-card--hidden` stays in `site.css`.
+Barang follows the same shape, see `docs/plans/plan-barang-muat-berikutnya-backend.md`.
 
 ## File map
 
