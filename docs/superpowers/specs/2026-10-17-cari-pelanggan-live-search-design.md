@@ -49,7 +49,7 @@ wwwroot/custom/features/pelanggan/index.js  debounce, AJAX, title count, reveal
 Appended next to the other pelanggan blocks in `site.css`, reusing tokens:
 
 - `.pelanggan-search-input` — transparent, borderless 15px field filling the row; placeholder `--muted`, typed text `--text`.
-- `.pelanggan-search-row:focus-within .page-rule` — the rule turns `--text` while the field has focus, because the bare input has no outline.
+- `.pelanggan-search:focus-within .page-rule` — the rule turns `--text` while the field has focus, because the bare input has no outline. (Update, see `docs/plans/plan-perbaikan-focus-cari-pelanggan.md`: this shipped as `.pelanggan-search-row:focus-within .page-rule`, which never matched because the rule is the row's sibling, not its descendant; it now shares the working `.pelanggan-search:focus-within .page-rule` group with Barang.)
 - `.pelanggan-card-stack` — column, `gap: 8px`, holds cards, empty notice, and the load-more button so the stack spacing is unchanged.
 - `.pelanggan-search-empty` — 15px `--muted`, same as `.pelanggan-notice`.
 - `.pelanggan-hidden` — `display: none`, toggled by the script on the count line.

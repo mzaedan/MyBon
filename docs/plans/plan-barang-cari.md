@@ -70,7 +70,7 @@
 - Searching satuan or harga: the request is "search by item name only", so the predicate stays on `nama`.
 - Server-side paging, sorting options, remembering the last keyword, highlighting matches.
 - A new JS library or a JSON endpoint: jQuery is already loaded, and the search reuses the cards partial, like Pelanggan.
-- Touching `Views/Pelanggan/*` or its focus rule. Noted while building: the existing `.pelanggan-search-row:focus-within .page-rule` never matches for the same sibling reason, so Pelanggan's rule does not darken on focus. It is left as-is here; fixing it is a separate change.
+- Touching `Views/Pelanggan/*` or its focus rule. Noted while building: the existing `.pelanggan-search-row:focus-within .page-rule` never matches for the same sibling reason, so Pelanggan's rule does not darken on focus. It is left as-is here; fixed later in `docs/plans/plan-perbaikan-focus-cari-pelanggan.md`.
 
 ## Verification
 

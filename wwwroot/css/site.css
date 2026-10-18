@@ -396,13 +396,10 @@ a.cta-catat-bon {
   outline: none;
 }
 
-/* The rule under the row carries the focus state; the bare input has no outline of its own. */
-.pelanggan-search-row:focus-within .page-rule {
-  background: var(--text);
-}
-
-/* Barang anchors on the form: its rule is the row's sibling, not a descendant of it, so
-   a `.barang-search-row:focus-within .page-rule` selector would never match. */
+/* The rule under the row carries the focus state; the bare input has no outline of its own.
+   Both forms anchor on the form: the rule is the row's sibling, not a descendant of it, so a
+   `.pelanggan-search-row:focus-within .page-rule` selector would never match. */
+.pelanggan-search:focus-within .page-rule,
 .barang-search:focus-within .page-rule {
   background: var(--text);
 }
