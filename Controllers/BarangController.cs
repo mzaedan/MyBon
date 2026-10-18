@@ -19,10 +19,6 @@ public class BarangController(IBarangService barangService) : BaseController
         return ToActionResult(result, data => View(data));
     }
 
-    /// <summary>
-    /// Serves the card list for the live search: AJAX callers get the cards partial, a plain page
-    /// request gets the list screen so <c>/Barang/Search?q=...</c> works without scripting.
-    /// </summary>
     public async Task<IActionResult> Search(string? q)
     {
         var result = await _barangService.SearchAsync(q);
