@@ -1,12 +1,13 @@
-/* Barang > Create and Edit: shows thousands separators in the Harga field while typing.
-   The separator is display only; on submit the dots are stripped from the value,
-   so the posted harga carries no separator. Shared by both forms because the field behaves the same. */
+/* Barang > Create and Edit: keeps the Harga field numeric and shows thousands separators while typing.
+   Letters and symbols never enter the field: keys are blocked on beforeinput, and text arriving from
+   paste, drop, or autofill is stripped to digits, dots, and commas. The separator is display only; on
+   submit the dots are stripped from the value, so the posted harga carries no separator.
+   Shared by both forms because the field behaves the same. */
 (function () {
     'use strict';
 
-    // Only digits, dots, and commas are treated as a price. Anything else is left
-    // untouched so the server can still reject it with "Harga harus angka".
-    var PRICE_PATTERN = /^[0-9.,]*$/;
+    var INVALID_CHARACTER_PATTERN = /[^0-9.,]/;
+    var NON_PRICE_CHARACTERS_PATTERN = /[^0-9.,]/g;
 
     function formatPrice(value) {
         var commaIndex = value.indexOf(',');
@@ -50,10 +51,9 @@
     }
 
     function normalise(input) {
-        var value = input.value.replace(/\s/g, '');
-        if (!PRICE_PATTERN.test(value)) {
-            return;
-        }
+        // Letters, spaces, and signs are removed rather than kept for the server to reject: the field
+        // only ever holds digits, dots, and one comma, so what is on screen is what gets posted.
+        var value = input.value.replace(NON_PRICE_CHARACTERS_PATTERN, '');
 
         var formatted = formatPrice(value);
         if (formatted === input.value) {
@@ -81,6 +81,16 @@
                 if (input.value !== '') {
                     normalise(input);
                 }
+
+                // Typed characters are checked before they reach the field, so a letter never flashes
+                // in the input. Paste, drop, and autofill skip this hook and are cleaned by the input handler.
+                input.addEventListener('beforeinput', function (event) {
+                    if (event.inputType === 'insertText'
+                        && event.data
+                        && INVALID_CHARACTER_PATTERN.test(event.data)) {
+                        event.preventDefault();
+                    }
+                });
 
                 input.addEventListener('input', function () {
                     normalise(input);

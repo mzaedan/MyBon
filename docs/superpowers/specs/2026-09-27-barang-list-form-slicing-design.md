@@ -13,6 +13,8 @@ Replace the Barang placeholder with a static list slice (search row, count, eigh
 
 > Update: the list cards now open `/Barang/Edit/{id}` and writing an item is no longer the only mutation. See `2026-10-18-barang-edit-design.md`.
 
+> Update: the list now carries the Pelanggan list's load-more control, so the "Do not add **Muat berikutnya**" constraint above is superseded. The cards moved into `Views/Barang/_Cards.cshtml`, which paints eight cards, marks the rest `barang-card--hidden`, and renders **Muat barang berikutnya** (`.barang-load-more`, 44px, 8px radius, black outline, Figtree semibold 15px) whenever the list is longer. `wwwroot/custom/features/barang/index.js` reveals eight more per click and drops the button on the last batch. Card count, card markup, and the **Tulis barang baru** CTA are unchanged. See `docs/plans/plan-barang-muat-berikutnya.md`.
+
 ## Constraints (agreed)
 
 - Approach: mirror Pelanggan (Index list + Create form), not shared partials, not a query-string toggle on one URL.

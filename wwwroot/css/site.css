@@ -407,7 +407,8 @@ a.cta-catat-bon {
   color: var(--muted);
 }
 
-.pelanggan-card-stack {
+.pelanggan-card-stack,
+.barang-card-stack {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -441,7 +442,11 @@ a.pelanggan-card:focus-visible {
   outline-offset: 2px;
 }
 
-.pelanggan-card--hidden {
+/* Toggled by the load-more buttons in custom/features/pelanggan/index.js and barang/index.js.
+   The class is doubled on purpose: `.pelanggan-card` and `.barang-card` both set `display: flex`
+   further down the file, so a one-class selector with the same specificity would lose the cascade. */
+.pelanggan-card.pelanggan-card--hidden,
+.barang-card.barang-card--hidden {
   display: none;
 }
 
@@ -464,7 +469,8 @@ a.pelanggan-card:focus-visible {
   color: var(--muted);
 }
 
-.pelanggan-load-more {
+.pelanggan-load-more,
+.barang-load-more {
   width: 100%;
   min-height: 44px;
   height: 44px;
@@ -479,11 +485,13 @@ a.pelanggan-card:focus-visible {
   cursor: pointer;
 }
 
-.pelanggan-load-more:active {
+.pelanggan-load-more:active,
+.barang-load-more:active {
   opacity: 0.9;
 }
 
-.pelanggan-load-more:focus-visible {
+.pelanggan-load-more:focus-visible,
+.barang-load-more:focus-visible {
   outline: 2px solid var(--text);
   outline-offset: 2px;
 }

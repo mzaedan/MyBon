@@ -1,0 +1,35 @@
+@using System.Globalization
+@model IReadOnlyList<MyBon.Domain.Entities.Barang>
+
+@{
+    // The reveal script reads this back, so the batch size stays in one place.
+    const int PageSize = 8;
+    var index = 0;
+
+    // Prices read like the export mockup: Rp 78.000, without decimals.
+    string FormatRupiah(decimal harga) =>
+        $"Rp {harga.ToString("N0", CultureInfo.GetCultureInfo("id-ID"))}";
+}
+
+<div class="barang-cards" id="barang-cards" data-page-size="@PageSize">
+    @foreach (var barang in Model)
+    {
+        @* The card opens the detail sheet, and the sheet carries the Ubah barang action. *@
+        <a class="barang-card@(index >= PageSize ? " barang-card--hidden" : "")" asp-controller="Barang" asp-action="Details" asp-route-id="@barang.Id">
+            <div class="barang-card-info">
+                <div class="barang-card-name">@barang.Nama</div>
+                @if (!string.IsNullOrWhiteSpace(barang.Satuan))
+                {
+                    <div class="barang-card-unit">@barang.Satuan</div>
+                }
+            </div>
+            <div class="barang-card-price">@FormatRupiah(barang.Harga)</div>
+        </a>
+        index++;
+    }
+</div>
+
+@if (Model.Count > PageSize)
+{
+    <button type="button" class="barang-load-more" id="barang-load-more">Muat barang berikutnya</button>
+}

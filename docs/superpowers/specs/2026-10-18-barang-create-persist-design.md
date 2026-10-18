@@ -86,4 +86,6 @@ Item edit and delete, an item detail page, live search on `/Barang`, barcode or 
 
 > Update: in-input thousands separators for Harga are now included (`wwwroot/custom/features/barang/harga-input.js`, shared with the edit form). The field displays `1.000` while typing, and the dots are stripped on submit so the posted value is plain digits.
 
+> Update: letters and other symbols no longer enter the Harga field. `harga-input.js` blocks them on `beforeinput` and strips anything arriving from paste, drop, or autofill, so the field holds digits, dots, and a comma only. The server-side **Harga harus angka, contoh 78.000** check stays as the safety net for callers that bypass the field. See `docs/plans/plan-barang-harga-angka-saja.md`.
+
 > Update: item edit (`/Barang/Edit/{id}`) and item detail (`/Barang/Details/{id}`) now exist, so the card on the list opens the detail sheet instead of stopping on a read-only list. See `2026-10-18-barang-edit-design.md` and `2026-10-18-barang-detail-design.md`.

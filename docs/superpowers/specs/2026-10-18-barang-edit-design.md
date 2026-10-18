@@ -90,3 +90,5 @@ Run with `dotnet run` and the Postgres container up:
 Item delete, item detail page, live search on `/Barang`, barcode or photo fields, duplicate detection, unit picker, audit trail, `UpdatedAt` column, soft delete, undo.
 
 > Update: the item detail page now exists (`/Barang/Details/{id}`). The card opens that sheet and the sheet carries **Ubah barang** into the form described above; the edit flow itself is unchanged. See `2026-10-18-barang-detail-design.md`.
+
+> Update: the Harga field no longer accepts letters or signs, on create or edit. `harga-input.js` blocks typed invalid characters and strips pasted ones, and the server-side **Harga harus angka, contoh 78.000** message stays for callers that bypass the field. See `docs/plans/plan-barang-harga-angka-saja.md`.

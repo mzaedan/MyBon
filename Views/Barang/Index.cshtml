@@ -1,13 +1,8 @@
-@using System.Globalization
 @model IReadOnlyList<MyBon.Domain.Entities.Barang>
 
 @{
     ViewData["Title"] = "Barang";
     var status = TempData["BarangStatus"] as string;
-
-    // Prices read like the export mockup: Rp 78.000, without decimals.
-    string FormatRupiah(decimal harga) =>
-        $"Rp {harga.ToString("N0", CultureInfo.GetCultureInfo("id-ID"))}";
 }
 
 @if (Model.Count == 0)
@@ -49,21 +44,8 @@ else
 
         <div class="barang-list-title">@Model.Count barang di buku</div>
 
-        <div class="barang-cards">
-            @foreach (var barang in Model)
-            {
-                @* The card opens the detail sheet, and the sheet carries the Ubah barang action. *@
-                <a class="barang-card" asp-controller="Barang" asp-action="Details" asp-route-id="@barang.Id">
-                    <div class="barang-card-info">
-                        <div class="barang-card-name">@barang.Nama</div>
-                        @if (!string.IsNullOrWhiteSpace(barang.Satuan))
-                        {
-                            <div class="barang-card-unit">@barang.Satuan</div>
-                        }
-                    </div>
-                    <div class="barang-card-price">@FormatRupiah(barang.Harga)</div>
-                </a>
-            }
+        <div class="barang-card-stack" id="barang-card-stack">
+            <partial name="_Cards" model="Model" />
         </div>
 
         <a class="cta-catat-bon" asp-controller="Barang" asp-action="Create">Tulis barang baru</a>
