@@ -72,3 +72,7 @@ With `dotnet watch run` and the Postgres container up:
 ## Non-goals
 
 Live search on the item list, item detail/edit/delete, a dedicated item illustration, loading skeleton, Tailwind utilities, Phosphor icons.
+
+> Update: item edit now exists for the populated list (`/Barang/Edit/{id}`). Live search, item detail, and delete are still out of scope. See `2026-10-18-barang-edit-design.md`.
+
+> Update: item detail now exists too (`/Barang/Details/{id}`), reached from the card. Live search and delete are still out of scope. See `2026-10-18-barang-detail-design.md`.

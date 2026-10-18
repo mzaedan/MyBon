@@ -1,0 +1,62 @@
+@model UpdateBarangRequest
+
+@{
+    ViewData["Title"] = "Ubah barang";
+    ViewData["BackHref"] = Url.Action("Index", "Barang");
+}
+
+<hr class="page-rule" />
+
+<form method="post" asp-action="Edit" class="pelanggan-form">
+    @* Hidden field for Id *@
+    <input type="hidden" asp-for="Id" />
+
+    <div asp-validation-summary="ModelOnly" class="pelanggan-field-error" role="alert"></div>
+
+    <div class="pelanggan-field">
+        <label class="pelanggan-field-label" asp-for="Nama">Nama Barang</label>
+        <input asp-for="Nama"
+               type="text"
+               class="pelanggan-field-input"
+               placeholder="Tulis nama barang"
+               autocomplete="off" />
+        <span asp-validation-for="Nama" class="pelanggan-field-error"></span>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-field">
+        <label class="pelanggan-field-label" asp-for="Satuan">Satuan</label>
+        <input asp-for="Satuan"
+               type="text"
+               class="pelanggan-field-input"
+               placeholder="Tulis satuan"
+               autocomplete="off" />
+        <span asp-validation-for="Satuan" class="pelanggan-field-error"></span>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-field">
+        <label class="pelanggan-field-label" asp-for="Harga">Harga</label>
+        <input asp-for="Harga"
+               type="text"
+               inputmode="decimal"
+               class="pelanggan-field-input"
+               placeholder="Tulis harga"
+               autocomplete="off"
+               data-money-input />
+        <span asp-validation-for="Harga" class="pelanggan-field-error"></span>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-form-actions">
+        <a class="pelanggan-btn pelanggan-btn-batal"
+           asp-controller="Barang"
+           asp-action="Index">Batal</a>
+        <button type="submit" class="pelanggan-btn pelanggan-btn-simpan">Simpan perubahan</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/custom/features/barang/harga-input.js" asp-append-version="true"></script>
+}

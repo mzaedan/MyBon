@@ -1,6 +1,6 @@
-/* Barang > Create: shows thousands separators in the Harga field while typing.
+/* Barang > Create and Edit: shows thousands separators in the Harga field while typing.
    The separator is display only; on submit the dots are stripped from the value,
-   so the posted harga carries no separator. */
+   so the posted harga carries no separator. Shared by both forms because the field behaves the same. */
 (function () {
     'use strict';
 

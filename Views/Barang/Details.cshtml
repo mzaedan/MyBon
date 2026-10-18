@@ -1,0 +1,41 @@
+@using System.Globalization
+@model MyBon.Domain.Entities.Barang
+
+@{
+    ViewData["Title"] = Model.Nama;
+    ViewData["BackHref"] = Url.Action("Index", "Barang");
+
+    // Same reading as the list, so the sheet and the card print the price the same way.
+    string FormatRupiah(decimal harga) =>
+        $"Rp {harga.ToString("N0", CultureInfo.GetCultureInfo("id-ID"))}";
+}
+
+<hr class="page-rule" />
+
+<div class="pelanggan-form">
+    <div class="pelanggan-field">
+        <div class="pelanggan-field-label">Nama barang</div>
+        <p class="pelanggan-field-value">@Model.Nama</p>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-field">
+        <div class="pelanggan-field-label">Satuan</div>
+        @* Pelanggan Details marks an unfilled field with the same glyph. *@
+        <p class="pelanggan-field-value">@(string.IsNullOrWhiteSpace(Model.Satuan) ? "—" : Model.Satuan)</p>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-field">
+        <div class="pelanggan-field-label">Harga</div>
+        <p class="pelanggan-field-value barang-detail-price">@FormatRupiah(Model.Harga)</p>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-form-actions">
+        <a class="pelanggan-btn pelanggan-btn-simpan"
+           asp-controller="Barang"
+           asp-action="Edit"
+           asp-route-id="@Model.Id">Ubah barang</a>
+    </div>
+</div>

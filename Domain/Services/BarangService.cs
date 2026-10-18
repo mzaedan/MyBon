@@ -37,32 +37,31 @@ public class BarangService(
             "Berhasil memuat daftar barang", barangs);
     }
 
+    public async Task<ErrorOr<Barang>> GetByIdAsync(int id)
+    {
+        var barang = await _dbContext.Barangs
+            .AsNoTracking()
+            .FirstOrDefaultAsync(b => b.Id == id);
+
+        if (barang is null)
+            return ErrorOr<Barang>.CreateFailure(
+                "Barang tidak ditemukan", ErrorType.NotFound);
+
+        return ErrorOr<Barang>.CreateSuccess(
+            "Barang ditemukan", barang);
+    }
+
     public async Task<ErrorOr<Barang>> CreateAsync(CreateBarangRequest request)
     {
-        var nama = (request.Nama ?? string.Empty).Trim();
-
-        if (nama.Length == 0)
-            return ErrorOr<Barang>.CreateValidationFailure(new Dictionary<string, string[]>
-            {
-                ["Nama"] = ["Nama barang wajib diisi"]
-            });
-
-        if (!TryParseHarga(request.Harga, out var harga))
-            return ErrorOr<Barang>.CreateValidationFailure(new Dictionary<string, string[]>
-            {
-                ["Harga"] = ["Harga harus angka, contoh 78.000"]
-            });
-
-        if (harga > MaxHarga)
-            return ErrorOr<Barang>.CreateValidationFailure(new Dictionary<string, string[]>
-            {
-                ["Harga"] = ["Harga terlalu besar"]
-            });
+        var errors = ReadFields(request.Nama, request.Satuan, request.Harga,
+            out var nama, out var satuan, out var harga);
+        if (errors is not null)
+            return ErrorOr<Barang>.CreateValidationFailure(errors);
 
         var barang = new Barang
         {
             Nama = nama,
-            Satuan = Normalize(request.Satuan),
+            Satuan = satuan,
             // Round to the column scale so the saved row and the response report the same amount.
             Harga = decimal.Round(harga, HargaScale, MidpointRounding.AwayFromZero),
             // Npgsql needs a UTC kind for the timestamp with time zone column.
@@ -87,6 +86,71 @@ public class BarangService(
 
         return ErrorOr<Barang>.CreateSuccess(
             "Barang tersimpan di buku", barang);
+    }
+
+    public async Task<ErrorOr<Barang>> UpdateAsync(int id, UpdateBarangRequest request)
+    {
+        var barang = await _dbContext.Barangs
+            .FirstOrDefaultAsync(b => b.Id == id);
+
+        if (barang is null)
+            return ErrorOr<Barang>.CreateFailure(
+                "Barang tidak ditemukan", ErrorType.NotFound);
+
+        var errors = ReadFields(request.Nama, request.Satuan, request.Harga,
+            out var nama, out var satuan, out var harga);
+        if (errors is not null)
+            return ErrorOr<Barang>.CreateValidationFailure(errors);
+
+        barang.Nama = nama;
+        barang.Satuan = satuan;
+        // Round to the column scale so the saved row and the response report the same amount.
+        barang.Harga = decimal.Round(harga, HargaScale, MidpointRounding.AwayFromZero);
+
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+        catch (Exception ex) when (IsDatabaseFailure(ex))
+        {
+            _logger.LogError(ex, "Gagal memperbarui barang {Id}.", id);
+
+            return ErrorOr<Barang>.CreateFailure(
+                "Gagal memperbarui barang. Coba simpan lagi.", ErrorType.Unexpected);
+        }
+
+        return ErrorOr<Barang>.CreateSuccess(
+            "Barang diperbarui di buku", barang);
+    }
+
+    /// <summary>
+    /// Trims the text fields and reads the typed price, reporting the messages the form shows under each field
+    /// when an item cannot be saved. Create and update take the same three fields, so they reject the same input
+    /// with the same sentences.
+    /// </summary>
+    private static Dictionary<string, string[]>? ReadFields(
+        string? nama,
+        string? satuan,
+        string? harga,
+        out string name,
+        out string? unit,
+        out decimal price)
+    {
+        name = (nama ?? string.Empty).Trim();
+        unit = Normalize(satuan);
+        price = 0m;
+
+        var errors = new Dictionary<string, string[]>();
+
+        if (name.Length == 0)
+            errors["Nama"] = ["Nama barang wajib diisi"];
+
+        if (!TryParseHarga(harga, out price))
+            errors["Harga"] = ["Harga harus angka, contoh 78.000"];
+        else if (price > MaxHarga)
+            errors["Harga"] = ["Harga terlalu besar"];
+
+        return errors.Count == 0 ? null : errors;
     }
 
     /// <summary>

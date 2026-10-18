@@ -779,6 +779,17 @@ a.pelanggan-btn-simpan {
   border-radius: 10px;
 }
 
+a.barang-card {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a.barang-card:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
 .barang-card-info {
   flex: 1 1 0;
   min-width: 0;
@@ -807,6 +818,13 @@ a.pelanggan-btn-simpan {
   font-weight: 600;
   color: var(--text);
   white-space: nowrap;
+}
+
+/* Detail sheet: the price is the screen's focal number, one step above the list's 16px. */
+.barang-detail-price {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .barang-notice {

@@ -11,6 +11,8 @@ Design read: mobile stock list and write-item form for shopkeepers, CatatHutang 
 
 Replace the Barang placeholder with a static list slice (search row, count, eight item cards, **Tulis barang baru**) and add a visual write-item form at `/Barang/Create`. No database.
 
+> Update: the list cards now open `/Barang/Edit/{id}` and writing an item is no longer the only mutation. See `2026-10-18-barang-edit-design.md`.
+
 ## Constraints (agreed)
 
 - Approach: mirror Pelanggan (Index list + Create form), not shared partials, not a query-string toggle on one URL.

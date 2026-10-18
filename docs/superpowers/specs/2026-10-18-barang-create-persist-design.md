@@ -84,4 +84,6 @@ Run with `dotnet run` and the Postgres container up:
 
 Item edit and delete, an item detail page, live search on `/Barang`, barcode or photo fields, duplicate detection, and a unit picker.
 
-> Update: in-input thousands separators for Harga are now included (`wwwroot/custom/features/barang/create.js`). The field displays `1.000` while typing, and the dots are stripped on submit so the posted value is plain digits.
+> Update: in-input thousands separators for Harga are now included (`wwwroot/custom/features/barang/harga-input.js`, shared with the edit form). The field displays `1.000` while typing, and the dots are stripped on submit so the posted value is plain digits.
+
+> Update: item edit (`/Barang/Edit/{id}`) and item detail (`/Barang/Details/{id}`) now exist, so the card on the list opens the detail sheet instead of stopping on a read-only list. See `2026-10-18-barang-edit-design.md` and `2026-10-18-barang-detail-design.md`.

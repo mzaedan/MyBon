@@ -52,7 +52,8 @@ else
         <div class="barang-cards">
             @foreach (var barang in Model)
             {
-                <div class="barang-card">
+                @* The card opens the detail sheet, and the sheet carries the Ubah barang action. *@
+                <a class="barang-card" asp-controller="Barang" asp-action="Details" asp-route-id="@barang.Id">
                     <div class="barang-card-info">
                         <div class="barang-card-name">@barang.Nama</div>
                         @if (!string.IsNullOrWhiteSpace(barang.Satuan))
@@ -61,7 +62,7 @@ else
                         }
                     </div>
                     <div class="barang-card-price">@FormatRupiah(barang.Harga)</div>
-                </div>
+                </a>
             }
         </div>
 
