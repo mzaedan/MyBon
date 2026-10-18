@@ -33,3 +33,5 @@
 - [ ] `/Barang/Details/{id}` shows **Ubah barang** (black) and **Hapus barang** (red `#B00020`), equal width, one row.
 - [ ] **Ubah barang** still opens `/Barang/Edit/{id}` with the item's values.
 - [ ] `href` of **Hapus barang** is `/Barang/Delete/{id}`, and its label stays white (not the global anchor accent).
+
+> Update: the delete flow is now built. `BarangController.Delete` / `DeleteConfirmed`, `IBarangService.DeleteAsync`, `Views/Barang/Delete.cshtml`, and `TempData["BarangStatus"]` on delete exist, so the entry point reaches a real confirmation screen. See `docs/plans/plan-barang-hapus.md`.

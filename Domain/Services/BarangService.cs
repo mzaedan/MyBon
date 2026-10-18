@@ -123,6 +123,34 @@ public class BarangService(
             "Barang diperbarui di buku", barang);
     }
 
+    public async Task<ErrorOr> DeleteAsync(int id)
+    {
+        var barang = await _dbContext.Barangs
+            .FirstOrDefaultAsync(b => b.Id == id);
+
+        if (barang is null)
+            return ErrorOr.CreateFailure(
+                "Barang tidak ditemukan", ErrorType.NotFound);
+
+        _dbContext.Barangs.Remove(barang);
+
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+        catch (Exception ex) when (IsDatabaseFailure(ex))
+        {
+            _dbContext.Entry(barang).State = EntityState.Detached;
+            _logger.LogError(ex, "Gagal menghapus barang {Id}.", id);
+
+            return ErrorOr.CreateFailure(
+                "Gagal menghapus barang. Coba hapus lagi.", ErrorType.Unexpected);
+        }
+
+        return ErrorOr.CreateSuccess(
+            "Barang dihapus dari buku");
+    }
+
     /// <summary>
     /// Trims the text fields and reads the typed price, reporting the messages the form shows under each field
     /// when an item cannot be saved. Create and update take the same three fields, so they reject the same input

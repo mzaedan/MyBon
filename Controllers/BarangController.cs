@@ -101,6 +101,33 @@ public class BarangController(IBarangService barangService) : BaseController
             });
     }
 
+    public async Task<IActionResult> Delete(int id)
+    {
+        var result = await _barangService.GetByIdAsync(id);
+
+        return ToActionResult(result, barang =>
+        {
+            ViewData["Title"] = "Hapus barang";
+            ViewData["BackHref"] = Url.Action(nameof(Details), "Barang", new { id = barang.Id });
+
+            return View(barang);
+        });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [ActionName("Delete")]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var result = await _barangService.DeleteAsync(id);
+
+        if (!result.Success || IsAjaxRequest)
+            return ToActionResult(result);
+
+        TempData["BarangStatus"] = result.Message;
+        return RedirectToAction(nameof(Index));
+    }
+
     /// <summary>
     /// Prices read like the list: dots group thousands and a comma marks decimals (34.000, 1.234,5), so the
     /// edit form hands the service a value it already knows how to read.
