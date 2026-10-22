@@ -12,17 +12,11 @@ public class PelangganController(IPelangganService pelangganService) : BaseContr
 
     public async Task<IActionResult> Index(string? q)
     {
-        // Only the first page is painted; the load-more button asks Search for the pages after it.
         var result = await _pelangganService.SearchAsync(q, 1);
         ViewData["SearchQuery"] = q?.Trim();
 
         return ToActionResult(result, data => View(data));
     }
-
-    /// <summary>
-    /// Renders one page of the card list. The list repaints itself through this action, so a keystroke
-    /// and the load-more button both land here instead of the page reloading with every row up front.
-    /// </summary>
     public async Task<IActionResult> Search(string? q, int page = 1)
     {
         var result = await _pelangganService.SearchAsync(q, page);
@@ -97,7 +91,6 @@ public class PelangganController(IPelangganService pelangganService) : BaseContr
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    // Bind the id from the route: a posted Id field would otherwise win over the route value.
     public async Task<IActionResult> Edit([FromRoute] int id, UpdatePelangganRequest request)
     {
         if (id != request.Id)

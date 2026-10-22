@@ -13,17 +13,12 @@ public class BarangController(IBarangService barangService) : BaseController
 
     public async Task<IActionResult> Index(string? q)
     {
-        // Only the first page is painted; the load-more button asks Search for the pages after it.
         var result = await _barangService.SearchAsync(q, 1);
         ViewData["SearchQuery"] = q?.Trim();
 
         return ToActionResult(result, data => View(data));
     }
 
-    /// <summary>
-    /// Renders one page of the card list. The list repaints itself through this action, so a keystroke
-    /// and the load-more button both land here instead of the page reloading with every row up front.
-    /// </summary>
     public async Task<IActionResult> Search(string? q, int page = 1)
     {
         var result = await _barangService.SearchAsync(q, page);
@@ -149,11 +144,6 @@ public class BarangController(IBarangService barangService) : BaseController
         TempData["BarangStatus"] = result.Message;
         return RedirectToAction(nameof(Index));
     }
-
-    /// <summary>
-    /// Prices read like the list: dots group thousands and a comma marks decimals (34.000, 1.234,5), so the
-    /// edit form hands the service a value it already knows how to read.
-    /// </summary>
     private static string FormatHarga(decimal harga) =>
         harga.ToString("#,##0.##", CultureInfo.GetCultureInfo("id-ID"));
 }
