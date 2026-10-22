@@ -132,3 +132,9 @@ With `dotnet watch run`:
 ## Non-goals
 
 Login, database, different detail per bon, query-string binding, real payment, real add-line, edit form, confirm-delete, Tailwind utilities from the export, pixel-perfect Phosphor icons.
+
+---
+
+> Update: **Catat pembayaran** now opens the payment bottom sheet from the export. See `docs/plans/plan-catat-pembayaran-slicing.md`. The sheet is still visual only: it writes no data and saving closes it.
+
+> Update: **Tambah barang** now opens the item bottom sheet from the export (`Detail Catat Bon Tambah Barang`). See `docs/plans/plan-tambah-barang-slicing.md`. Picking a row closes it; no line, stock, or total is written.

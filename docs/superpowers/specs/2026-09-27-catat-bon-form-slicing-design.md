@@ -7,6 +7,8 @@ Depends on: shell in `_Layout.cshtml` (header MY BON + title, optional back via 
 
 Design read: mobile write-bon form for shopkeepers, CatatHutang tokens, ENERGY 1 / RHYTHM 1 / MOTION 1 (calm, uniform underline fields and one line card, focus only).
 
+> Update (2026-10-22): the **Pelanggan** field is no longer a native `<select>`. It is a trigger button (`#pilihPelangganBtn`) that opens the `#bonCustomerPicker` bottom sheet — search by name, phone number, and sisa hutang — from the `Catat Bon Pilih Pelanggan` frame. See `docs/plans/plan-pilih-pelanggan-slicing.md`. The native-select note below and the `.bon-select` styling are superseded; `.bon-date` keeps its tweaks.
+
 ## Goal
 
 Add a visual Catat Bon create form at `/Bon/Create` matching the export, and turn **Catat bon baru** on the list into a real link. No database. No automatic totals. No add/remove line rows.

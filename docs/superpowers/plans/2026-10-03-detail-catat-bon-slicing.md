@@ -84,3 +84,10 @@
 - [ ] **Step 3:** Open `/Bon`, click any card -> Details. Click **Catat pembayaran** -> `/Bon`; **Tambah barang** -> `/Bon/Create`.
 
 Do not commit.
+
+---
+
+> Update: **Catat pembayaran** no longer links to `/Bon`. It opens the payment bottom sheet described in `docs/plans/plan-catat-pembayaran-slicing.md`; the sheet is visual only and saving closes it.
+
+> Update: **Tambah barang** no longer links to `/Bon/Create`. It opens the item bottom sheet described in `docs/plans/plan-tambah-barang-slicing.md`; picking a row closes it and writes nothing.
+

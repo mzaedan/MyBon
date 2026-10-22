@@ -29,11 +29,23 @@
     </div>
 
     <div class="bon-detail-actions">
-        <a class="bon-action bon-action--bayar" asp-controller="Bon" asp-action="Index">Catat pembayaran</a>
-        <a class="bon-action bon-action--barang" asp-controller="Bon" asp-action="Create">
+        <button type="button"
+                class="bon-action bon-action--bayar"
+                id="catatPembayaranBtn"
+                aria-haspopup="dialog"
+                aria-expanded="false"
+                aria-controls="bonPaySheet">
+            Catat pembayaran
+        </button>
+        <button type="button"
+                class="bon-action bon-action--barang"
+                id="tambahBarangBtn"
+                aria-haspopup="dialog"
+                aria-expanded="false"
+                aria-controls="bonAddSheet">
             <i class="bi bi-plus" aria-hidden="true"></i>
             <span>Tambah barang</span>
-        </a>
+        </button>
     </div>
 
     <div class="bon-detail-section">
@@ -89,4 +101,172 @@
         </div>
     </div>
 </div>
+
+<div id="bonPaySheet" class="bon-pay" hidden>
+    <div class="bon-pay-scrim" data-bon-pay-close></div>
+    <div class="bon-pay-sheet"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="bonPayTitle"
+         tabindex="-1">
+        <div class="bon-pay-head">
+            <div id="bonPayTitle" class="bon-pay-title">Catat pembayaran</div>
+            <button type="button" class="bon-pay-close" data-bon-pay-close aria-label="Tutup">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <p class="bon-pay-hint">Sisa hutang Rp 90.000. Kalau bayar kurang, masuk cicilan.</p>
+
+        <div class="pelanggan-field">
+            <label class="pelanggan-field-label" for="bonPayJumlah">Jumlah bayar</label>
+            <input id="bonPayJumlah"
+                   type="text"
+                   inputmode="decimal"
+                   class="pelanggan-field-input bon-money-input"
+                   placeholder="Tulis jumlah"
+                   autocomplete="off" />
+            <hr class="page-rule" />
+        </div>
+
+        <div class="pelanggan-field">
+            <label class="pelanggan-field-label" for="bonPayTanggal">Tanggal</label>
+            <div class="bon-field-with-icon">
+                <input id="bonPayTanggal" type="date" class="pelanggan-field-input bon-date" value="" />
+                <i class="bi bi-calendar bon-field-icon" aria-hidden="true"></i>
+            </div>
+            <hr class="page-rule" />
+        </div>
+
+        <div class="pelanggan-field">
+            <label class="pelanggan-field-label" for="bonPayCatatan">Catatan</label>
+            <textarea id="bonPayCatatan"
+                      class="pelanggan-field-input pelanggan-field-textarea"
+                      placeholder="Tulis catatan (opsional)"
+                      rows="2"></textarea>
+            <hr class="page-rule" />
+        </div>
+
+        <button type="button" class="bon-pay-submit" data-bon-pay-save>Simpan pembayaran</button>
+    </div>
+</div>
+
+<div id="bonAddSheet" class="bon-add" hidden>
+    <div class="bon-add-scrim" data-bon-add-close></div>
+    <div class="bon-add-sheet"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="bonAddTitle"
+         tabindex="-1">
+        <div class="bon-add-head">
+            <div id="bonAddTitle" class="bon-add-title">Tambah barang</div>
+            <button type="button" class="bon-add-close" data-bon-add-close aria-label="Tutup">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <div class="bon-add-search" role="search">
+            <div class="bon-add-search-row">
+                <i class="bi bi-search bon-add-search-icon" aria-hidden="true"></i>
+                <input id="bonAddSearch"
+                       type="search"
+                       class="bon-add-search-input"
+                       placeholder="Cari barang"
+                       aria-label="Cari barang"
+                       autocomplete="off" />
+            </div>
+            <hr class="page-rule" />
+        </div>
+
+        <div class="bon-add-list">
+            <div class="bon-add-row">
+                <button type="button" class="bon-add-item" data-nama="Beras Ramos 5 kg" data-satuan="karung" data-harga="Rp 78.000">
+                    <span class="bon-add-item-info">
+                        <span class="bon-add-item-name">Beras Ramos 5 kg</span>
+                        <span class="bon-add-item-unit">karung</span>
+                    </span>
+                    <span class="bon-add-item-price">Rp 78.000</span>
+                </button>
+                <hr class="page-rule" />
+            </div>
+            <div class="bon-add-row">
+                <button type="button" class="bon-add-item" data-nama="Minyak Goreng 2 L" data-satuan="botol" data-harga="Rp 34.000">
+                    <span class="bon-add-item-info">
+                        <span class="bon-add-item-name">Minyak Goreng 2 L</span>
+                        <span class="bon-add-item-unit">botol</span>
+                    </span>
+                    <span class="bon-add-item-price">Rp 34.000</span>
+                </button>
+                <hr class="page-rule" />
+            </div>
+            <div class="bon-add-row">
+                <button type="button" class="bon-add-item" data-nama="Gula Pasir" data-satuan="kg" data-harga="Rp 17.500">
+                    <span class="bon-add-item-info">
+                        <span class="bon-add-item-name">Gula Pasir</span>
+                        <span class="bon-add-item-unit">kg</span>
+                    </span>
+                    <span class="bon-add-item-price">Rp 17.500</span>
+                </button>
+                <hr class="page-rule" />
+            </div>
+            <div class="bon-add-row">
+                <button type="button" class="bon-add-item" data-nama="Telur Ayam" data-satuan="kg" data-harga="Rp 28.000">
+                    <span class="bon-add-item-info">
+                        <span class="bon-add-item-name">Telur Ayam</span>
+                        <span class="bon-add-item-unit">kg</span>
+                    </span>
+                    <span class="bon-add-item-price">Rp 28.000</span>
+                </button>
+                <hr class="page-rule" />
+            </div>
+            <div class="bon-add-row">
+                <button type="button" class="bon-add-item" data-nama="Mie Instan" data-satuan="dus" data-harga="Rp 125.000">
+                    <span class="bon-add-item-info">
+                        <span class="bon-add-item-name">Mie Instan</span>
+                        <span class="bon-add-item-unit">dus</span>
+                    </span>
+                    <span class="bon-add-item-price">Rp 125.000</span>
+                </button>
+                <hr class="page-rule" />
+            </div>
+            <div class="bon-add-row">
+                <button type="button" class="bon-add-item" data-nama="Kopi Sachet" data-satuan="renceng" data-harga="Rp 12.000">
+                    <span class="bon-add-item-info">
+                        <span class="bon-add-item-name">Kopi Sachet</span>
+                        <span class="bon-add-item-unit">renceng</span>
+                    </span>
+                    <span class="bon-add-item-price">Rp 12.000</span>
+                </button>
+                <hr class="page-rule" />
+            </div>
+            <div class="bon-add-row">
+                <button type="button" class="bon-add-item" data-nama="Sabun Mandi" data-satuan="pcs" data-harga="Rp 4.500">
+                    <span class="bon-add-item-info">
+                        <span class="bon-add-item-name">Sabun Mandi</span>
+                        <span class="bon-add-item-unit">pcs</span>
+                    </span>
+                    <span class="bon-add-item-price">Rp 4.500</span>
+                </button>
+                <hr class="page-rule" />
+            </div>
+            <div class="bon-add-row">
+                <button type="button" class="bon-add-item" data-nama="Garam Dapur" data-satuan="bungkus" data-harga="Rp 3.000">
+                    <span class="bon-add-item-info">
+                        <span class="bon-add-item-name">Garam Dapur</span>
+                        <span class="bon-add-item-unit">bungkus</span>
+                    </span>
+                    <span class="bon-add-item-price">Rp 3.000</span>
+                </button>
+                <hr class="page-rule" />
+            </div>
+        </div>
+
+        <p class="bon-add-empty" id="bonAddEmpty" hidden>Belum ada barang yang cocok.</p>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/custom/features/bon/details.js" asp-append-version="true"></script>
+}
+
 

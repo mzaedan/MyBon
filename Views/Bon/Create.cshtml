@@ -7,16 +7,19 @@
 
 <form method="get" asp-action="Create" class="pelanggan-form">
     <div class="pelanggan-field">
-        <label class="pelanggan-field-label" for="pelanggan">Pelanggan</label>
+        <span class="pelanggan-field-label" id="pelangganLabel">Pelanggan</span>
         <div class="bon-field-with-icon">
-            <select id="pelanggan" name="pelanggan" class="pelanggan-field-input bon-select">
-                <option value="" selected>Pilih pelanggan</option>
-                <option value="Siti Aminah">Siti Aminah</option>
-                <option value="Budi Santoso">Budi Santoso</option>
-                <option value="Rina Wahyuni">Rina Wahyuni</option>
-                <option value="Agus Salim">Agus Salim</option>
-            </select>
-            <i class="bi bi-chevron-down bon-field-icon" aria-hidden="true"></i>
+            <input id="pelanggan" type="hidden" name="pelanggan" value="" />
+            <button type="button"
+                    id="pilihPelangganBtn"
+                    class="bon-picker-trigger bon-customer-trigger is-empty"
+                    aria-haspopup="dialog"
+                    aria-expanded="false"
+                    aria-controls="bonCustomerPicker"
+                    aria-labelledby="pelangganLabel pelangganValue">
+                <span id="pelangganValue" class="bon-customer-trigger-label">Pilih pelanggan</span>
+            </button>
+            <i class="bi bi-caret-down bon-field-icon" aria-hidden="true"></i>
         </div>
         <hr class="page-rule" />
     </div>
@@ -219,178 +222,97 @@
     </div>
 </div>
 
+@* TODO: load the customers and their sisa hutang from the database when the Bon dinamis slice lands. *@
+<div id="bonCustomerPicker" class="bon-picker" hidden>
+    <div class="bon-picker-scrim" data-bon-customer-close></div>
+    <div class="bon-picker-sheet"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="bonCustomerTitle"
+         tabindex="-1">
+        <div class="bon-picker-head">
+            <div id="bonCustomerTitle" class="bon-picker-title">Pilih pelanggan</div>
+            <button type="button"
+                    class="bon-picker-close"
+                    data-bon-customer-close
+                    aria-label="Tutup">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="bon-picker-search">
+            <div class="bon-picker-search-row">
+                <i class="bi bi-search bon-picker-search-icon" aria-hidden="true"></i>
+                <input id="bonCustomerSearch"
+                       type="search"
+                       class="bon-picker-search-input"
+                       placeholder="Cari nama"
+                       aria-label="Cari nama pelanggan"
+                       autocomplete="off" />
+            </div>
+            <hr class="page-rule" />
+        </div>
+        <div class="bon-picker-list">
+            <div class="bon-customer-row">
+                <button type="button"
+                        class="bon-picker-item bon-customer-item"
+                        data-nama="Siti Aminah"
+                        data-hp="0812 3456 7890"
+                        data-sisa="Rp 185.000">
+                    <span class="bon-picker-item-info">
+                        <span class="bon-picker-item-name bon-customer-item-name">Siti Aminah</span>
+                        <span class="bon-picker-item-unit bon-customer-item-hp">0812 3456 7890</span>
+                    </span>
+                    <span class="bon-picker-item-price bon-customer-item-sisa">Rp 185.000</span>
+                </button>
+                <hr class="page-rule" />
+            </div>
+            <div class="bon-customer-row">
+                <button type="button"
+                        class="bon-picker-item bon-customer-item"
+                        data-nama="Budi Santoso"
+                        data-hp="0813 2211 4455"
+                        data-sisa="Rp 92.000">
+                    <span class="bon-picker-item-info">
+                        <span class="bon-picker-item-name bon-customer-item-name">Budi Santoso</span>
+                        <span class="bon-picker-item-unit bon-customer-item-hp">0813 2211 4455</span>
+                    </span>
+                    <span class="bon-picker-item-price bon-customer-item-sisa">Rp 92.000</span>
+                </button>
+                <hr class="page-rule" />
+            </div>
+            <div class="bon-customer-row">
+                <button type="button"
+                        class="bon-picker-item bon-customer-item"
+                        data-nama="Rina Wahyuni"
+                        data-hp="0857 9900 1122"
+                        data-sisa="Rp 48.500">
+                    <span class="bon-picker-item-info">
+                        <span class="bon-picker-item-name bon-customer-item-name">Rina Wahyuni</span>
+                        <span class="bon-picker-item-unit bon-customer-item-hp">0857 9900 1122</span>
+                    </span>
+                    <span class="bon-picker-item-price bon-customer-item-sisa">Rp 48.500</span>
+                </button>
+                <hr class="page-rule" />
+            </div>
+            <div class="bon-customer-row">
+                <button type="button"
+                        class="bon-picker-item bon-customer-item"
+                        data-nama="Agus Salim"
+                        data-hp="0819 7788 3344"
+                        data-sisa="Rp 0">
+                    <span class="bon-picker-item-info">
+                        <span class="bon-picker-item-name bon-customer-item-name">Agus Salim</span>
+                        <span class="bon-picker-item-unit bon-customer-item-hp">0819 7788 3344</span>
+                    </span>
+                    <span class="bon-picker-item-price bon-customer-item-sisa bon-customer-item-sisa--lunas">Rp 0</span>
+                </button>
+                <hr class="page-rule" />
+            </div>
+        </div>
+        <p class="bon-customer-empty" id="bonCustomerEmpty" hidden>Belum ada pelanggan yang cocok.</p>
+    </div>
+</div>
+
 @section Scripts {
-    <script>
-        (function () {
-            var picker = document.getElementById("bonPicker");
-            var shell = document.querySelector(".app-shell");
-            var container = document.getElementById("bonLinesContainer");
-            var template = document.getElementById("bonLineTemplate");
-            var tambahBtn = document.getElementById("tambahBarangBtn");
-            var totalEl = document.getElementById("totalBelanja");
-
-            if (!picker || !shell || !container || !template || !tambahBtn) return;
-
-            shell.appendChild(picker);
-
-            var sheet = picker.querySelector(".bon-picker-sheet");
-            var lastFocus = null;
-            var currentLine = null;
-            var lineCounter = 0;
-
-            function focusables() {
-                return Array.prototype.slice.call(
-                    sheet.querySelectorAll("button:not([disabled])")
-                );
-            }
-
-            function openPicker(triggerBtn) {
-                currentLine = triggerBtn.closest(".bon-line");
-                lastFocus = document.activeElement;
-                picker.hidden = false;
-                picker.classList.add("is-open");
-                triggerBtn.setAttribute("aria-expanded", "true");
-                var first = focusables()[0];
-                if (first) first.focus();
-            }
-
-            function closePicker() {
-                picker.hidden = true;
-                picker.classList.remove("is-open");
-                if (lastFocus) {
-                    var trigger = lastFocus.closest(".bon-picker-trigger");
-                    if (trigger) trigger.setAttribute("aria-expanded", "false");
-                    lastFocus.focus();
-                }
-            }
-
-            function pick(item) {
-                if (!currentLine) return;
-
-                var nama = item.getAttribute("data-nama") || "";
-                var harga = item.getAttribute("data-harga") || "Rp 0";
-                var satuan = item.getAttribute("data-satuan") || "-";
-
-                var hidden = currentLine.querySelector(".barang-hidden");
-                var trigger = currentLine.querySelector(".barang-trigger");
-                var label = currentLine.querySelector(".barang-trigger-label");
-                var hargaEl = currentLine.querySelector(".barang-harga");
-                var satuanEl = currentLine.querySelector(".barang-satuan");
-
-                if (hidden) hidden.value = nama;
-                if (label) label.textContent = nama;
-                if (trigger) trigger.classList.remove("is-empty");
-                if (hargaEl) hargaEl.textContent = harga;
-                if (satuanEl) satuanEl.textContent = satuan;
-
-                hitungSubtotal(currentLine);
-                hitungTotalBelanja();
-                hitungSubtotal(currentLine);
-                hitungTotalBelanja();
-                closePicker();
-            }
-
-            function hitungSubtotal(line) {
-                var hargaText = (line.querySelector(".barang-harga") || {}).textContent || "Rp 0";
-                var jumlah = parseInt((line.querySelector(".barang-jumlah") || {}).value, 10) || 1;
-                var angka = parseInt(hargaText.replace(/[^0-9]/g, ""), 10) || 0;
-                var subtotal = angka * jumlah;
-                var subEl = line.querySelector(".barang-subtotal");
-                if (subEl) subEl.textContent = "Rp " + subtotal.toLocaleString("id-ID");
-            }
-
-            function hitungTotalBelanja() {
-                var lines = container.querySelectorAll(".bon-line");
-                var total = 0;
-                lines.forEach(function (line) {
-                    var subText = (line.querySelector(".barang-subtotal") || {}).textContent || "Rp 0";
-                    total += parseInt(subText.replace(/[^0-9]/g, ""), 10) || 0;
-                });
-                totalEl.textContent = "Rp " + total.toLocaleString("id-ID");
-            }
-
-            function buatBaris() {
-                var index = lineCounter++;
-                var clone = template.content.cloneNode(true);
-                var lineDiv = clone.querySelector(".bon-line");
-                lineDiv.setAttribute("data-line-index", index);
-
-                var trigger = lineDiv.querySelector(".barang-trigger");
-                trigger.addEventListener("click", function () {
-                    openPicker(trigger);
-                });
-
-                var jumlahInput = lineDiv.querySelector(".barang-jumlah");
-                jumlahInput.addEventListener("input", function () {
-                    hitungSubtotal(lineDiv);
-                    hitungTotalBelanja();
-                });
-
-                var hapusBtn = lineDiv.querySelector(".hapus-barang");
-                hapusBtn.addEventListener("click", function () {
-                    if (container.querySelectorAll(".bon-line").length <= 1) {
-                        resetBaris(lineDiv);
-                        return;
-                    }
-                    lineDiv.remove();
-                    hitungTotalBelanja();
-                });
-
-                container.appendChild(clone);
-                return lineDiv;
-            }
-
-            function resetBaris(line) {
-                var hidden = line.querySelector(".barang-hidden");
-                var trigger = line.querySelector(".barang-trigger");
-                var label = line.querySelector(".barang-trigger-label");
-                var hargaEl = line.querySelector(".barang-harga");
-                var satuanEl = line.querySelector(".barang-satuan");
-                var jumlah = line.querySelector(".barang-jumlah");
-                var subEl = line.querySelector(".barang-subtotal");
-
-                if (hidden) hidden.value = "";
-                if (label) label.textContent = "Pilih barang";
-                if (trigger) trigger.classList.add("is-empty");
-                if (hargaEl) hargaEl.textContent = "Rp 0";
-                if (satuanEl) satuanEl.textContent = "-";
-                if (jumlah) jumlah.value = "1";
-                if (subEl) subEl.textContent = "Rp 0";
-                hitungTotalBelanja();
-            }
-
-            buatBaris();
-
-            tambahBtn.addEventListener("click", buatBaris);
-
-            picker.addEventListener("click", function (event) {
-                if (event.target.closest("[data-bon-picker-close]")) {
-                    closePicker();
-                    return;
-                }
-                var item = event.target.closest(".bon-picker-item");
-                if (item) pick(item);
-            });
-
-            picker.addEventListener("keydown", function (event) {
-                if (event.key === "Escape") {
-                    event.preventDefault();
-                    closePicker();
-                    return;
-                }
-                if (event.key !== "Tab") return;
-                var list = focusables();
-                if (list.length === 0) return;
-                var first = list[0];
-                var last = list[list.length - 1];
-                if (event.shiftKey && document.activeElement === first) {
-                    event.preventDefault();
-                    last.focus();
-                } else if (!event.shiftKey && document.activeElement === last) {
-                    event.preventDefault();
-                    first.focus();
-                }
-            });
-        })();
-    </script>
+    <script src="~/custom/features/bon/create.js" asp-append-version="true"></script>
 }
