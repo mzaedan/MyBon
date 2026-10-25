@@ -2,7 +2,7 @@
 
 **Goal:** Make **Catat Bon** read and write the notebook. `/Bon` lists real bons, `/Bon/Create` saves a header plus its item lines, and `/Bon/Details/{id}` reads one bon back. Today all three views are hardcoded markup and `BonController` never touches the database.
 
-**Status:** Slice 1 (schema) and the list half of Slice 2 (search + paging) are implemented and verified against Postgres on 2026-10-25. `/Bon` now reads real bons through `BonService`; `/Bon/Create` and `/Bon/Details` are still the hardcoded slices. Both decisions in [Open decisions](#open-decisions) are locked.
+**Status:** Slice 1 (schema), the list half of Slice 2 (search + paging), Slice 3 (write), and the Create half of Slice 4 are implemented and verified against Postgres on 2026-10-25. `/Bon` reads real bons through `BonService`, `/Bon/Create` loads both sheets from the notebook and saves a header with its lines and first payment, and `/Bon/Details` is still the hardcoded slice. Both decisions in [Open decisions](#open-decisions) are locked.
 
 ## Architecture
 
@@ -23,7 +23,10 @@ status        = sisa_hutang <= 0 ? "Lunas" : "Belum lunas"
 - Modified: `Data/AppDbContext.cs` (`DbSet`s, `HasSequence("bon_nomor_seq")`, snake_case mapping)
 - Created: `Migrations/20261025123835_CreateBonTables.cs` (via `dotnet ef migrations add CreateBonTables --output-dir Migrations`)
 - Create: `Domain/Interfaces/IBonService.cs`, `Domain/Services/BonService.cs`
-- Create: `Models/Bon/Requests/CreateBonRequest.cs`, `Models/Bon/DTOs/BonListItemDto.cs`, `Models/Bon/DTOs/BonDetailDto.cs`
+- Create: `Models/Bon/Requests/CreateBonRequest.cs`, `Models/Bon/Requests/CreateBonItemRequest.cs`
+- Create: `Models/Bon/DTOs/BonListItemDto.cs`, `Models/Bon/DTOs/BonDetailDto.cs`
+- Create: `Models/Bon/DTOs/BonFormDto.cs`, `BonCustomerOptionDto.cs`, `BonBarangOptionDto.cs`
+- Create: `Models/Bon/ViewModels/CreateBonViewModel.cs`
 - Modify: `Program.cs` (`AddScoped<IBonService, BonService>()`)
 - Modify: `Controllers/BonController.cs` (`BaseController`, real `Index`, `Search`, `Create`, `Details`)
 - Modify: `Views/Bon/Index.cshtml`, `Views/Bon/Create.cshtml`, `Views/Bon/Details.cshtml`
@@ -134,17 +137,26 @@ A rolled-back insert burns a number, so the series can skip. That is accepted: a
 
 ## Slice 3: write
 
-- [ ] **Step 1:** `CreateBonRequest`: `PelangganId` (required), `Tanggal` (required), `Catatan`, `TotalBayar` as text parsed like `CreateBarangRequest.Harga`, and `List<CreateBonItemRequest>` (`BarangId`, `Jumlah`).
-- [ ] **Step 2:** `CreateAsync` validates: customer exists, at least one line, every line has an existing barang, `jumlah >= 1`, `0 <= total bayar <= total belanja`. Prices are read from `barang`, never from the client, so a tampered page cannot set a price.
-- [ ] **Step 3:** Save header and lines in one transaction; a total bayar above zero also writes the first `bon_payment` row, so `bon_payment` stays the only source of paid amounts.
-- [ ] **Step 4:** `Create` GET loads the customer list and the item list for the customer sheet and the item picker; `Create` POST uses `[ValidateAntiForgeryToken]`, and a failure re-renders the form through `AddErrorsToModelState`.
-- [ ] **Step 5:** On success `TempData["BonStatus"]` carries **Bon BN-0xx tersimpan** and the action redirects to `Index`.
+- [x] **Step 1:** `CreateBonRequest`: `PelangganId` (required), `Tanggal` (required), `Catatan`, `TotalBayar` as text parsed like `CreateBarangRequest.Harga`, and `List<CreateBonItemRequest>` (`BarangId`, `Jumlah`).
+- [x] **Step 2:** `CreateAsync` validates: customer exists, at least one line, every line has an existing barang, `jumlah >= 1`, `0 <= total bayar <= total belanja`. Prices are read from `barang`, never from the client, so a tampered page cannot set a price.
+- [x] **Step 3:** Save header and lines in one transaction; a total bayar above zero also writes the first `bon_payment` row, so `bon_payment` stays the only source of paid amounts.
+- [x] **Step 4:** `Create` GET loads the customer list and the item list for the customer sheet and the item picker through `IBonService.GetFormAsync`; `Create` POST uses `[ValidateAntiForgeryToken]`, and a failure reloads both sheets and re-renders the form through `AddErrorsToModelState`.
+- [x] **Step 5:** On success `TempData["BonStatus"]` carries **Bon BN-0xx tersimpan** and the action redirects to `Index`.
+
+### Create verification (Postgres)
+
+- A POST with two lines and **Total Bayar** `20.000` answered `302` to `/Bon`, wrote `BN-001` (total `43.000`), two `bon_item` rows with the prices copied from `barang`, and one `bon_payment` row of `20.000`.
+- `/Bon` then painted the card with **Rp 43.000** / **Rp 23.000**, and the customer sheet reported the same sisa for that customer.
+- An empty field list, a total above the sum of the lines, a non-numeric total, and a barang id that does not exist each answered `200` with the message rendered on the form; the two sheets stayed filled.
+- A POST without the antiforgery token answered `400`; an AJAX POST answered the `ErrorOr` JSON instead of a page.
+- The test bons were deleted and `bon_nomor_seq` was restarted, so the first real bon is still `BN-001`.
+- The UI renumbers `Items[i]` before submitting: the collection binder only walks indexes 0, 1, ... and stops at the first gap, so a removed middle line can never drop the line after it.
 
 ## Slice 4: views and JS
 
 - [x] **Step 1:** `Index.cshtml` renders `_Cards` in a loop, deletes the four hardcoded cards, keeps `.bon-card*`, `.bon-search*` and `.cta-catat-bon`, and gains the empty state the Barang list has. The search row is a real `q` field, the title reports the total, and the stack carries `data-search-url` so `index.js` can page and search it.
-- [ ] **Step 2:** `Create.cshtml` turns `method="get"` into a POST form with an antiforgery token, fills the customer rows in `#bonCustomerPicker` from the model (name, phone, sisa), keeping `data-nama` on each `.bon-customer-item`, and replaces the hardcoded picker buttons with the items the page carries (`data-id`, `data-nama`, `data-satuan`, `data-harga`), so the hidden field submits the id.
-- [ ] **Step 3:** `create.js` posts `Items[0].BarangId` / `Items[0].Jumlah` so model binding fills the list; the existing subtotal and total arithmetic stays.
+- [x] **Step 2:** `Create.cshtml` turns `method="get"` into a POST form with an antiforgery token, fills the customer rows in `#bonCustomerPicker` from the model (name, phone, sisa), keeping `data-nama` on each `.bon-customer-item`, and replaces the hardcoded picker buttons with the items the page carries (`data-id`, `data-nama`, `data-satuan`, `data-harga`), so the hidden field submits the id. Both sheets filter their rendered rows by name, and the date field starts on today.
+- [x] **Step 3:** `create.js` posts `Items[i].BarangId` / `Items[i].Jumlah`, renumbering the lines in order on every add, remove, and submit so model binding fills the list; the subtotal and total arithmetic read the raw price instead of the painted label.
 - [ ] **Step 4:** `Details.cshtml` takes `BonDetailDto`: header from `Nomor` and `Pelanggan.Nama`, summary from the computed totals, history from `Payments`, lines from `Items` with `harga_satuan x jumlah satuan`. **Catat pembayaran** stops pointing at `Index` and waits for its own slice.
 
 ---

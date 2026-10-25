@@ -2366,6 +2366,7 @@ a.bon-card:focus-visible {
 
 /* Pilih pelanggan sheet */
 
+.bon-barang-row[hidden],
 .bon-customer-row[hidden] {
   display: none;
 }

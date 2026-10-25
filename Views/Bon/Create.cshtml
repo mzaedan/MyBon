@@ -1,62 +1,81 @@
+@model CreateBonViewModel
+@using System.Globalization
+
 @{
     ViewData["Title"] = "Bon baru";
     ViewData["BackHref"] = Url.Action("Index", "Bon");
+
+    // Amounts read like the rest of the notebook: Rp 185.000, with at most two decimals.
+    string FormatRupiah(decimal jumlah) =>
+        $"Rp {jumlah.ToString("#,##0.##", CultureInfo.GetCultureInfo("id-ID"))}";
+
+    // The picker carries the raw price in data-harga, so the line arithmetic never parses a label.
+    string FormatHarga(decimal harga) =>
+        harga.ToString("0.##", CultureInfo.InvariantCulture);
+
+    var selectedCustomer = Model.Customers.FirstOrDefault(customer => customer.Id == Model.PelangganId);
+    var pelangganLabel = selectedCustomer?.Nama ?? "Pilih pelanggan";
 }
 
 <hr class="page-rule" />
 
-<form method="get" asp-action="Create" class="pelanggan-form">
+<form method="post" asp-action="Create" class="pelanggan-form">
+    @* Item lines are added by script, so every message is reported at the top of the form. *@
+    <div asp-validation-summary="All" class="pelanggan-field-error" role="alert"></div>
+
     <div class="pelanggan-field">
         <span class="pelanggan-field-label" id="pelangganLabel">Pelanggan</span>
         <div class="bon-field-with-icon">
-            <input id="pelanggan" type="hidden" name="pelanggan" value="" />
+            <input asp-for="PelangganId" type="hidden" id="pelanggan" />
             <button type="button"
                     id="pilihPelangganBtn"
-                    class="bon-picker-trigger bon-customer-trigger is-empty"
+                    class="bon-picker-trigger bon-customer-trigger@(selectedCustomer is null ? " is-empty" : "")"
                     aria-haspopup="dialog"
                     aria-expanded="false"
                     aria-controls="bonCustomerPicker"
                     aria-labelledby="pelangganLabel pelangganValue">
-                <span id="pelangganValue" class="bon-customer-trigger-label">Pilih pelanggan</span>
+                <span id="pelangganValue" class="bon-customer-trigger-label">@pelangganLabel</span>
             </button>
             <i class="bi bi-caret-down bon-field-icon" aria-hidden="true"></i>
         </div>
+        <span asp-validation-for="PelangganId" class="pelanggan-field-error"></span>
         <hr class="page-rule" />
     </div>
 
     <div class="pelanggan-field">
         <label class="pelanggan-field-label" for="tanggal">Tanggal</label>
         <div class="bon-field-with-icon">
-            <input id="tanggal"
+            <input asp-for="Tanggal"
                    type="date"
-                   name="tanggal"
-                   class="pelanggan-field-input bon-date"
-                   value="" />
+                   id="tanggal"
+                   class="pelanggan-field-input bon-date" />
             <i class="bi bi-calendar bon-field-icon" aria-hidden="true"></i>
         </div>
+        <span asp-validation-for="Tanggal" class="pelanggan-field-error"></span>
         <hr class="page-rule" />
     </div>
 
     <div class="pelanggan-field">
         <label class="pelanggan-field-label" for="totalBayar">Total Bayar</label>
-        <input id="totalBayar"
+        <input asp-for="TotalBayar"
                type="text"
-               name="totalBayar"
+               id="totalBayar"
                inputmode="decimal"
                class="pelanggan-field-input bon-money-input"
                placeholder="Tulis total bayar"
-               autocomplete="off"
-               value="" />
+               autocomplete="off" />
+        <span asp-validation-for="TotalBayar" class="pelanggan-field-error"></span>
         <hr class="page-rule" />
     </div>
 
     <div class="pelanggan-field">
         <label class="pelanggan-field-label" for="catatan">Catatan</label>
-        <textarea id="catatan"
-                  name="catatan"
+        <textarea asp-for="Catatan"
+                  id="catatan"
                   class="pelanggan-field-input pelanggan-field-textarea"
                   placeholder="Tulis catatan"
                   rows="2"></textarea>
+        <span asp-validation-for="Catatan" class="pelanggan-field-error"></span>
         <hr class="page-rule" />
     </div>
 
@@ -88,7 +107,7 @@
 <template id="bonLineTemplate">
     <div class="bon-line" data-line-index="">
         <div class="bon-field-with-icon">
-            <input type="hidden" class="barang-hidden" value="" />
+            <input type="hidden" class="barang-hidden" />
             <button type="button"
                     class="bon-picker-trigger is-empty barang-trigger"
                     aria-haspopup="dialog"
@@ -103,12 +122,11 @@
         <div class="bon-line-metrics">
             <div class="bon-line-col">
                 <div class="pelanggan-field-label">Harga</div>
-                <div class="bon-line-money barang-harga">Rp 0</div>
+                <div class="bon-line-money barang-harga" data-harga="0">Rp 0</div>
             </div>
             <div class="bon-line-col bon-line-col--qty">
                 <label class="pelanggan-field-label">Jumlah</label>
                 <input type="number"
-                       name="jumlah"
                        min="1"
                        value="1"
                        class="bon-line-qty barang-jumlah" />
@@ -131,6 +149,7 @@
     </div>
 </template>
 
+
 <div id="bonPicker" class="bon-picker" hidden>
     <div class="bon-picker-scrim" data-bon-picker-close></div>
     <div class="bon-picker-sheet"
@@ -146,83 +165,42 @@
                 <i class="bi bi-x-lg" aria-hidden="true"></i>
             </button>
         </div>
-        <div class="bon-picker-search" aria-hidden="true">
+        <div class="bon-picker-search">
             <div class="bon-picker-search-row">
-                <i class="bi bi-search bon-picker-search-icon"></i>
-                <span class="bon-picker-search-text">Cari barang</span>
+                <i class="bi bi-search bon-picker-search-icon" aria-hidden="true"></i>
+                <input id="bonBarangSearch"
+                       type="search"
+                       class="bon-picker-search-input"
+                       placeholder="Cari barang"
+                       aria-label="Cari nama barang"
+                       autocomplete="off" />
             </div>
             <hr class="page-rule" />
         </div>
         <div class="bon-picker-list">
-            <button type="button" class="bon-picker-item" data-nama="Beras Ramos 5 kg" data-satuan="karung" data-harga="Rp 78.000">
-                <span class="bon-picker-item-info">
-                    <span class="bon-picker-item-name">Beras Ramos 5 kg</span>
-                    <span class="bon-picker-item-unit">karung</span>
-                </span>
-                <span class="bon-picker-item-price">Rp 78.000</span>
-            </button>
-            <hr class="page-rule" />
-            <button type="button" class="bon-picker-item" data-nama="Minyak Goreng 2 L" data-satuan="botol" data-harga="Rp 34.000">
-                <span class="bon-picker-item-info">
-                    <span class="bon-picker-item-name">Minyak Goreng 2 L</span>
-                    <span class="bon-picker-item-unit">botol</span>
-                </span>
-                <span class="bon-picker-item-price">Rp 34.000</span>
-            </button>
-            <hr class="page-rule" />
-            <button type="button" class="bon-picker-item" data-nama="Gula Pasir" data-satuan="kg" data-harga="Rp 17.500">
-                <span class="bon-picker-item-info">
-                    <span class="bon-picker-item-name">Gula Pasir</span>
-                    <span class="bon-picker-item-unit">kg</span>
-                </span>
-                <span class="bon-picker-item-price">Rp 17.500</span>
-            </button>
-            <hr class="page-rule" />
-            <button type="button" class="bon-picker-item" data-nama="Telur Ayam" data-satuan="kg" data-harga="Rp 28.000">
-                <span class="bon-picker-item-info">
-                    <span class="bon-picker-item-name">Telur Ayam</span>
-                    <span class="bon-picker-item-unit">kg</span>
-                </span>
-                <span class="bon-picker-item-price">Rp 28.000</span>
-            </button>
-            <hr class="page-rule" />
-            <button type="button" class="bon-picker-item" data-nama="Mie Instan" data-satuan="dus" data-harga="Rp 125.000">
-                <span class="bon-picker-item-info">
-                    <span class="bon-picker-item-name">Mie Instan</span>
-                    <span class="bon-picker-item-unit">dus</span>
-                </span>
-                <span class="bon-picker-item-price">Rp 125.000</span>
-            </button>
-            <hr class="page-rule" />
-            <button type="button" class="bon-picker-item" data-nama="Kopi Sachet" data-satuan="renceng" data-harga="Rp 12.000">
-                <span class="bon-picker-item-info">
-                    <span class="bon-picker-item-name">Kopi Sachet</span>
-                    <span class="bon-picker-item-unit">renceng</span>
-                </span>
-                <span class="bon-picker-item-price">Rp 12.000</span>
-            </button>
-            <hr class="page-rule" />
-            <button type="button" class="bon-picker-item" data-nama="Sabun Mandi" data-satuan="pcs" data-harga="Rp 4.500">
-                <span class="bon-picker-item-info">
-                    <span class="bon-picker-item-name">Sabun Mandi</span>
-                    <span class="bon-picker-item-unit">pcs</span>
-                </span>
-                <span class="bon-picker-item-price">Rp 4.500</span>
-            </button>
-            <hr class="page-rule" />
-            <button type="button" class="bon-picker-item" data-nama="Garam Dapur" data-satuan="bungkus" data-harga="Rp 3.000">
-                <span class="bon-picker-item-info">
-                    <span class="bon-picker-item-name">Garam Dapur</span>
-                    <span class="bon-picker-item-unit">bungkus</span>
-                </span>
-                <span class="bon-picker-item-price">Rp 3.000</span>
-            </button>
-            <hr class="page-rule" />
+            @foreach (var barang in Model.Barangs)
+            {
+                <div class="bon-barang-row">
+                    <button type="button"
+                            class="bon-picker-item"
+                            data-id="@barang.Id"
+                            data-nama="@barang.Nama"
+                            data-satuan="@barang.Satuan"
+                            data-harga="@FormatHarga(barang.Harga)">
+                        <span class="bon-picker-item-info">
+                            <span class="bon-picker-item-name">@barang.Nama</span>
+                            <span class="bon-picker-item-unit">@(string.IsNullOrWhiteSpace(barang.Satuan) ? "-" : barang.Satuan)</span>
+                        </span>
+                        <span class="bon-picker-item-price">@FormatRupiah(barang.Harga)</span>
+                    </button>
+                    <hr class="page-rule" />
+                </div>
+            }
         </div>
+        <p class="bon-customer-empty" id="bonBarangEmpty" hidden="@(Model.Barangs.Count == 0 ? null : "hidden")">Belum ada barang di buku. Tambahkan barang dulu.</p>
     </div>
 </div>
 
-@* TODO: load the customers and their sisa hutang from the database when the Bon dinamis slice lands. *@
 <div id="bonCustomerPicker" class="bon-picker" hidden>
     <div class="bon-picker-scrim" data-bon-customer-close></div>
     <div class="bon-picker-sheet"
@@ -252,67 +230,30 @@
             <hr class="page-rule" />
         </div>
         <div class="bon-picker-list">
-            <div class="bon-customer-row">
-                <button type="button"
-                        class="bon-picker-item bon-customer-item"
-                        data-nama="Siti Aminah"
-                        data-hp="0812 3456 7890"
-                        data-sisa="Rp 185.000">
-                    <span class="bon-picker-item-info">
-                        <span class="bon-picker-item-name bon-customer-item-name">Siti Aminah</span>
-                        <span class="bon-picker-item-unit bon-customer-item-hp">0812 3456 7890</span>
-                    </span>
-                    <span class="bon-picker-item-price bon-customer-item-sisa">Rp 185.000</span>
-                </button>
-                <hr class="page-rule" />
-            </div>
-            <div class="bon-customer-row">
-                <button type="button"
-                        class="bon-picker-item bon-customer-item"
-                        data-nama="Budi Santoso"
-                        data-hp="0813 2211 4455"
-                        data-sisa="Rp 92.000">
-                    <span class="bon-picker-item-info">
-                        <span class="bon-picker-item-name bon-customer-item-name">Budi Santoso</span>
-                        <span class="bon-picker-item-unit bon-customer-item-hp">0813 2211 4455</span>
-                    </span>
-                    <span class="bon-picker-item-price bon-customer-item-sisa">Rp 92.000</span>
-                </button>
-                <hr class="page-rule" />
-            </div>
-            <div class="bon-customer-row">
-                <button type="button"
-                        class="bon-picker-item bon-customer-item"
-                        data-nama="Rina Wahyuni"
-                        data-hp="0857 9900 1122"
-                        data-sisa="Rp 48.500">
-                    <span class="bon-picker-item-info">
-                        <span class="bon-picker-item-name bon-customer-item-name">Rina Wahyuni</span>
-                        <span class="bon-picker-item-unit bon-customer-item-hp">0857 9900 1122</span>
-                    </span>
-                    <span class="bon-picker-item-price bon-customer-item-sisa">Rp 48.500</span>
-                </button>
-                <hr class="page-rule" />
-            </div>
-            <div class="bon-customer-row">
-                <button type="button"
-                        class="bon-picker-item bon-customer-item"
-                        data-nama="Agus Salim"
-                        data-hp="0819 7788 3344"
-                        data-sisa="Rp 0">
-                    <span class="bon-picker-item-info">
-                        <span class="bon-picker-item-name bon-customer-item-name">Agus Salim</span>
-                        <span class="bon-picker-item-unit bon-customer-item-hp">0819 7788 3344</span>
-                    </span>
-                    <span class="bon-picker-item-price bon-customer-item-sisa bon-customer-item-sisa--lunas">Rp 0</span>
-                </button>
-                <hr class="page-rule" />
-            </div>
+            @foreach (var customer in Model.Customers)
+            {
+                <div class="bon-customer-row">
+                    <button type="button"
+                            class="bon-picker-item bon-customer-item"
+                            data-id="@customer.Id"
+                            data-nama="@customer.Nama"
+                            data-hp="@customer.NomorHp"
+                            data-sisa="@FormatRupiah(customer.SisaHutang)">
+                        <span class="bon-picker-item-info">
+                            <span class="bon-picker-item-name bon-customer-item-name">@customer.Nama</span>
+                            <span class="bon-picker-item-unit bon-customer-item-hp">@(string.IsNullOrWhiteSpace(customer.NomorHp) ? "Tanpa nomor HP" : customer.NomorHp)</span>
+                        </span>
+                        <span class="bon-picker-item-price bon-customer-item-sisa@(customer.Lunas ? " bon-customer-item-sisa--lunas" : "")">@FormatRupiah(customer.SisaHutang)</span>
+                    </button>
+                    <hr class="page-rule" />
+                </div>
+            }
         </div>
-        <p class="bon-customer-empty" id="bonCustomerEmpty" hidden>Belum ada pelanggan yang cocok.</p>
+        <p class="bon-customer-empty" id="bonCustomerEmpty" hidden="@(Model.Customers.Count == 0 ? null : "hidden")">Belum ada pelanggan yang cocok.</p>
     </div>
 </div>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
     <script src="~/custom/features/bon/create.js" asp-append-version="true"></script>
 }

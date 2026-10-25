@@ -1,5 +1,6 @@
-/* Bon > Create: the barang lines and the two bottom sheets. Both pickers write into the
-   form fields; saving the bon itself waits for the Bon dinamis plan. */
+/* Bon > Create: the customer and item sheets, the barang lines, and the running totals. The form
+   posts one CreateBonRequest: PelangganId, Tanggal, TotalBayar, and Items[i].BarangId / Items[i].Jumlah.
+   Prices are shown only; the server re-reads them from the stock list when the bon is saved. */
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
@@ -11,6 +12,37 @@ document.addEventListener('DOMContentLoaded', function () {
     initBarangLines(shell);
     initCustomerPicker(shell);
 
+    // Amounts read like the notebook: Rp 78.000, with at most two decimals.
+    function formatRupiah(value) {
+        return 'Rp ' + (Number(value) || 0).toLocaleString('id-ID', { maximumFractionDigits: 2 });
+    }
+
+    // Both sheets filter the rows they already carry; the box never asks the server again.
+    function wireSearch(input, rows, empty, nameSelector) {
+        if (!input) {
+            return;
+        }
+
+        input.addEventListener('input', function () {
+            var term = input.value.trim().toLowerCase();
+            var matches = 0;
+
+            rows.forEach(function (row) {
+                var nameEl = row.querySelector(nameSelector);
+                var name = nameEl ? nameEl.textContent.toLowerCase() : '';
+                var isMatch = term === '' || name.indexOf(term) !== -1;
+                row.hidden = !isMatch;
+                if (isMatch) {
+                    matches++;
+                }
+            });
+
+            if (empty) {
+                empty.hidden = matches > 0;
+            }
+        });
+    }
+
     function initBarangLines(shell) {
         var picker = document.getElementById('bonPicker');
         var container = document.getElementById('bonLinesContainer');
@@ -18,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var tambahBtn = document.getElementById('tambahBarangBtn');
         var totalEl = document.getElementById('totalBelanja');
 
-        if (!picker || !container || !template || !tambahBtn) {
+        if (!picker || !container || !template || !tambahBtn || !totalEl) {
             return;
         }
 
@@ -26,13 +58,17 @@ document.addEventListener('DOMContentLoaded', function () {
         shell.appendChild(picker);
 
         var sheet = picker.querySelector('.bon-picker-sheet');
+        var search = document.getElementById('bonBarangSearch');
+        var empty = document.getElementById('bonBarangEmpty');
+        var rows = Array.prototype.slice.call(picker.querySelectorAll('.bon-barang-row'));
         var lastFocus = null;
         var currentLine = null;
-        var lineCounter = 0;
+
+        wireSearch(search, rows, empty, '.bon-picker-item-name');
 
         function focusables() {
             return Array.prototype.slice.call(
-                sheet.querySelectorAll('button:not([disabled])')
+                sheet.querySelectorAll('button:not([disabled]), input:not([disabled]), [href]')
             );
         }
 
@@ -42,6 +78,12 @@ document.addEventListener('DOMContentLoaded', function () {
             picker.hidden = false;
             picker.classList.add('is-open');
             triggerBtn.setAttribute('aria-expanded', 'true');
+
+            if (search) {
+                search.focus();
+                return;
+            }
+
             var first = focusables()[0];
             if (first) {
                 first.focus();
@@ -51,6 +93,17 @@ document.addEventListener('DOMContentLoaded', function () {
         function closePicker() {
             picker.hidden = true;
             picker.classList.remove('is-open');
+
+            if (search) {
+                search.value = '';
+            }
+            rows.forEach(function (row) {
+                row.hidden = false;
+            });
+            if (empty) {
+                empty.hidden = rows.length > 0;
+            }
+
             if (lastFocus) {
                 var trigger = lastFocus.closest('.bon-picker-trigger');
                 if (trigger) {
@@ -65,9 +118,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            var id = item.getAttribute('data-id') || '';
             var nama = item.getAttribute('data-nama') || '';
-            var harga = item.getAttribute('data-harga') || 'Rp 0';
             var satuan = item.getAttribute('data-satuan') || '-';
+            var harga = parseFloat(item.getAttribute('data-harga')) || 0;
 
             var hidden = currentLine.querySelector('.barang-hidden');
             var trigger = currentLine.querySelector('.barang-trigger');
@@ -75,8 +129,9 @@ document.addEventListener('DOMContentLoaded', function () {
             var hargaEl = currentLine.querySelector('.barang-harga');
             var satuanEl = currentLine.querySelector('.barang-satuan');
 
+            // The form posts the item id; the name, unit, and price are painted only.
             if (hidden) {
-                hidden.value = nama;
+                hidden.value = id;
             }
             if (label) {
                 label.textContent = nama;
@@ -84,11 +139,12 @@ document.addEventListener('DOMContentLoaded', function () {
             if (trigger) {
                 trigger.classList.remove('is-empty');
             }
-            if (hargaEl) {
-                hargaEl.textContent = harga;
-            }
             if (satuanEl) {
                 satuanEl.textContent = satuan;
+            }
+            if (hargaEl) {
+                hargaEl.setAttribute('data-harga', String(harga));
+                hargaEl.textContent = formatRupiah(harga);
             }
 
             hitungSubtotal(currentLine);
@@ -96,32 +152,56 @@ document.addEventListener('DOMContentLoaded', function () {
             closePicker();
         }
 
+        function hargaBaris(line) {
+            var el = line.querySelector('.barang-harga');
+            return el ? parseFloat(el.getAttribute('data-harga')) || 0 : 0;
+        }
+
+        function jumlahBaris(line) {
+            var el = line.querySelector('.barang-jumlah');
+            var value = el ? parseInt(el.value, 10) : 0;
+            return isNaN(value) ? 0 : value;
+        }
+
         function hitungSubtotal(line) {
-            var hargaText = (line.querySelector('.barang-harga') || {}).textContent || 'Rp 0';
-            var jumlah = parseInt((line.querySelector('.barang-jumlah') || {}).value, 10) || 1;
-            var angka = parseInt(hargaText.replace(/[^0-9]/g, ''), 10) || 0;
-            var subtotal = angka * jumlah;
             var subEl = line.querySelector('.barang-subtotal');
             if (subEl) {
-                subEl.textContent = 'Rp ' + subtotal.toLocaleString('id-ID');
+                subEl.textContent = formatRupiah(hargaBaris(line) * jumlahBaris(line));
             }
         }
 
         function hitungTotalBelanja() {
-            var lines = container.querySelectorAll('.bon-line');
             var total = 0;
-            lines.forEach(function (line) {
-                var subText = (line.querySelector('.barang-subtotal') || {}).textContent || 'Rp 0';
-                total += parseInt(subText.replace(/[^0-9]/g, ''), 10) || 0;
+            container.querySelectorAll('.bon-line').forEach(function (line) {
+                total += hargaBaris(line) * jumlahBaris(line);
             });
-            totalEl.textContent = 'Rp ' + total.toLocaleString('id-ID');
+            totalEl.textContent = formatRupiah(total);
+        }
+
+        // Model binding reads these names. The collection binder only walks Items[0], Items[1], ...
+        // and stops at the first gap, so every add, remove, and submit renumbers the lines in order.
+        function renumberLines() {
+            var index = 0;
+
+            container.querySelectorAll('.bon-line').forEach(function (line) {
+                var hidden = line.querySelector('.barang-hidden');
+                var jumlah = line.querySelector('.barang-jumlah');
+
+                if (hidden) {
+                    hidden.name = 'Items[' + index + '].BarangId';
+                }
+                if (jumlah) {
+                    jumlah.name = 'Items[' + index + '].Jumlah';
+                }
+
+                line.setAttribute('data-line-index', index);
+                index++;
+            });
         }
 
         function buatBaris() {
-            var index = lineCounter++;
             var clone = template.content.cloneNode(true);
             var lineDiv = clone.querySelector('.bon-line');
-            lineDiv.setAttribute('data-line-index', index);
 
             var trigger = lineDiv.querySelector('.barang-trigger');
             trigger.addEventListener('click', function () {
@@ -141,11 +221,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
                 lineDiv.remove();
+                renumberLines();
                 hitungTotalBelanja();
             });
 
             container.appendChild(clone);
-            return lineDiv;
+            renumberLines();
         }
 
         function resetBaris(line) {
@@ -167,6 +248,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 trigger.classList.add('is-empty');
             }
             if (hargaEl) {
+                hargaEl.setAttribute('data-harga', '0');
                 hargaEl.textContent = 'Rp 0';
             }
             if (satuanEl) {
@@ -178,6 +260,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (subEl) {
                 subEl.textContent = 'Rp 0';
             }
+
             hitungTotalBelanja();
         }
 
@@ -223,6 +306,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 first.focus();
             }
         });
+
+        var form = container.closest('form');
+        if (form) {
+            form.addEventListener('submit', function () {
+                // A line nobody filled carries no item. Dropping it here keeps the server from rejecting
+                // a row the shopkeeper never meant to write.
+                container.querySelectorAll('.bon-line').forEach(function (line) {
+                    var hidden = line.querySelector('.barang-hidden');
+                    if (!hidden || hidden.value === '') {
+                        line.remove();
+                    }
+                });
+
+                renumberLines();
+                hitungTotalBelanja();
+            });
+        }
     }
 
     function initCustomerPicker(shell) {
@@ -236,13 +336,15 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Same overlay container as the barang picker, so the scrim covers the whole shell.
+        // Same overlay container as the item picker, so the scrim covers the whole shell.
         shell.appendChild(picker);
 
         var sheet = picker.querySelector('.bon-picker-sheet');
         var value = trigger.querySelector('.bon-customer-trigger-label');
         var rows = Array.prototype.slice.call(picker.querySelectorAll('.bon-customer-row'));
         var lastFocus = null;
+
+        wireSearch(search, rows, empty, '.bon-customer-item-name');
 
         function focusables() {
             return Array.prototype.slice.call(
@@ -256,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 row.hidden = false;
             });
             if (empty) {
-                empty.hidden = true;
+                empty.hidden = rows.length > 0;
             }
         }
 
@@ -284,14 +386,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function pick(item) {
+            var id = item.getAttribute('data-id') || '';
             var nama = item.getAttribute('data-nama') || '';
-            field.value = nama;
 
+            // The form posts the customer id; the name is painted only.
+            field.value = id;
             if (value) {
-                value.textContent = nama;
+                value.textContent = nama || 'Pilih pelanggan';
             }
-
-            trigger.classList.remove('is-empty');
+            trigger.classList.toggle('is-empty', id === '');
             close();
         }
 
@@ -333,26 +436,6 @@ document.addEventListener('DOMContentLoaded', function () {
             } else if (!event.shiftKey && document.activeElement === last) {
                 event.preventDefault();
                 first.focus();
-            }
-        });
-
-        // The export paints a search row; the sheet filters its four rows by name so the box is not dead.
-        search.addEventListener('input', function () {
-            var term = search.value.trim().toLowerCase();
-            var matches = 0;
-
-            rows.forEach(function (row) {
-                var nameEl = row.querySelector('.bon-customer-item-name');
-                var name = nameEl ? nameEl.textContent.toLowerCase() : '';
-                var isMatch = term === '' || name.indexOf(term) !== -1;
-                row.hidden = !isMatch;
-                if (isMatch) {
-                    matches++;
-                }
-            });
-
-            if (empty) {
-                empty.hidden = matches > 0;
             }
         });
     }
