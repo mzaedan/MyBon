@@ -1,97 +1,68 @@
+@model MyBon.Models.Common.PagedResult<MyBon.Models.Bon.DTOs.BonListItemDto>
+
 @{
     ViewData["Title"] = "Catat Bon";
+    var status = TempData["BonStatus"] as string;
+    var query = (ViewData["SearchQuery"] as string ?? string.Empty).Trim();
+    var isSearching = query.Length > 0;
 }
 
-<div class="bon-page">
-    <hr class="page-rule" />
-
-    <div class="bon-search" aria-hidden="true">
-        <div class="bon-search-row">
-            <i class="bi bi-search bon-search-icon"></i>
-            <span class="bon-search-text">Cari nomor atau nama</span>
-        </div>
+@if (Model.Total == 0 && !isSearching)
+{
+    @* Empty state: same shape as the Pelanggan and Barang lists, so an empty notebook reads the same. *@
+    <div class="bon-empty">
         <hr class="page-rule" />
+
+        <div class="bon-empty-body">
+            <div class="bon-empty-art">
+                <div class="bon-empty-lottie" id="lottie-bon-empty"></div>
+            </div>
+
+            <p class="bon-empty-copy">
+                Belum ada bon di buku. Catat bon baru untuk mulai menulis hutang pelanggan.
+            </p>
+
+            <a class="cta-catat-bon" asp-controller="Bon" asp-action="Create">Catat bon baru</a>
+        </div>
     </div>
+}
+else
+{
+    // The total, not the page: the list reports every match while it paints eight at a time.
+    var countTitle = isSearching
+        ? $"{Model.Total} bon cocok"
+        : $"{Model.Total} bon di buku";
 
-    <div class="bon-list-title">4 bon di buku</div>
+    <div class="bon-page">
+        <hr class="page-rule" />
 
-    <div class="bon-cards">
-        <a class="bon-card" asp-controller="Bon" asp-action="Details">
-            <div class="bon-card-top">
-                <div class="bon-card-no">BN-014</div>
-                <div class="bon-card-status">Belum lunas</div>
-            </div>
-            <div class="bon-card-name">Siti Aminah</div>
-            <div class="bon-card-date">12 Maret 2026</div>
-            <div class="bon-amounts">
-                <div class="bon-amount-col">
-                    <div class="bon-amount-label">Total belanja</div>
-                    <div class="bon-amount-value">Rp 185.000</div>
-                </div>
-                <div class="bon-amount-col bon-amount-col--end">
-                    <div class="bon-amount-label">Sisa hutang</div>
-                    <div class="bon-amount-value">Rp 185.000</div>
-                </div>
-            </div>
-        </a>
+        @if (!string.IsNullOrWhiteSpace(status))
+        {
+            <p class="bon-notice" role="status">@status</p>
+        }
 
-        <a class="bon-card" asp-controller="Bon" asp-action="Details">
-            <div class="bon-card-top">
-                <div class="bon-card-no">BN-013</div>
-                <div class="bon-card-status">Belum lunas</div>
+        @* A real field. The number and the customer name are matched, so an item typed in the box finds nothing. *@
+        <form class="bon-search" method="get" asp-controller="Bon" asp-action="Index" role="search">
+            <div class="bon-search-row">
+                <i class="bi bi-search bon-search-icon" aria-hidden="true"></i>
+                <input class="bon-search-input" id="bon-search-input" type="search" name="q"
+                       value="@query" placeholder="Cari nomor atau nama" autocomplete="off"
+                       aria-label="Cari nomor bon atau nama pelanggan" />
             </div>
-            <div class="bon-card-name">Budi Santoso</div>
-            <div class="bon-card-date">10 Maret 2026</div>
-            <div class="bon-amounts">
-                <div class="bon-amount-col">
-                    <div class="bon-amount-label">Total belanja</div>
-                    <div class="bon-amount-value">Rp 92.000</div>
-                </div>
-                <div class="bon-amount-col bon-amount-col--end">
-                    <div class="bon-amount-label">Sisa hutang</div>
-                    <div class="bon-amount-value">Rp 92.000</div>
-                </div>
-            </div>
-        </a>
+            <hr class="page-rule" />
+        </form>
 
-        <a class="bon-card" asp-controller="Bon" asp-action="Details">
-            <div class="bon-card-top">
-                <div class="bon-card-no">BN-012</div>
-                <div class="bon-card-status">Belum lunas</div>
-            </div>
-            <div class="bon-card-name">Rina Wahyuni</div>
-            <div class="bon-card-date">8 Maret 2026</div>
-            <div class="bon-amounts">
-                <div class="bon-amount-col">
-                    <div class="bon-amount-label">Total belanja</div>
-                    <div class="bon-amount-value">Rp 48.500</div>
-                </div>
-                <div class="bon-amount-col bon-amount-col--end">
-                    <div class="bon-amount-label">Sisa hutang</div>
-                    <div class="bon-amount-value">Rp 48.500</div>
-                </div>
-            </div>
-        </a>
+        <div class="bon-list-title@(Model.Total == 0 ? " bon-hidden" : "")" id="bon-list-title">@countTitle</div>
 
-        <a class="bon-card" asp-controller="Bon" asp-action="Details">
-            <div class="bon-card-top">
-                <div class="bon-card-no">BN-011</div>
-                <div class="bon-card-status bon-card-status--lunas">Lunas</div>
-            </div>
-            <div class="bon-card-name">Agus Salim</div>
-            <div class="bon-card-date">5 Maret 2026</div>
-            <div class="bon-amounts">
-                <div class="bon-amount-col">
-                    <div class="bon-amount-label">Total belanja</div>
-                    <div class="bon-amount-value">Rp 40.000</div>
-                </div>
-                <div class="bon-amount-col bon-amount-col--end">
-                    <div class="bon-amount-label">Sisa hutang</div>
-                    <div class="bon-amount-value">Rp 0</div>
-                </div>
-            </div>
-        </a>
+        <div class="bon-card-stack" id="bon-card-stack" data-search-url="@(Url.Action("Search", "Bon"))">
+            <partial name="_Cards" model="Model" />
+        </div>
+
+        <a class="cta-catat-bon" asp-controller="Bon" asp-action="Create">Catat bon baru</a>
     </div>
+}
 
-    <a class="cta-catat-bon" asp-controller="Bon" asp-action="Create">Catat bon baru</a>
-</div>
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <script src="~/custom/features/bon/index.js" asp-append-version="true"></script>
+}

@@ -364,8 +364,7 @@ a.cta-catat-bon {
   color: var(--muted);
 }
 
-.pelanggan-search-text,
-.bon-search-text {
+.pelanggan-search-text {
   flex: 1 1 0;
   font-size: 15px;
   font-weight: 400;
@@ -373,7 +372,8 @@ a.cta-catat-bon {
 }
 
 .pelanggan-search-input,
-.barang-search-input {
+.barang-search-input,
+.bon-search-input {
   flex: 1 1 0;
   min-width: 0;
   padding: 0;
@@ -387,12 +387,14 @@ a.cta-catat-bon {
 }
 
 .pelanggan-search-input::placeholder,
-.barang-search-input::placeholder {
+.barang-search-input::placeholder,
+.bon-search-input::placeholder {
   color: var(--muted);
 }
 
 .pelanggan-search-input:focus,
-.barang-search-input:focus {
+.barang-search-input:focus,
+.bon-search-input:focus {
   outline: none;
 }
 
@@ -400,7 +402,8 @@ a.cta-catat-bon {
    Both forms anchor on the form: the rule is the row's sibling, not a descendant of it, so a
    `.pelanggan-search-row:focus-within .page-rule` selector would never match. */
 .pelanggan-search:focus-within .page-rule,
-.barang-search:focus-within .page-rule {
+.barang-search:focus-within .page-rule,
+.bon-search:focus-within .page-rule {
   background: var(--text);
 }
 
@@ -413,7 +416,8 @@ a.cta-catat-bon {
 }
 
 .pelanggan-card-stack,
-.barang-card-stack {
+.barang-card-stack,
+.bon-card-stack {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -447,9 +451,11 @@ a.pelanggan-card:focus-visible {
   outline-offset: 2px;
 }
 
-/* Toggled by the live search in custom/features/pelanggan/index.js and custom/features/barang/index.js. */
+/* Toggled by the live search in custom/features/pelanggan/index.js, custom/features/barang/index.js
+   and custom/features/bon/index.js. */
 .pelanggan-hidden,
-.barang-hidden {
+.barang-hidden,
+.bon-hidden {
   display: none;
 }
 
@@ -468,7 +474,8 @@ a.pelanggan-card:focus-visible {
 }
 
 .pelanggan-load-more,
-.barang-load-more {
+.barang-load-more,
+.bon-load-more {
   width: 100%;
   min-height: 44px;
   height: 44px;
@@ -484,12 +491,14 @@ a.pelanggan-card:focus-visible {
 }
 
 .pelanggan-load-more:active,
-.barang-load-more:active {
+.barang-load-more:active,
+.bon-load-more:active {
   opacity: 0.9;
 }
 
 .pelanggan-load-more:focus-visible,
-.barang-load-more:focus-visible {
+.barang-load-more:focus-visible,
+.bon-load-more:focus-visible {
   outline: 2px solid var(--text);
   outline-offset: 2px;
 }
@@ -646,7 +655,8 @@ a.pelanggan-btn-hapus {
 }
 
 .pelanggan-search-empty,
-.barang-search-empty {
+.barang-search-empty,
+.bon-search-empty {
   margin: 0;
   font-size: 15px;
   line-height: 1.4;
@@ -844,7 +854,8 @@ a.barang-card:focus-visible {
   font-weight: 600;
 }
 
-.barang-notice {
+.barang-notice,
+.bon-notice {
   margin: 0;
   font-size: 15px;
   line-height: 1.4;
@@ -884,6 +895,48 @@ a.barang-card:focus-visible {
 }
 
 .barang-empty-copy {
+  margin: 0;
+  font-size: 15px;
+  line-height: 21px;
+  font-weight: 400;
+  color: var(--text);
+  text-align: center;
+  max-width: 280px;
+}
+
+/* ── Bon empty state ── */
+.bon-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 100%;
+  padding-bottom: 24px;
+}
+
+.bon-empty-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+}
+
+.bon-empty-art {
+  width: 220px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bon-empty-lottie {
+  width: 200px;
+  height: 200px;
+}
+
+.bon-empty-copy {
   margin: 0;
   font-size: 15px;
   line-height: 21px;

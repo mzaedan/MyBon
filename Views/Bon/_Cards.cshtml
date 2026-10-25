@@ -1,0 +1,51 @@
+@using System.Globalization
+@model MyBon.Models.Common.PagedResult<MyBon.Models.Bon.DTOs.BonListItemDto>
+
+@{
+    // Amounts read like the export mockup: Rp 185.000, without decimals.
+    string FormatRupiah(decimal jumlah) =>
+        $"Rp {jumlah.ToString("N0", CultureInfo.GetCultureInfo("id-ID"))}";
+
+    // The notebook writes the date the Indonesian way: 12 Maret 2026.
+    string FormatTanggal(DateOnly tanggal) =>
+        tanggal.ToString("d MMMM yyyy", CultureInfo.GetCultureInfo("id-ID"));
+}
+
+@* The search and load-more scripts read the total back, so the list title keeps reporting every match
+   while this page paints only the rows it was handed. *@
+<div class="bon-cards" id="bon-cards" data-total="@Model.Total">
+    @foreach (var bon in Model.Items)
+    {
+        @* The card opens the page itself; its number is carried in the route, not only painted. *@
+        <a class="bon-card" asp-controller="Bon" asp-action="Details" asp-route-id="@bon.Id">
+            <div class="bon-card-top">
+                <div class="bon-card-no">@bon.Nomor</div>
+                <div class="bon-card-status@(bon.Lunas ? " bon-card-status--lunas" : "")">@bon.Status</div>
+            </div>
+            <div class="bon-card-name">@bon.NamaPelanggan</div>
+            <div class="bon-card-date">@FormatTanggal(bon.Tanggal)</div>
+            <div class="bon-amounts">
+                <div class="bon-amount-col">
+                    <div class="bon-amount-label">Total belanja</div>
+                    <div class="bon-amount-value">@FormatRupiah(bon.TotalBelanja)</div>
+                </div>
+                <div class="bon-amount-col bon-amount-col--end">
+                    <div class="bon-amount-label">Sisa hutang</div>
+                    <div class="bon-amount-value">@FormatRupiah(bon.SisaHutang)</div>
+                </div>
+            </div>
+        </a>
+    }
+</div>
+
+@if (Model.Total == 0)
+{
+    <p class="bon-search-empty">Belum ada bon yang cocok. Coba kata kunci lain.</p>
+}
+
+@if (Model.HasMore)
+{
+    @* A plain button: the next page comes from the server, and the server marks the last page by
+       not rendering this button at all. *@
+    <button type="button" class="bon-load-more" id="bon-load-more" data-next-page="@(Model.Page + 1)">Muat bon berikutnya</button>
+}

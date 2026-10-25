@@ -2,7 +2,7 @@
 
 **Goal:** Make **Catat Bon** read and write the notebook. `/Bon` lists real bons, `/Bon/Create` saves a header plus its item lines, and `/Bon/Details/{id}` reads one bon back. Today all three views are hardcoded markup and `BonController` never touches the database.
 
-**Status:** Slice 1 (schema) implemented and verified against Postgres on 2026-10-25; Slice 2–4 not started. Both decisions in [Open decisions](#open-decisions) are locked.
+**Status:** Slice 1 (schema) and the list half of Slice 2 (search + paging) are implemented and verified against Postgres on 2026-10-25. `/Bon` now reads real bons through `BonService`; `/Bon/Create` and `/Bon/Details` are still the hardcoded slices. Both decisions in [Open decisions](#open-decisions) are locked.
 
 ## Architecture
 
@@ -127,9 +127,9 @@ A rolled-back insert burns a number, so the series can skip. That is accepted: a
 
 ## Slice 2: read
 
-- [ ] **Step 1:** `IBonService.SearchAsync(string? keyword, int page)` mirrors `BarangService`: `ILIKE` over `bon.nomor` and `pelanggan.nama`, `OrderByDescending(Tanggal).ThenByDescending(Id)`, `PageSize = 8`, returns `PagedResult<BonListItemDto>` carrying the numbers `/Bon` paints.
+- [x] **Step 1:** `IBonService.SearchAsync(string? keyword, int page)` mirrors `BarangService`: `ILIKE` over `bon.nomor` and `pelanggan.nama`, `OrderByDescending(Tanggal).ThenByDescending(Id)`, `PageSize = 8`, returns `PagedResult<BonListItemDto>` carrying the numbers `/Bon` paints.
 - [ ] **Step 2:** `GetByIdAsync(int id)` includes `Pelanggan`, `Items` and `Payments` (`AsNoTracking` + `AsSplitQuery`) and returns `BonDetailDto` with totals, `SisaHutang` and the status label computed.
-- [ ] **Step 3:** `Index` asks page 1; `Search(q, page = 1)` answers an XHR with `_Cards`; `Details(int id)` sets `ViewData["Title"]` to the nomor and `ViewData["BackHref"]` to `Index`.
+- [x] **Step 3:** `Index` asks page 1; `Search(q, page = 1)` answers an XHR with `_Cards`. `Details(int id)` still renders the static slice, so its own step stays open.
 - [ ] **Step 4:** `/Bon/Details/99999` returns 404 through `ToActionResult`, and an AJAX call returns the `ErrorOr` JSON.
 
 ## Slice 3: write
@@ -142,7 +142,7 @@ A rolled-back insert burns a number, so the series can skip. That is accepted: a
 
 ## Slice 4: views and JS
 
-- [ ] **Step 1:** `Index.cshtml` renders `_Cards` in a loop, deletes the four hardcoded cards, keeps `.bon-card*`, `.bon-search*` and `.cta-catat-bon`, and gains the empty state the Barang list has.
+- [x] **Step 1:** `Index.cshtml` renders `_Cards` in a loop, deletes the four hardcoded cards, keeps `.bon-card*`, `.bon-search*` and `.cta-catat-bon`, and gains the empty state the Barang list has. The search row is a real `q` field, the title reports the total, and the stack carries `data-search-url` so `index.js` can page and search it.
 - [ ] **Step 2:** `Create.cshtml` turns `method="get"` into a POST form with an antiforgery token, fills the customer rows in `#bonCustomerPicker` from the model (name, phone, sisa), keeping `data-nama` on each `.bon-customer-item`, and replaces the hardcoded picker buttons with the items the page carries (`data-id`, `data-nama`, `data-satuan`, `data-harga`), so the hidden field submits the id.
 - [ ] **Step 3:** `create.js` posts `Items[0].BarangId` / `Items[0].Jumlah` so model binding fills the list; the existing subtotal and total arithmetic stays.
 - [ ] **Step 4:** `Details.cshtml` takes `BonDetailDto`: header from `Nomor` and `Pelanggan.Nama`, summary from the computed totals, history from `Payments`, lines from `Items` with `harga_satuan x jumlah satuan`. **Catat pembayaran** stops pointing at `Index` and waits for its own slice.

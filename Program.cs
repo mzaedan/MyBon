@@ -15,6 +15,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Register services
 builder.Services.AddScoped<IPelangganService, PelangganService>();
 builder.Services.AddScoped<IBarangService, BarangService>();
+builder.Services.AddScoped<IBonService, BonService>();
 
 
 var app = builder.Build();
