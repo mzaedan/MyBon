@@ -62,3 +62,5 @@ wwwroot/css/site.css           .bon-action button reset + .bon-pay-* sheet
 ## Non-goals
 
 Real payment persistence, `bon_payment` rows, validation, amount formatting, server-side totals, per-bon data, Tailwind, Phosphor icon paths.
+
+> Update: the native date field became the calendar popup in `docs/plans/plan-kalender-catat-pembayaran.md` — a trigger row plus a hidden ISO field (`#bonPayTanggal`) and `#bonPayCalendar` inside this sheet.

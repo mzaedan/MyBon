@@ -1914,6 +1914,194 @@ a.bon-card:focus-visible {
   outline-offset: 2px;
 }
 
+/* Tanggal picker inside the Catat pembayaran sheet */
+
+.bon-date-trigger {
+  min-height: 0;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.bon-date-trigger.is-empty {
+  color: var(--muted);
+}
+
+.bon-date-icon {
+  color: var(--accent);
+}
+
+.bon-cal {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.bon-cal.is-open {
+  display: block;
+}
+
+.bon-cal-scrim {
+  position: absolute;
+  inset: 0;
+  background: #0000004D;
+}
+
+.bon-cal-popup {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: calc(100% - 24px);
+  padding: 16px;
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: 0 8px 28px #00000026;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bon-cal-popup:focus {
+  outline: none;
+}
+
+.bon-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.bon-cal-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.bon-cal-nav {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.bon-cal-nav i {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.bon-cal-nav:focus-visible,
+.bon-cal-day:focus-visible,
+.bon-cal-clear:focus-visible,
+.bon-cal-today:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.bon-cal-weekdays,
+.bon-cal-week {
+  display: flex;
+  gap: 2px;
+}
+
+.bon-cal-weekdays span {
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
+  line-height: normal;
+  text-align: center;
+}
+
+.bon-cal-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bon-cal-day {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 22px;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: normal;
+  cursor: pointer;
+}
+
+.bon-cal-day.is-outside {
+  color: #767676;
+}
+
+.bon-cal-day.is-today {
+  color: var(--accent);
+}
+
+.bon-cal-day.is-selected {
+  background: var(--accent);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.bon-cal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.bon-cal-clear {
+  height: 44px;
+  margin: 0;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: normal;
+  cursor: pointer;
+}
+
+.bon-cal-today {
+  margin: 0;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  outline: 1px solid var(--border);
+  outline-offset: -0.5px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: normal;
+  cursor: pointer;
+}
+
 /* Tambah barang sheet */
 
 .bon-add {

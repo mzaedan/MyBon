@@ -130,10 +130,19 @@
         </div>
 
         <div class="pelanggan-field">
-            <label class="pelanggan-field-label" for="bonPayTanggal">Tanggal</label>
+            <span class="pelanggan-field-label" id="bonPayTanggalLabel">Tanggal</span>
             <div class="bon-field-with-icon">
-                <input id="bonPayTanggal" type="date" class="pelanggan-field-input bon-date" value="" />
-                <i class="bi bi-calendar bon-field-icon" aria-hidden="true"></i>
+                <input id="bonPayTanggal" type="hidden" name="tanggal" value="2026-10-25" />
+                <button type="button"
+                        id="bonPayTanggalBtn"
+                        class="bon-picker-trigger bon-date-trigger"
+                        aria-haspopup="dialog"
+                        aria-expanded="false"
+                        aria-controls="bonPayCalendar"
+                        aria-labelledby="bonPayTanggalLabel bonPayTanggalValue">
+                    <span id="bonPayTanggalValue">25 Oktober 2026</span>
+                </button>
+                <i class="bi bi-calendar bon-field-icon bon-date-icon" aria-hidden="true"></i>
             </div>
             <hr class="page-rule" />
         </div>
@@ -148,6 +157,42 @@
         </div>
 
         <button type="button" class="bon-pay-submit" data-bon-pay-save>Simpan pembayaran</button>
+    </div>
+
+    <div id="bonPayCalendar" class="bon-cal" hidden>
+        <div class="bon-cal-scrim" data-bon-cal-close></div>
+        <div class="bon-cal-popup"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="bonCalTitle"
+             tabindex="-1">
+            <div class="bon-cal-head">
+                <button type="button" class="bon-cal-nav" data-bon-cal-prev aria-label="Bulan sebelumnya">
+                    <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                </button>
+                <div id="bonCalTitle" class="bon-cal-title" aria-live="polite">Oktober 2026</div>
+                <button type="button" class="bon-cal-nav" data-bon-cal-next aria-label="Bulan berikutnya">
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="bon-cal-weekdays" aria-hidden="true">
+                <span>Sen</span>
+                <span>Sel</span>
+                <span>Rab</span>
+                <span>Kam</span>
+                <span>Jum</span>
+                <span>Sab</span>
+                <span>Min</span>
+            </div>
+
+            <div id="bonCalGrid" class="bon-cal-grid" role="grid" aria-labelledby="bonCalTitle"></div>
+
+            <div class="bon-cal-actions">
+                <button type="button" class="bon-cal-clear" data-bon-cal-clear>Clear</button>
+                <button type="button" class="bon-cal-today" data-bon-cal-today>Hari ini</button>
+            </div>
+        </div>
     </div>
 </div>
 
