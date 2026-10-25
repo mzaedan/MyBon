@@ -1,5 +1,6 @@
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using MyBon.Data;
 using MyBon.Domain.Entities;
 using MyBon.Domain.Enums;
@@ -170,6 +171,16 @@ public class PelangganService(
         {
             await _dbContext.SaveChangesAsync();
         }
+        // A bon still points at this customer, so the row must stay. Postgres reports the restrict rule
+        // as a foreign key violation, which reads better than the generic save failure.
+        catch (Exception ex) when (IsForeignKeyViolation(ex))
+        {
+            _dbContext.Entry(pelanggan).State = EntityState.Detached;
+            _logger.LogInformation("Pelanggan {Id} masih punya bon.", id);
+
+            return ErrorOr.CreateFailure(
+                "Pelanggan masih punya bon", ErrorType.Conflict);
+        }
         catch (Exception ex) when (IsDatabaseFailure(ex))
         {
             _dbContext.Entry(pelanggan).State = EntityState.Detached;
@@ -195,6 +206,17 @@ public class PelangganService(
         for (var current = exception; current is not null; current = current.InnerException)
         {
             if (current is DbException or DbUpdateException)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsForeignKeyViolation(Exception exception)
+    {
+        for (var current = exception; current is not null; current = current.InnerException)
+        {
+            if (current is PostgresException { SqlState: PostgresErrorCodes.ForeignKeyViolation })
                 return true;
         }
 

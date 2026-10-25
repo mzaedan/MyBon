@@ -2,7 +2,7 @@
 
 **Goal:** Make **Catat Bon** read and write the notebook. `/Bon` lists real bons, `/Bon/Create` saves a header plus its item lines, and `/Bon/Details/{id}` reads one bon back. Today all three views are hardcoded markup and `BonController` never touches the database.
 
-**Status:** schema agreed, implementation not started. Two decisions in [Open decisions](#open-decisions) are still unconfirmed.
+**Status:** Slice 1 (schema) implemented and verified against Postgres on 2026-10-25; Slice 2–4 not started. Both decisions in [Open decisions](#open-decisions) are locked.
 
 ## Architecture
 
@@ -19,9 +19,9 @@ status        = sisa_hutang <= 0 ? "Lunas" : "Belum lunas"
 
 ## File map
 
-- Create: `Domain/Entities/Bon.cs`, `BonItem.cs`, `BonPayment.cs`
-- Modify: `Data/AppDbContext.cs` (`DbSet`s, `HasSequence("bon_nomor_seq")`, snake_case mapping)
-- Create: `Migrations/<timestamp>_CreateBonTables.cs` (via `dotnet ef migrations add CreateBonTables`)
+- Created: `Domain/Entities/Bon.cs`, `BonItem.cs`, `BonPayment.cs`
+- Modified: `Data/AppDbContext.cs` (`DbSet`s, `HasSequence("bon_nomor_seq")`, snake_case mapping)
+- Created: `Migrations/20261025123835_CreateBonTables.cs` (via `dotnet ef migrations add CreateBonTables --output-dir Migrations`)
 - Create: `Domain/Interfaces/IBonService.cs`, `Domain/Services/BonService.cs`
 - Create: `Models/Bon/Requests/CreateBonRequest.cs`, `Models/Bon/DTOs/BonListItemDto.cs`, `Models/Bon/DTOs/BonDetailDto.cs`
 - Modify: `Program.cs` (`AddScoped<IBonService, BonService>()`)
@@ -57,9 +57,10 @@ Tables are singular and snake_case, matching `pelanggan` and `barang`.
 | `barang_id` | `integer` | yes | FK -> `barang.id`, `OnDelete(SetNull)` so **Hapus barang** keeps working |
 | `nama_barang` | `varchar(200)` | no | Snapshot at recording time |
 | `satuan` | `varchar(30)` | yes | Snapshot at recording time |
-| `harga_satuan` | `numeric(14,2)` | no | Snapshot at recording time |
-| `jumlah` | `integer` | no | Whole units only, default `1`, must be >= 1 |
-| `created_at` | `timestamptz` | no | `BaseEntity`; this is the per-line date Details prints |
+| `harga_satuan` | `numeric(14,2)` | no | Snapshot at recording time, `CHECK (harga_satuan >= 0)` |
+| `jumlah` | `integer` | no | Whole units only, default `1`, `CHECK (jumlah >= 1)` |
+| `tanggal` | `date` | no | Default `CURRENT_DATE`; the date Details prints next to the line |
+| `created_at` | `timestamptz` | no | `BaseEntity` audit field, never printed |
 
 ### `bon_payment` — payment history
 
@@ -68,8 +69,8 @@ Tables are singular and snake_case, matching `pelanggan` and `barang`.
 | `id` | `integer` identity | no | PK |
 | `bon_id` | `integer` | no | FK -> `bon.id`, `OnDelete(Cascade)` |
 | `tanggal` | `date` | no | Payment date |
-| `jumlah` | `numeric(14,2)` | no | Must be > 0 |
-| `keterangan` | `varchar(100)` | yes | **Cicilan 1** style labels are rendered, not stored |
+| `jumlah` | `numeric(14,2)` | no | `CHECK (jumlah > 0)` |
+| `catatan` | `varchar(200)` | yes | Free text from the sheet; **Cicilan 1** labels are rendered, not stored |
 | `created_at` | `timestamptz` | no | `BaseEntity` |
 
 ### Numbering
@@ -77,7 +78,11 @@ Tables are singular and snake_case, matching `pelanggan` and `barang`.
 A dedicated sequence keeps `BN-001` sequential and safe when two tabs save at once, with no `MAX(nomor) + 1` race and no extra round trip: Postgres assigns the value and EF reads it back through `RETURNING`.
 
 ```csharp
-modelBuilder.HasSequence<int>("bon_nomor_seq").StartsAt(1).IncrementsBy(1);
+modelBuilder.HasSequence<int>("bon_nomor_seq", sequence =>
+{
+    sequence.StartsAt(1);
+    sequence.IncrementsBy(1);
+});
 
 entity.Property(e => e.Nomor)
       .HasColumnName("nomor")
@@ -97,16 +102,26 @@ A rolled-back insert burns a number, so the series can skip. That is accepted: a
 | Index | Reason |
 |---|---|
 | unique `bon(nomor)` | no duplicates; also the search target |
-| `bon(pelanggan_id)` | a customer's bons |
 | `bon(tanggal desc, id desc)` | list order |
+| `bon(pelanggan_id, tanggal desc, id desc)` | a customer's bons, newest first; the leading column also serves the FK |
 | `bon_item(bon_id)` | lines of one bon |
 | `bon_item(barang_id)` | usage check before an item is deleted |
-| `bon_payment(bon_id)` | payment history of one bon |
+| `bon_payment(bon_id, tanggal)` | payment history of one bon, oldest first |
 
-- [ ] **Step 1:** Add the three entities, inheriting `BaseEntity`, FK plus nullable navigation on the same block (`PelangganId` + `Pelanggan?`), collections initialised with `[]`.
-- [ ] **Step 2:** Map them in `AppDbContext.OnModelCreating` with the column names, lengths, `HasPrecision(14, 2)` on money, and the sequence above.
-- [ ] **Step 3:** `dotnet ef migrations add CreateBonTables` then `dotnet ef database update`; read the generated migration and confirm the sequence, the default expression and the FK delete behaviours match the tables above.
-- [ ] **Step 4:** Confirm `PelangganService.DeleteAsync` now hits the FK restriction for a customer who owns a bon, and return `ErrorType.Conflict` with **Pelanggan masih punya bon** instead of the generic save failure.
+- [x] **Step 1:** Add the three entities, inheriting `BaseEntity`, FK plus nullable navigation on the same block (`PelangganId` + `Pelanggan?`), collections initialised with `[]`.
+- [x] **Step 2:** Map them in `AppDbContext.OnModelCreating` with the column names, lengths, `HasPrecision(14, 2)` on money, the check constraints, and the sequence above.
+- [x] **Step 3:** `dotnet ef migrations add CreateBonTables --output-dir Migrations` then `dotnet ef database update`. The generated SQL was read back and matches: sequence created, `nomor` default expression, `ON DELETE RESTRICT` / `SET NULL` / `CASCADE`, three check constraints, and both descending indexes. `dotnet ef migrations has-pending-model-changes` reports no drift.
+- [x] **Step 4:** `PelangganService.DeleteAsync` maps a Postgres foreign key violation (`23503`) to `ErrorType.Conflict` with **Pelanggan masih punya bon**, ahead of the generic save failure.
+
+### Schema verification (Postgres, rolled-back transaction)
+
+- `bon.nomor` and `bon.tanggal` are filled by their defaults: `BN-001`, `CURRENT_DATE`.
+- `bon_item.tanggal` is filled by `CURRENT_DATE`.
+- `jumlah = 0`, `harga_satuan = -5`, and `bon_payment.jumlah = 0` are rejected by the three check constraints.
+- Deleting a `barang` sets `bon_item.barang_id` to NULL and keeps `nama_barang`, `satuan`, and `harga_satuan`.
+- Deleting a `pelanggan` who owns a bon is rejected by `FK_bon_pelanggan_pelanggan_id`.
+- Deleting a `bon` cascades its `bon_item` and `bon_payment` rows.
+- The test ran inside a transaction that was rolled back, and the sequences were reset afterwards, so the first real bon is `BN-001`.
 
 ---
 
@@ -136,8 +151,10 @@ A rolled-back insert burns a number, so the series can skip. That is accepted: a
 
 ## Open decisions
 
-1. **Total Bayar on Create** — recommended: it becomes the first `bon_payment` row, keeping one source for paid money. Alternative: a `total_bayar` column on `bon`, which means two places hold the same number.
-2. **Seed example data** — recommended: no seed, `/Bon` shows the empty state until the first real bon. Alternative: seed `BN-001`..`BN-004` from the current hardcoded cards so the screens still look populated.
+Both were locked on 2026-10-25:
+
+1. **Total Bayar on Create** — locked: it becomes the first `bon_payment` row, so paid money has one source.
+2. **Seed example data** — locked: no seed. `/Bon` starts on the empty state and the first real bon is `BN-001`.
 
 ## Follow-ups (not this plan)
 

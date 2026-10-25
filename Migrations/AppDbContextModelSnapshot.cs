@@ -22,6 +22,8 @@ namespace MyBon.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.HasSequence<int>("bon_nomor_seq");
+
             modelBuilder.Entity("MyBon.Domain.Entities.Barang", b =>
                 {
                     b.Property<int>("Id")
@@ -58,6 +60,165 @@ namespace MyBon.Migrations
                     b.ToTable("barang", (string)null);
                 });
 
+            modelBuilder.Entity("MyBon.Domain.Entities.Bon", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Catatan")
+                        .HasColumnType("text")
+                        .HasColumnName("catatan");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Nomor")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("nomor")
+                        .HasDefaultValueSql("'BN-' || lpad(nextval('bon_nomor_seq')::text, 3, '0')");
+
+                    b.Property<int>("PelangganId")
+                        .HasColumnType("integer")
+                        .HasColumnName("pelanggan_id");
+
+                    b.Property<DateOnly>("Tanggal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("date")
+                        .HasColumnName("tanggal")
+                        .HasDefaultValueSql("CURRENT_DATE");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nomor")
+                        .IsUnique();
+
+                    b.HasIndex("Tanggal", "Id")
+                        .IsDescending();
+
+                    b.HasIndex("PelangganId", "Tanggal", "Id")
+                        .IsDescending(false, true, true);
+
+                    b.ToTable("bon", (string)null);
+                });
+
+            modelBuilder.Entity("MyBon.Domain.Entities.BonItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BarangId")
+                        .HasColumnType("integer")
+                        .HasColumnName("barang_id");
+
+                    b.Property<int>("BonId")
+                        .HasColumnType("integer")
+                        .HasColumnName("bon_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<decimal>("HargaSatuan")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)")
+                        .HasColumnName("harga_satuan");
+
+                    b.Property<int>("Jumlah")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1)
+                        .HasColumnName("jumlah");
+
+                    b.Property<string>("NamaBarang")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("nama_barang");
+
+                    b.Property<string>("Satuan")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("satuan");
+
+                    b.Property<DateOnly>("Tanggal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("date")
+                        .HasColumnName("tanggal")
+                        .HasDefaultValueSql("CURRENT_DATE");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BarangId");
+
+                    b.HasIndex("BonId");
+
+                    b.ToTable("bon_item", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_bon_item_harga", "harga_satuan >= 0");
+
+                            t.HasCheckConstraint("ck_bon_item_jumlah", "jumlah >= 1");
+                        });
+                });
+
+            modelBuilder.Entity("MyBon.Domain.Entities.BonPayment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BonId")
+                        .HasColumnType("integer")
+                        .HasColumnName("bon_id");
+
+                    b.Property<string>("Catatan")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("catatan");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<decimal>("Jumlah")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)")
+                        .HasColumnName("jumlah");
+
+                    b.Property<DateOnly>("Tanggal")
+                        .HasColumnType("date")
+                        .HasColumnName("tanggal");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BonId", "Tanggal");
+
+                    b.ToTable("bon_payment", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_bon_payment_jumlah", "jumlah > 0");
+                        });
+                });
+
             modelBuilder.Entity("MyBon.Domain.Entities.Pelanggan", b =>
                 {
                     b.Property<int>("Id")
@@ -91,6 +252,53 @@ namespace MyBon.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("pelanggan", (string)null);
+                });
+
+            modelBuilder.Entity("MyBon.Domain.Entities.Bon", b =>
+                {
+                    b.HasOne("MyBon.Domain.Entities.Pelanggan", "Pelanggan")
+                        .WithMany()
+                        .HasForeignKey("PelangganId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Pelanggan");
+                });
+
+            modelBuilder.Entity("MyBon.Domain.Entities.BonItem", b =>
+                {
+                    b.HasOne("MyBon.Domain.Entities.Barang", "Barang")
+                        .WithMany()
+                        .HasForeignKey("BarangId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("MyBon.Domain.Entities.Bon", "Bon")
+                        .WithMany("Items")
+                        .HasForeignKey("BonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Barang");
+
+                    b.Navigation("Bon");
+                });
+
+            modelBuilder.Entity("MyBon.Domain.Entities.BonPayment", b =>
+                {
+                    b.HasOne("MyBon.Domain.Entities.Bon", "Bon")
+                        .WithMany("Payments")
+                        .HasForeignKey("BonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bon");
+                });
+
+            modelBuilder.Entity("MyBon.Domain.Entities.Bon", b =>
+                {
+                    b.Navigation("Items");
+
+                    b.Navigation("Payments");
                 });
 #pragma warning restore 612, 618
         }

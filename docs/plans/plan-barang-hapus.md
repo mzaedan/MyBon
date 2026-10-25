@@ -39,7 +39,7 @@
 
 - No soft delete, undo, typed confirmation, or per-item copy.
 - No new CSS class: the Pelanggan delete block and the shared red button already cover this screen.
-- No Bon line check: no entity references `Barang` yet, so there is no foreign key to block a delete.
+- No Bon line check: `bon_item.barang_id` is `ON DELETE SET NULL`, so a delete is not blocked; the line keeps its name, unit, and price snapshot.
 - No delete action on the list card; the item sheet stays the only write surface.
 
 ## Verification
