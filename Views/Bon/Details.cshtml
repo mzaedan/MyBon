@@ -1,30 +1,44 @@
+@model MyBon.Models.Bon.DTOs.BonDetailDto
+@using System.Globalization
+
 @{
-    ViewData["Title"] = "BN-014";
+    ViewData["Title"] = Model.Nomor;
     ViewData["BackHref"] = Url.Action("Index", "Bon");
+
+    // Same reading as the list, the card and the form, so a page and its card never disagree.
+    string FormatRupiah(decimal jumlah) =>
+        $"Rp {jumlah.ToString("#,##0.##", CultureInfo.GetCultureInfo("id-ID"))}";
+
+    // The notebook writes the date the Indonesian way: 12 Maret 2026.
+    string FormatTanggal(DateOnly tanggal) =>
+        tanggal.ToString("d MMMM yyyy", CultureInfo.GetCultureInfo("id-ID"));
+
+    var today = DateOnly.FromDateTime(DateTime.Today);
+    var todayIso = today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 }
 
 <div class="bon-detail-page">
     <hr class="page-rule" />
 
     <div class="bon-detail-meta">
-        <div class="bon-detail-name">Siti Aminah</div>
-        <div class="bon-detail-sub">12 Maret 2026 · Belum lunas</div>
+        <div class="bon-detail-name">@Model.NamaPelanggan</div>
+        <div class="bon-detail-sub">@FormatTanggal(Model.Tanggal) · @Model.Status</div>
     </div>
 
     <div class="bon-summary">
         <div class="bon-summary-title">Ringkasan</div>
         <div class="bon-summary-row">
             <div class="bon-summary-label">Total belanja</div>
-            <div class="bon-summary-value">Rp 140.000</div>
+            <div class="bon-summary-value">@FormatRupiah(Model.TotalBelanja)</div>
         </div>
         <div class="bon-summary-row">
             <div class="bon-summary-label">Total bayar</div>
-            <div class="bon-summary-value">Rp 50.000</div>
+            <div class="bon-summary-value">@FormatRupiah(Model.TotalBayar)</div>
         </div>
         <hr class="page-rule" />
         <div class="bon-summary-row bon-summary-row--sisa">
             <div class="bon-summary-label">Sisa hutang</div>
-            <div class="bon-summary-value bon-summary-value--lg">Rp 90.000</div>
+            <div class="bon-summary-value bon-summary-value--lg">@FormatRupiah(Model.SisaHutang)</div>
         </div>
     </div>
 
@@ -50,54 +64,60 @@
 
     <div class="bon-detail-section">
         <div class="bon-detail-title">Riwayat pembayaran</div>
-        <div class="bon-history">
-            <div class="bon-history-row">
-                <div class="bon-history-info">
-                    <div class="bon-history-jenis">Cicilan 1</div>
-                    <div class="bon-history-date">12 Maret 2026</div>
-                </div>
-                <div class="bon-history-amount">Rp 50.000</div>
+        @if (Model.Payments.Count == 0)
+        {
+            <p class="bon-detail-empty">Belum ada pembayaran.</p>
+        }
+        else
+        {
+            @* The rows are read oldest first; the Cicilan label comes from the order, so it is never stored. *@
+            <div class="bon-history">
+                @for (var index = 0; index < Model.Payments.Count; index++)
+                {
+                    var payment = Model.Payments[index];
+                    <div class="bon-history-row">
+                        <div class="bon-history-info">
+                            <div class="bon-history-jenis">Cicilan @(index + 1)</div>
+                            <div class="bon-history-date">@FormatTanggal(payment.Tanggal)</div>
+                        </div>
+                        <div class="bon-history-amount">@FormatRupiah(payment.Jumlah)</div>
+                    </div>
+                    <hr class="page-rule" />
+                }
             </div>
-            <hr class="page-rule" />
-        </div>
+        }
     </div>
 
     <div class="bon-detail-section">
         <div class="bon-detail-title">Daftar barang</div>
 
-        <div class="bon-item">
-            <div class="bon-item-name">Beras Ramos 5 kg</div>
-            <div class="bon-item-rinci">Rp 78.000 × 1 karung</div>
-            <div class="bon-item-bottom">
-                <div class="bon-item-date">12 Maret 2026</div>
-                <div class="bon-item-sub">Rp 78.000</div>
-            </div>
-        </div>
-        <hr class="page-rule" />
+        @if (Model.Items.Count == 0)
+        {
+            <p class="bon-detail-empty">Belum ada barang di bon ini.</p>
+        }
+        else
+        {
+            @foreach (var item in Model.Items)
+            {
+                var rinci = string.IsNullOrWhiteSpace(item.Satuan)
+                    ? $"{FormatRupiah(item.HargaSatuan)} × {item.Jumlah}"
+                    : $"{FormatRupiah(item.HargaSatuan)} × {item.Jumlah} {item.Satuan}";
 
-        <div class="bon-item">
-            <div class="bon-item-name">Minyak Goreng 2 L</div>
-            <div class="bon-item-rinci">Rp 34.000 × 1 botol</div>
-            <div class="bon-item-bottom">
-                <div class="bon-item-date">12 Maret 2026</div>
-                <div class="bon-item-sub">Rp 34.000</div>
-            </div>
-        </div>
-        <hr class="page-rule" />
-
-        <div class="bon-item">
-            <div class="bon-item-name">Telur Ayam</div>
-            <div class="bon-item-rinci">Rp 28.000 × 1 kg</div>
-            <div class="bon-item-bottom">
-                <div class="bon-item-date">15 Maret 2026</div>
-                <div class="bon-item-sub">Rp 28.000</div>
-            </div>
-        </div>
-        <hr class="page-rule" />
+                <div class="bon-item">
+                    <div class="bon-item-name">@item.NamaBarang</div>
+                    <div class="bon-item-rinci">@rinci</div>
+                    <div class="bon-item-bottom">
+                        <div class="bon-item-date">@FormatTanggal(item.Tanggal)</div>
+                        <div class="bon-item-sub">@FormatRupiah(item.Subtotal)</div>
+                    </div>
+                </div>
+                <hr class="page-rule" />
+            }
+        }
 
         <div class="bon-item-total">
             <div class="bon-item-total-label">Total belanja</div>
-            <div class="bon-item-total-value">Rp 140.000</div>
+            <div class="bon-item-total-value">@FormatRupiah(Model.TotalBelanja)</div>
         </div>
     </div>
 </div>
@@ -116,7 +136,14 @@
             </button>
         </div>
 
-        <p class="bon-pay-hint">Sisa hutang Rp 90.000. Kalau bayar kurang, masuk cicilan.</p>
+        @if (Model.Lunas)
+        {
+            <p class="bon-pay-hint">Bon ini sudah lunas.</p>
+        }
+        else
+        {
+            <p class="bon-pay-hint">Sisa hutang @FormatRupiah(Model.SisaHutang). Kalau bayar kurang, masuk cicilan.</p>
+        }
 
         <div class="pelanggan-field">
             <label class="pelanggan-field-label" for="bonPayJumlah">Jumlah bayar</label>
@@ -132,7 +159,7 @@
         <div class="pelanggan-field">
             <span class="pelanggan-field-label" id="bonPayTanggalLabel">Tanggal</span>
             <div class="bon-field-with-icon">
-                <input id="bonPayTanggal" type="hidden" name="tanggal" value="2026-10-25" />
+                <input id="bonPayTanggal" type="hidden" name="tanggal" value="@todayIso" />
                 <button type="button"
                         id="bonPayTanggalBtn"
                         class="bon-picker-trigger bon-date-trigger"
@@ -140,7 +167,7 @@
                         aria-expanded="false"
                         aria-controls="bonPayCalendar"
                         aria-labelledby="bonPayTanggalLabel bonPayTanggalValue">
-                    <span id="bonPayTanggalValue">25 Oktober 2026</span>
+                    <span id="bonPayTanggalValue">@FormatTanggal(today)</span>
                 </button>
                 <i class="bi bi-calendar bon-field-icon bon-date-icon" aria-hidden="true"></i>
             </div>

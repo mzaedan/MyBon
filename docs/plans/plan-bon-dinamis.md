@@ -2,7 +2,7 @@
 
 **Goal:** Make **Catat Bon** read and write the notebook. `/Bon` lists real bons, `/Bon/Create` saves a header plus its item lines, and `/Bon/Details/{id}` reads one bon back. Today all three views are hardcoded markup and `BonController` never touches the database.
 
-**Status:** Slice 1 (schema), the list half of Slice 2 (search + paging), Slice 3 (write), and the Create half of Slice 4 are implemented and verified against Postgres on 2026-10-25. `/Bon` reads real bons through `BonService`, `/Bon/Create` loads both sheets from the notebook and saves a header with its lines and first payment, and `/Bon/Details` is still the hardcoded slice. Both decisions in [Open decisions](#open-decisions) are locked.
+**Status:** Slices 1-4 are implemented and verified against Postgres on 2026-10-25. `/Bon` reads real bons through `BonService`, `/Bon/Create` loads both sheets from the notebook and saves a header with its lines and first payment, and `/Bon/Details/{id}` reads one bon through `BonDetailDto` and paints its own header, totals, payment history, and item lines. The two bottom sheets on Details are still visual, so recording a payment and writing a line wait for the Follow-ups. Both decisions in [Open decisions](#open-decisions) are locked.
 
 ## Architecture
 
@@ -24,7 +24,7 @@ status        = sisa_hutang <= 0 ? "Lunas" : "Belum lunas"
 - Created: `Migrations/20261025123835_CreateBonTables.cs` (via `dotnet ef migrations add CreateBonTables --output-dir Migrations`)
 - Create: `Domain/Interfaces/IBonService.cs`, `Domain/Services/BonService.cs`
 - Create: `Models/Bon/Requests/CreateBonRequest.cs`, `Models/Bon/Requests/CreateBonItemRequest.cs`
-- Create: `Models/Bon/DTOs/BonListItemDto.cs`, `Models/Bon/DTOs/BonDetailDto.cs`
+- Create: `Models/Bon/DTOs/BonListItemDto.cs`, `BonDetailDto.cs`, `BonDetailItemDto.cs`, `BonDetailPaymentDto.cs`
 - Create: `Models/Bon/DTOs/BonFormDto.cs`, `BonCustomerOptionDto.cs`, `BonBarangOptionDto.cs`
 - Create: `Models/Bon/ViewModels/CreateBonViewModel.cs`
 - Modify: `Program.cs` (`AddScoped<IBonService, BonService>()`)
@@ -131,9 +131,9 @@ A rolled-back insert burns a number, so the series can skip. That is accepted: a
 ## Slice 2: read
 
 - [x] **Step 1:** `IBonService.SearchAsync(string? keyword, int page)` mirrors `BarangService`: `ILIKE` over `bon.nomor` and `pelanggan.nama`, `OrderByDescending(Tanggal).ThenByDescending(Id)`, `PageSize = 8`, returns `PagedResult<BonListItemDto>` carrying the numbers `/Bon` paints.
-- [ ] **Step 2:** `GetByIdAsync(int id)` includes `Pelanggan`, `Items` and `Payments` (`AsNoTracking` + `AsSplitQuery`) and returns `BonDetailDto` with totals, `SisaHutang` and the status label computed.
-- [x] **Step 3:** `Index` asks page 1; `Search(q, page = 1)` answers an XHR with `_Cards`. `Details(int id)` still renders the static slice, so its own step stays open.
-- [ ] **Step 4:** `/Bon/Details/99999` returns 404 through `ToActionResult`, and an AJAX call returns the `ErrorOr` JSON.
+- [x] **Step 2:** `GetDetailAsync(int id)` serves the read (one call for Details): `AsNoTracking` projection of `Pelanggan.Nama`, `Payments` and `Items`, so a split query is not needed. `BonDetailDto` computes the totals, `SisaHutang` and the status label; a missing id is `ErrorType.NotFound`.
+- [x] **Step 3:** `Index` asks page 1; `Search(q, page = 1)` answers an XHR with `_Cards`. `Details(int id)` now reads through `GetDetailAsync`; see Slice 4 Step 4.
+- [x] **Step 4:** `/Bon/Details/99999` returns 404 through `ToActionResult`, and an AJAX call returns the `ErrorOr` JSON. Verified against Postgres on 2026-10-25: the page answered `404`, the XHR answered `200` with `{"data":null,"message":"Bon tidak ditemukan.","success":false,"errorType":1}`.
 
 ## Slice 3: write
 
@@ -157,7 +157,16 @@ A rolled-back insert burns a number, so the series can skip. That is accepted: a
 - [x] **Step 1:** `Index.cshtml` renders `_Cards` in a loop, deletes the four hardcoded cards, keeps `.bon-card*`, `.bon-search*` and `.cta-catat-bon`, and gains the empty state the Barang list has. The search row is a real `q` field, the title reports the total, and the stack carries `data-search-url` so `index.js` can page and search it.
 - [x] **Step 2:** `Create.cshtml` turns `method="get"` into a POST form with an antiforgery token, fills the customer rows in `#bonCustomerPicker` from the model (name, phone, sisa), keeping `data-nama` on each `.bon-customer-item`, and replaces the hardcoded picker buttons with the items the page carries (`data-id`, `data-nama`, `data-satuan`, `data-harga`), so the hidden field submits the id. Both sheets filter their rendered rows by name, and the date field starts on today.
 - [x] **Step 3:** `create.js` posts `Items[i].BarangId` / `Items[i].Jumlah`, renumbering the lines in order on every add, remove, and submit so model binding fills the list; the subtotal and total arithmetic read the raw price instead of the painted label.
-- [ ] **Step 4:** `Details.cshtml` takes `BonDetailDto`: header from `Nomor` and `Pelanggan.Nama`, summary from the computed totals, history from `Payments`, lines from `Items` with `harga_satuan x jumlah satuan`. **Catat pembayaran** stops pointing at `Index` and waits for its own slice.
+- [x] **Step 4:** `Details(int id)` reads one bon through `IBonService.GetDetailAsync` and returns `BonDetailDto`: header from `Nomor` and `NamaPelanggan`, summary from the computed totals, history from `Payments` (oldest first, `Cicilan n` rendered from the row order), lines from `Items` with `harga_satuan x jumlah satuan`, and the DTO's `Status` beside the date. `ViewData["Title"]` is the number, `BackHref` is the list, and a missing id is a 404. The payment sheet's hint reads the real sisa (or **Bon ini sudah lunas.**) and its date starts on today, but **Simpan pembayaran** and a picked item still write nothing: those stay Follow-ups. Empty history and an empty line list get their own muted note (`.bon-detail-empty`).
+
+### Details verification (Postgres)
+
+- `/Bon/Details/14` painted **Amba**, `25 Oktober 2026 · Belum lunas`, **Rp 4.500** / **Rp 0** / **Rp 4.500**, and both lines at the prices recorded on them (`Rp 2.500 × 1 pcs`, `Rp 2.000 × 1 pcs`).
+- Two inserted payments painted **Cicilan 1** and **Cicilan 2** oldest first and moved sisa to **Rp 2.000**; a third one made the header read **Lunas**, the sisa **Rp 0**, and the sheet hint **Bon ini sudah lunas.** The test payments were deleted again.
+- With no payment rows the history showed **Belum ada pembayaran.**
+- The list card carries `/Bon/Details/14`, so a card opens its own page.
+- `/Bon/Details/99999` answered `404`; the same call with `X-Requested-With: XMLHttpRequest` answered the `ErrorOr` JSON.
+- `dotnet build` succeeded with 0 warnings and 0 errors.
 
 ---
 

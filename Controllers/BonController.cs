@@ -77,7 +77,18 @@ public class BonController(IBonService bonService) : BaseController
         return View(request);
     }
 
-    public IActionResult Details() => View();
+    public async Task<IActionResult> Details(int id)
+    {
+        var result = await _bonService.GetDetailAsync(id);
+
+        return ToActionResult(result, bon =>
+        {
+            ViewData["Title"] = bon.Nomor;
+            ViewData["BackHref"] = Url.Action(nameof(Index), "Bon");
+
+            return View(bon);
+        });
+    }
 
     /// <summary>
     /// Refills the customer sheet and item picker after a rejected POST. A failed lookup is reported on the

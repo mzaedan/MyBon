@@ -1751,6 +1751,14 @@ a.bon-card:focus-visible {
   color: var(--text);
 }
 
+.bon-detail-empty {
+  margin: 0;
+  padding: 12px 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
 .bon-history {
   display: flex;
   flex-direction: column;

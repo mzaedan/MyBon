@@ -89,6 +89,54 @@ public class BonService(
             });
     }
 
+    public async Task<ErrorOr<BonDetailDto>> GetDetailAsync(int id)
+    {
+        var bon = await _dbContext.Bons
+            .AsNoTracking()
+            .Where(b => b.Id == id)
+            .Select(b => new BonDetailDto
+            {
+                Id = b.Id,
+                Nomor = b.Nomor,
+                NamaPelanggan = b.Pelanggan!.Nama,
+                Tanggal = b.Tanggal,
+                Catatan = b.Catatan,
+                // The lines carry the price they were written at, so the summary agrees with them.
+                TotalBelanja = b.Items.Sum(item => item.HargaSatuan * item.Jumlah),
+                TotalBayar = b.Payments.Sum(payment => payment.Jumlah),
+                // Oldest first, the way the history is read; the id breaks a same-day tie.
+                Payments = b.Payments
+                    .OrderBy(payment => payment.Tanggal)
+                    .ThenBy(payment => payment.Id)
+                    .Select(payment => new BonDetailPaymentDto
+                    {
+                        Id = payment.Id,
+                        Tanggal = payment.Tanggal,
+                        Jumlah = payment.Jumlah,
+                        Catatan = payment.Catatan
+                    })
+                    .ToList(),
+                Items = b.Items
+                    .OrderBy(item => item.Id)
+                    .Select(item => new BonDetailItemDto
+                    {
+                        Id = item.Id,
+                        NamaBarang = item.NamaBarang,
+                        Satuan = item.Satuan,
+                        HargaSatuan = item.HargaSatuan,
+                        Jumlah = item.Jumlah,
+                        Tanggal = item.Tanggal
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync();
+
+        if (bon is null)
+            return ErrorOr<BonDetailDto>.CreateFailure("Bon tidak ditemukan.", ErrorType.NotFound);
+
+        return ErrorOr<BonDetailDto>.CreateSuccess("Berhasil memuat detail bon", bon);
+    }
+
     public async Task<ErrorOr<BonFormDto>> GetFormAsync()
     {
         // Both sheets list the whole notebook, ordered by name so the pickers read like an index.
