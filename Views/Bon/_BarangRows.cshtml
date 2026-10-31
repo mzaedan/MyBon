@@ -9,6 +9,10 @@
     // The picker carries the raw price in data-harga, so the line arithmetic never parses a label.
     string FormatHarga(decimal harga) =>
         harga.ToString("0.##", CultureInfo.InvariantCulture);
+
+    // The Tambah barang sheet sets the count with a per-row stepper; the Create picker asks for this
+    // same partial without it, because each of its lines carries its own Jumlah field.
+    var withStepper = ViewData["Stepper"] is true;
 }
 
 @* The picker's search and load-more scripts read the total back, so the empty note agrees with the
@@ -17,18 +21,39 @@
     @foreach (var barang in Model.Items)
     {
         <div class="bon-barang-row">
-            <button type="button"
-                    class="bon-picker-item"
-                    data-id="@barang.Id"
-                    data-nama="@barang.Nama"
-                    data-satuan="@barang.Satuan"
-                    data-harga="@FormatHarga(barang.Harga)">
-                <span class="bon-picker-item-info">
-                    <span class="bon-picker-item-name">@barang.Nama</span>
-                    <span class="bon-picker-item-unit">@(string.IsNullOrWhiteSpace(barang.Satuan) ? "-" : barang.Satuan)</span>
-                </span>
-                <span class="bon-picker-item-price">@FormatRupiah(barang.Harga)</span>
-            </button>
+            <div class="bon-add-item">
+                <button type="button"
+                        class="bon-picker-item"
+                        data-id="@barang.Id"
+                        data-nama="@barang.Nama"
+                        data-satuan="@barang.Satuan"
+                        data-harga="@FormatHarga(barang.Harga)">
+                    <span class="bon-picker-item-info">
+                        <span class="bon-picker-item-name">@barang.Nama</span>
+                        <span class="bon-picker-item-unit">@(string.IsNullOrWhiteSpace(barang.Satuan) ? "-" : barang.Satuan)</span>
+                    </span>
+                    <span class="bon-picker-item-price">@FormatRupiah(barang.Harga)</span>
+                </button>
+                @if (withStepper)
+                {
+                    @* The pick adds the line; the stepper only sets how many units that pick writes. *@
+                    <div class="bon-add-stepper" role="group" aria-label="Jumlah @barang.Nama">
+                        <button type="button"
+                                class="bon-add-step"
+                                data-bon-step="-1"
+                                aria-label="Kurangi jumlah @barang.Nama">
+                            <i class="bi bi-dash" aria-hidden="true"></i>
+                        </button>
+                        <span class="bon-add-step-value" data-bon-step-value aria-live="polite">1</span>
+                        <button type="button"
+                                class="bon-add-step bon-add-step--plus"
+                                data-bon-step="1"
+                                aria-label="Tambah jumlah @barang.Nama">
+                            <i class="bi bi-plus" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                }
+            </div>
             <hr class="page-rule" />
         </div>
     }

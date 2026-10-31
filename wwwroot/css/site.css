@@ -2307,6 +2307,92 @@ a.bon-card:focus-visible {
   scrollbar-gutter: stable;
 }
 
+/* The sheet's rows from the export: the pick keeps name, unit, and price, and a quantity stepper sits
+   beside it. The `.bon-add-sheet` scoping leaves the Create picker, which asks for the same partial
+   without steppers, on its original row. */
+.bon-add-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bon-add-sheet .bon-add-item {
+  padding: 12px 0;
+}
+
+.bon-add-sheet .bon-add-item .bon-picker-item {
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 10px;
+  min-height: 0;
+  padding: 0;
+}
+
+/* A long stock name stays on one line and never pushes the stepper out of the row. */
+.bon-add-sheet .bon-picker-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The export draws both lines at `normal`, which keeps the row at its 60px height. */
+.bon-add-sheet .bon-picker-item-name,
+.bon-add-sheet .bon-picker-item-unit {
+  line-height: normal;
+}
+
+.bon-add-stepper {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 2px;
+  border-radius: 8px;
+  outline: 1px solid var(--border);
+  outline-offset: -0.5px;
+}
+
+.bon-add-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.bon-add-step i {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.bon-add-step--plus {
+  color: var(--text);
+}
+
+.bon-add-step:active {
+  opacity: 0.9;
+}
+
+.bon-add-step:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: 6px;
+}
+
+.bon-add-step-value {
+  width: 24px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: normal;
+  color: var(--text);
+  text-align: center;
+}
+
 /* Pilih pelanggan sheet */
 
 .bon-barang-row[hidden],

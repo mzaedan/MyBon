@@ -432,7 +432,7 @@ public class BonService(
             });
 
         // The line freezes the stock values it was written at, so changing a master price later never
-        // rewrites an old page.
+        // rewrites an old page. The stepper sets the count; a request without one still writes a unit.
         _dbContext.BonItems.Add(new BonItem
         {
             BonId = request.BonId,
@@ -440,7 +440,7 @@ public class BonService(
             NamaBarang = barang.Nama,
             Satuan = barang.Satuan,
             HargaSatuan = barang.Harga,
-            Jumlah = 1,
+            Jumlah = request.Jumlah > 0 ? request.Jumlah : 1,
             Tanggal = DateOnly.FromDateTime(DateTime.Today)
         });
 
@@ -457,6 +457,88 @@ public class BonService(
         }
 
         return ErrorOr.CreateSuccess($"{barang.Nama} ditambahkan ke bon");
+    }
+
+    public async Task<ErrorOr> AddPaymentAsync(AddBonPaymentRequest request)
+    {
+        var errors = new Dictionary<string, string[]>();
+
+        if (!TryParseMoney(request.Jumlah, out var jumlah))
+        {
+            errors["Jumlah"] = ["Jumlah bayar harus angka, contoh 50.000"];
+        }
+        else
+        {
+            // The money columns keep two decimals, so validation compares the amount the database stores.
+            jumlah = Math.Round(jumlah, 2, MidpointRounding.AwayFromZero);
+
+            if (jumlah <= 0)
+                errors["Jumlah"] = ["Jumlah bayar wajib diisi"];
+            else if (jumlah > MaxMoney)
+                errors["Jumlah"] = ["Jumlah bayar terlalu besar"];
+        }
+
+        if (request.Tanggal is null)
+            errors["Tanggal"] = ["Tanggal wajib diisi"];
+
+        if (errors.Count > 0)
+            return ErrorOr.CreateValidationFailure(errors);
+
+        // The sisa is read from the same sums the Details page prints, never from a stored column, so a
+        // payment can never push the page past what it still owes.
+        var bon = await _dbContext.Bons
+            .AsNoTracking()
+            .Where(b => b.Id == request.BonId)
+            .Select(b => new
+            {
+                TotalBelanja = b.Items.Sum(item => item.HargaSatuan * item.Jumlah),
+                TotalBayar = b.Payments.Sum(payment => payment.Jumlah)
+            })
+            .FirstOrDefaultAsync();
+
+        if (bon is null)
+            return ErrorOr.CreateFailure("Bon tidak ditemukan.", ErrorType.NotFound);
+
+        var sisa = bon.TotalBelanja - bon.TotalBayar;
+
+        if (sisa <= 0)
+            return ErrorOr.CreateValidationFailure(new Dictionary<string, string[]>
+            {
+                ["Jumlah"] = ["Bon ini sudah lunas"]
+            });
+
+        if (jumlah > sisa)
+            return ErrorOr.CreateValidationFailure(new Dictionary<string, string[]>
+            {
+                ["Jumlah"] = ["Jumlah bayar tidak boleh lebih dari sisa hutang"]
+            });
+
+        // Paid money has one source: every save is a bon_payment row, never a column on the bon.
+        _dbContext.BonPayments.Add(new BonPayment
+        {
+            BonId = request.BonId,
+            Tanggal = request.Tanggal!.Value,
+            Jumlah = jumlah,
+            Catatan = Normalize(request.Catatan)
+        });
+
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+        catch (Exception ex) when (IsDatabaseFailure(ex))
+        {
+            _logger.LogError(ex, "Gagal mencatat pembayaran untuk bon {BonId}.", request.BonId);
+
+            return ErrorOr.CreateFailure(
+                "Gagal menyimpan pembayaran. Coba simpan lagi.", ErrorType.Unexpected);
+        }
+
+        // The notice says what the repainted page now shows, so the shopkeeper reads the sisa without
+        // hunting for it in Ringkasan.
+        return ErrorOr.CreateSuccess(sisa - jumlah <= 0
+            ? $"Pembayaran {FormatRupiah(jumlah)} dicatat. Bon ini sudah lunas"
+            : $"Pembayaran {FormatRupiah(jumlah)} dicatat. Sisa {FormatRupiah(sisa - jumlah)}");
     }
 
     /// <summary>
@@ -494,6 +576,10 @@ public class BonService(
         return decimal.TryParse(
             normalized, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out amount);
     }
+
+    /// <summary>Reads an amount the way the notebook prints it: Rp 50.000, with at most two decimals.</summary>
+    private static string FormatRupiah(decimal amount) =>
+        $"Rp {amount.ToString("#,##0.##", CultureInfo.GetCultureInfo("id-ID"))}";
 
     /// <summary>Wraps <paramref name="term"/> in wildcards, escaping the wildcards the user typed.</summary>
     private static string ToLikePattern(string term) =>

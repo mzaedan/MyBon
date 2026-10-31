@@ -247,3 +247,9 @@ Both were locked on 2026-10-25:
 > Update: adding a barang from Details is no longer a follow-up. The **Tambah barang** sheet lists the real
 > stock list, searches and pages through `/Bon/SearchBarang`, and a pick writes the line through
 > `POST /Bon/AddItem`. See `docs/plans/plan-tambah-barang-dinamis.md`.
+
+> Update (2026-10-31): recording a payment from Details is no longer a follow-up either. The **Catat
+> pembayaran** sheet posts `BonId`, `Jumlah`, `Tanggal`, and `Catatan` to `POST /Bon/AddPayment`, which
+> writes one `bon_payment` row and redirects back to the page. See
+> `docs/plans/plan-catat-pembayaran-dinamis.md`.
+

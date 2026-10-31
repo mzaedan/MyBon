@@ -137,6 +137,9 @@ Login, database, different detail per bon, query-string binding, real payment, r
 
 > Update: **Catat pembayaran** now opens the payment bottom sheet from the export. See `docs/plans/plan-catat-pembayaran-slicing.md`. The sheet is still visual only: it writes no data and saving closes it.
 
+> Update (2026-10-31): the payment sheet saves. `.bon-pay-sheet` is the form `#bonPayForm`, posting `BonId`, `Jumlah`, `Tanggal`, and `Catatan` to `POST /Bon/AddPayment`; the redirect repaints Ringkasan, Riwayat pembayaran, and the sisa hint. See `docs/plans/plan-catat-pembayaran-dinamis.md`.
+
+
 > Update: **Tambah barang** now opens the item bottom sheet from the export (`Detail Catat Bon Tambah Barang`). See `docs/plans/plan-tambah-barang-slicing.md`. Picking a row closes it; no line, stock, or total is written.
 
 > Update: the page is no longer the BN-014 mockup. `/Bon/Details/{id}` reads one bon through `IBonService.GetDetailAsync` and paints its own header, Ringkasan, payment history, and item lines; a missing id is a 404. The two sheets stay visual. See `docs/plans/plan-bon-dinamis.md` (Slice 4, Step 4).

@@ -19,6 +19,10 @@
 
     var today = DateOnly.FromDateTime(DateTime.Today);
     var todayIso = today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+    // The sheet's stock rows carry a quantity stepper; the Create picker asks for the same partial
+    // without it, so the flag lives on this page only.
+    ViewData["Stepper"] = true;
 }
 
 <div class="bon-detail-page">
@@ -138,11 +142,19 @@
 
 <div id="bonPaySheet" class="bon-pay" hidden>
     <div class="bon-pay-scrim" data-bon-pay-close></div>
-    <div class="bon-pay-sheet"
-         role="dialog"
-         aria-modal="true"
-         aria-labelledby="bonPayTitle"
-         tabindex="-1">
+
+    @* Saving posts the amount, date, and note straight into bon_payment; the redirect repaints
+       Ringkasan, Riwayat pembayaran, and the sisa hint from the notebook. *@
+    <form method="post"
+          asp-action="AddPayment"
+          id="bonPayForm"
+          class="bon-pay-sheet"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="bonPayTitle"
+          tabindex="-1">
+        <input type="hidden" name="BonId" value="@Model.Id" />
+
         <div class="bon-pay-head">
             <div id="bonPayTitle" class="bon-pay-title">Catat pembayaran</div>
             <button type="button" class="bon-pay-close" data-bon-pay-close aria-label="Tutup">
@@ -162,8 +174,10 @@
         <div class="pelanggan-field">
             <label class="pelanggan-field-label" for="bonPayJumlah">Jumlah bayar</label>
             <input id="bonPayJumlah"
+                   name="Jumlah"
                    type="text"
                    inputmode="decimal"
+                   maxlength="20"
                    class="pelanggan-field-input bon-money-input"
                    placeholder="Tulis jumlah"
                    autocomplete="off" />
@@ -173,7 +187,7 @@
         <div class="pelanggan-field">
             <span class="pelanggan-field-label" id="bonPayTanggalLabel">Tanggal</span>
             <div class="bon-field-with-icon">
-                <input id="bonPayTanggal" type="hidden" name="tanggal" value="@todayIso" />
+                <input id="bonPayTanggal" type="hidden" name="Tanggal" value="@todayIso" />
                 <button type="button"
                         id="bonPayTanggalBtn"
                         class="bon-picker-trigger bon-date-trigger"
@@ -191,14 +205,16 @@
         <div class="pelanggan-field">
             <label class="pelanggan-field-label" for="bonPayCatatan">Catatan</label>
             <textarea id="bonPayCatatan"
+                      name="Catatan"
+                      maxlength="200"
                       class="pelanggan-field-input pelanggan-field-textarea"
                       placeholder="Tulis catatan (opsional)"
                       rows="2"></textarea>
             <hr class="page-rule" />
         </div>
 
-        <button type="button" class="bon-pay-submit" data-bon-pay-save>Simpan pembayaran</button>
-    </div>
+        <button type="submit" class="bon-pay-submit">Simpan pembayaran</button>
+    </form>
 
     <div id="bonPayCalendar" class="bon-cal" hidden>
         <div class="bon-cal-scrim" data-bon-cal-close></div>
@@ -237,7 +253,9 @@
     </div>
 </div>
 
-<div id="bonAddSheet" class="bon-add" data-search-url="@Url.Action("SearchBarang", "Bon")" hidden>
+<div id="bonAddSheet" class="bon-add"
+     data-search-url="@Url.Action("SearchBarang", "Bon", new { stepper = true })"
+     hidden>
     <div class="bon-add-scrim" data-bon-add-close></div>
     <div class="bon-add-sheet"
          role="dialog"
@@ -264,11 +282,12 @@
             <hr class="page-rule" />
         </div>
 
-        @* Picking a row writes one unit straight into the bon; the POST redirects back here, so this
-           page repaints its Ringkasan, Daftar barang, and total from the notebook. *@
+        @* Picking a row writes the count its stepper shows straight into the bon; the POST redirects
+           back here, so this page repaints its Ringkasan, Daftar barang, and total from the notebook. *@
         <form method="post" asp-action="AddItem" id="bonAddForm" class="bon-add-form">
             <input type="hidden" name="BonId" value="@Model.Id" />
             <input type="hidden" name="BarangId" id="bonAddBarangId" />
+            <input type="hidden" name="Jumlah" id="bonAddJumlah" value="1" />
 
             <div class="bon-add-list">
                 @* The first page rides along; the sheet asks the server for the rest while the shopkeeper types. *@

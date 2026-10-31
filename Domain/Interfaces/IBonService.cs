@@ -55,6 +55,13 @@ public interface IBonService
     Task<ErrorOr> AddItemAsync(AddBonItemRequest request);
 
     /// <summary>
+    /// Records one payment against an existing bon: the amount as typed, the day it was handed over, and
+    /// the optional note. The amount is refused when it is empty, not a number, or more than what the
+    /// page still owes, so a bon can never turn into a credit. A missing bon is reported as not found.
+    /// </summary>
+    Task<ErrorOr> AddPaymentAsync(AddBonPaymentRequest request);
+
+    /// <summary>
     /// Writes one bon with its item lines and, when money was paid up front, its first payment row.
     /// Prices are read from the stock list, never from <paramref name="request"/>.
     /// </summary>

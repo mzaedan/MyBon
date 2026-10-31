@@ -81,3 +81,6 @@ Still open:
 Min/max dates, disabled days, year and month dropdowns, a native date fallback, payment persistence, `bon_payment` rows, validation, server-side dates, a new JS library, Tailwind, Phosphor icon paths.
 
 > Update (2026-10-31): the controller now lives in `wwwroot/helpers/bon-calendar.js` so `/Bon/Create` can open the same popup. `details.js` calls `BonCalendar.create(...)`; the ids and behaviour above are unchanged. See `docs/plans/plan-kalender-catat-bon.md`.
+
+> Update (2026-10-31): the sheet this calendar belongs to now saves. The hidden `#bonPayTanggal` posts as `Tanggal` on `#bonPayForm` to `POST /Bon/AddPayment`, and a cleared date is refused with **Tanggal wajib diisi**. See `docs/plans/plan-catat-pembayaran-dinamis.md`.
+

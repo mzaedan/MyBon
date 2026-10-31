@@ -1,7 +1,8 @@
 /* Bon > Details: the Catat pembayaran sheet with its Tanggal calendar (drawn by the shared
-   helpers/bon-calendar.js), the Tambah barang sheet, and the stock rows that sheet lists. Picking a
-   barang submits #bonAddForm, so the line is written and this page repaints from the notebook. The
-   payment sheet is still visual: Simpan only closes it. */
+   helpers/bon-calendar.js), the Tambah barang sheet with the per-row quantity stepper, and the stock
+   rows that sheet lists. Saving the pay sheet posts #bonPayForm, and picking a barang submits
+   #bonAddForm with the count its stepper shows; both redirect back, so this page repaints from the
+   notebook. */
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
@@ -138,6 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var addForm = document.getElementById('bonAddForm');
     var addBarangId = document.getElementById('bonAddBarangId');
+    var addJumlah = document.getElementById('bonAddJumlah');
     var addSearch = document.getElementById('bonAddSearch');
     var addSheet = document.getElementById('bonAddSheet');
     var addList = addSheet ? addSheet.querySelector('.bon-add-list') : null;
@@ -147,6 +149,10 @@ document.addEventListener('DOMContentLoaded', function () {
     var debounceMs = 250;
     var addTimer = null;
     var addPending = null;
+
+    // The stepper's range matches AddBonItemRequest, so a pick never writes zero or a rejected count.
+    var minJumlah = 1;
+    var maxJumlah = 9999;
 
     // One tap is one line; a second tap before the POST lands would write the line twice.
     var addSubmitting = false;
@@ -233,6 +239,31 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    function readStepper(row) {
+        var valueEl = row ? row.querySelector('[data-bon-step-value]') : null;
+        var value = valueEl ? parseInt(valueEl.textContent, 10) : minJumlah;
+
+        if (isNaN(value)) {
+            return minJumlah;
+        }
+
+        return Math.min(Math.max(value, minJumlah), maxJumlah);
+    }
+
+    function stepStepper(button) {
+        var row = button.closest('.bon-add-item');
+        var valueEl = row ? row.querySelector('[data-bon-step-value]') : null;
+        if (!valueEl) {
+            return;
+        }
+
+        var step = parseInt(button.getAttribute('data-bon-step'), 10) || 0;
+        var next = readStepper(row) + step;
+
+        // Both buttons stay enabled; the count simply stops at one and at the request's top.
+        valueEl.textContent = String(Math.min(Math.max(next, minJumlah), maxJumlah));
+    }
+
     var calendar = window.BonCalendar
         ? window.BonCalendar.create({
             overlayId: 'bonPayCalendar',
@@ -249,7 +280,8 @@ document.addEventListener('DOMContentLoaded', function () {
         triggerId: 'catatPembayaranBtn',
         panelSelector: '.bon-pay-sheet',
         initialFocusId: 'bonPayJumlah',
-        closeSelector: '[data-bon-pay-close], [data-bon-pay-save]',
+        // The save button is the form's submit, so only the close controls dismiss the sheet.
+        closeSelector: '[data-bon-pay-close]',
         getFocusScope: function () {
             return calendar && calendar.isOpen() ? calendar.popup : null;
         },
@@ -260,6 +292,22 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Saving posts the sheet to the server; the redirect repaints the page, so only a second click
+    // before that POST lands needs stopping.
+    var payForm = document.getElementById('bonPayForm');
+    var paySubmitting = false;
+
+    if (payForm) {
+        payForm.addEventListener('submit', function (event) {
+            if (paySubmitting) {
+                event.preventDefault();
+                return;
+            }
+
+            paySubmitting = true;
+        });
+    }
+
     createSheet({
         sheetId: 'bonAddSheet',
         triggerId: 'tambahBarangBtn',
@@ -268,8 +316,9 @@ document.addEventListener('DOMContentLoaded', function () {
         closeSelector: '[data-bon-add-close]',
         pickSelector: '.bon-picker-item',
         onPick: function (item) {
-            // One tap writes one unit; the server copies the name, unit, and price from the stock list.
-            if (addSubmitting || !addForm || !addBarangId) {
+            // One tap writes the count the row's stepper shows; the server copies the name, unit, and
+            // price from the stock list.
+            if (addSubmitting || !addForm || !addBarangId || !addJumlah) {
                 return;
             }
 
@@ -280,6 +329,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             addSubmitting = true;
             addBarangId.value = id;
+            addJumlah.value = String(readStepper(item.closest('.bon-add-item')));
             addForm.submit();
         },
         onClose: resetAddSearch
@@ -298,6 +348,13 @@ document.addEventListener('DOMContentLoaded', function () {
     if (addList) {
         // Delegated on the list, so the handler survives every search re-render.
         addList.addEventListener('click', function (event) {
+            // The stepper sits beside the pick button, so it never adds a line: it only sets the count.
+            var step = event.target.closest('[data-bon-step]');
+            if (step) {
+                stepStepper(step);
+                return;
+            }
+
             var button = event.target.closest('.bon-picker-load-more');
             if (!button) {
                 return;

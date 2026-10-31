@@ -82,3 +82,12 @@ repaints the summary, the item list, and the pay sheet's sisa hint from one sour
 Editing the quantity in the sheet, deleting a line, changing a recorded price, stock movement, a
 second JS library, SPA-style partial repaint (the redirect keeps one source of truth), and payment
 persistence.
+
+> Update: the sheet's rows now carry a quantity stepper and a pick writes the count it shows, so
+> "editing the quantity in the sheet" is no longer out of scope. See
+> `docs/plans/plan-tambah-barang-stepper.md`.
+
+> Update (2026-10-31): recording a payment is no longer visual. The **Catat pembayaran** sheet posts to
+> `POST /Bon/AddPayment` and writes a `bon_payment` row. See
+> `docs/plans/plan-catat-pembayaran-dinamis.md`.
+

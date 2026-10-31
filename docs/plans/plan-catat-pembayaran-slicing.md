@@ -64,3 +64,6 @@ wwwroot/css/site.css           .bon-action button reset + .bon-pay-* sheet
 Real payment persistence, `bon_payment` rows, validation, amount formatting, server-side totals, per-bon data, Tailwind, Phosphor icon paths.
 
 > Update: the native date field became the calendar popup in `docs/plans/plan-kalender-catat-pembayaran.md` — a trigger row plus a hidden ISO field (`#bonPayTanggal`) and `#bonPayCalendar` inside this sheet.
+
+> Update (2026-10-31): the sheet is no longer visual. `.bon-pay-sheet` is a real form (`#bonPayForm`) that posts `BonId`, `Jumlah`, `Tanggal`, and `Catatan` to `POST /Bon/AddPayment`, and the redirect repaints the summary, the history, and the sisa hint from the notebook. **Simpan pembayaran** is the form's submit, so it no longer closes the sheet by script. See `docs/plans/plan-catat-pembayaran-dinamis.md`.
+
