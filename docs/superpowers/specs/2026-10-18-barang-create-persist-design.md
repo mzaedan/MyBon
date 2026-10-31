@@ -42,14 +42,14 @@ Field rules:
 | Field | Rule |
 |---|---|
 | Nama | required, 200 max; annotation plus a whitespace check in the service |
-| Satuan | optional, 30 max |
+| Satuan | required, 30 max; annotation only (create only — edit keeps it optional) |
 | Harga | required, 20 characters max, must parse and fit the column |
 
 ## Behaviour
 
 1. `GET /Barang/Create` renders the empty form, as before.
 2. A valid POST saves the row, then redirects to `/Barang` with **Barang tersimpan di buku** above the list.
-3. A failed POST re-renders the form with the typed values kept and the message under the field: **Nama barang wajib diisi**, **Harga wajib diisi**, **Harga harus angka, contoh 78.000**, **Harga terlalu besar**.
+3. A failed POST re-renders the form with the typed values kept and the message under the field: **Nama barang wajib diisi**, **Satuan wajib diisi**, **Harga wajib diisi**, **Harga harus angka, contoh 78.000**, **Harga terlalu besar**.
 4. AJAX callers receive the `ErrorOr` payload as JSON instead of a page, per `BaseController`.
 5. The form carries the anti-forgery token; a POST without one is a 400.
 
@@ -89,3 +89,5 @@ Item edit and delete, an item detail page, live search on `/Barang`, barcode or 
 > Update: letters and other symbols no longer enter the Harga field. `harga-input.js` blocks them on `beforeinput` and strips anything arriving from paste, drop, or autofill, so the field holds digits, dots, and a comma only. The server-side **Harga harus angka, contoh 78.000** check stays as the safety net for callers that bypass the field. See `docs/plans/plan-barang-harga-angka-saja.md`.
 
 > Update: item edit (`/Barang/Edit/{id}`) and item detail (`/Barang/Details/{id}`) now exist, so the card on the list opens the detail sheet instead of stopping on a read-only list. See `2026-10-18-barang-edit-design.md` and `2026-10-18-barang-detail-design.md`.
+
+> Update: **Satuan** is now required on `/Barang/Create`. `CreateBarangRequest.Satuan` carries `[Required(ErrorMessage = "Satuan wajib diisi")]` and is no longer nullable, so a blank or whitespace-only unit re-renders the form with **Satuan wajib diisi** under the field. The create request is the only place this applies; `UpdateBarangRequest` keeps an optional satuan. See `docs/plans/plan-barang-satuan-wajib.md`.

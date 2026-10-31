@@ -1,8 +1,10 @@
-/* Barang > Create and Edit: keeps the Harga field numeric and shows thousands separators while typing.
+/* Keeps a money field numeric and shows thousands separators while typing: Barang > Create and Edit
+   (Harga) and Bon > Details (Jumlah bayar on the Catat pembayaran sheet).
    Letters and symbols never enter the field: keys are blocked on beforeinput, and text arriving from
    paste, drop, or autofill is stripped to digits, dots, and commas. The separator is display only; on
-   submit the dots are stripped from the value, so the posted harga carries no separator.
-   Shared by both forms because the field behaves the same. */
+   submit the dots are stripped from the value, so the posted amount carries no separator and the
+   server parses plain digits ("1000" or "1000,5") instead of reading "1.000" as 1.
+   Shared by every form that marks a field with data-money-input. */
 (function () {
     'use strict';
 

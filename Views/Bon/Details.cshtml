@@ -173,6 +173,8 @@
 
         <div class="pelanggan-field">
             <label class="pelanggan-field-label" for="bonPayJumlah">Jumlah bayar</label>
+            @* The same money field as Barang's Harga: letters never land here, thousands are grouped
+               while typing, and the submit strips the dots so the server parses plain digits. *@
             <input id="bonPayJumlah"
                    name="Jumlah"
                    type="text"
@@ -180,7 +182,8 @@
                    maxlength="20"
                    class="pelanggan-field-input bon-money-input"
                    placeholder="Tulis jumlah"
-                   autocomplete="off" />
+                   autocomplete="off"
+                   data-money-input />
             <hr class="page-rule" />
         </div>
 
@@ -299,6 +302,7 @@
 
 @section Scripts {
     <script src="~/helpers/bon-calendar.js" asp-append-version="true"></script>
+    <script src="~/helpers/money-input.js" asp-append-version="true"></script>
     <script src="~/custom/features/bon/details.js" asp-append-version="true"></script>
 }
 

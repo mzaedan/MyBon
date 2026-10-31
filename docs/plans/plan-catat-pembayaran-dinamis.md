@@ -6,6 +6,11 @@
 
 **Status:** implemented and verified against Postgres and headless Chrome on 2026-10-31. `POST /Bon/AddPayment` writes the row and redirects back to the page; a rejected save lands on the same page with a notice.
 
+> Update: **Jumlah bayar** now shares Barang's money-field behaviour (`data-money-input` +
+> `wwwroot/helpers/money-input.js`), so a typed letter never reaches the field and the thousands are
+> grouped while typing. The submit still posts plain digits, which this plan's parse already reads.
+> See `docs/plans/plan-jumlah-bayar-angka-saja.md`.
+
 ## Architecture
 
 ```

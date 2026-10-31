@@ -11,8 +11,9 @@ public class CreateBarangRequest
     [MaxLength(200, ErrorMessage = "Nama barang maksimal 200 karakter")]
     public string Nama { get; set; } = null!;
 
+    [Required(ErrorMessage = "Satuan wajib diisi")]
     [MaxLength(30, ErrorMessage = "Satuan maksimal 30 karakter")]
-    public string? Satuan { get; set; }
+    public string Satuan { get; set; } = null!;
 
     /// <summary>
     /// Price as typed: "78.000" or "78,5". Kept as text because form binding parses a decimal with the

@@ -1297,7 +1297,7 @@ a.bon-card:focus-visible {
 /* The form row keeps the export's compact height, not the sheet rows' 44px target. */
 .bon-customer-trigger {
   min-height: 0;
-  padding: 0 24px 0 0;
+  padding: 0;
 }
 
 .bon-picker-trigger:focus-visible {

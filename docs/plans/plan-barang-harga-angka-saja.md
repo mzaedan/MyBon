@@ -6,9 +6,14 @@
 
 **Architecture:** One behaviour change inside the existing shared script `wwwroot/custom/features/barang/harga-input.js`. No Razor, controller, service, model, or CSS change. The server-side parse and the **Harga harus angka, contoh 78.000** message stay as a safety net for callers that bypass the field (AJAX, direct POST).
 
+> Update: the script moved to `wwwroot/helpers/money-input.js` so Bon > Details could reuse it for
+> **Jumlah bayar** without reaching into a feature folder. The behaviour below is unchanged; only the
+> `<script src>` in `Views/Barang/Create.cshtml` and `Views/Barang/Edit.cshtml` points at the helper.
+> See `docs/plans/plan-jumlah-bayar-angka-saja.md`.
+
 ## File map
 
-- Modify: `wwwroot/custom/features/barang/harga-input.js`
+- Modify: `wwwroot/helpers/money-input.js` (was `wwwroot/custom/features/barang/harga-input.js`)
 - Modify: `docs/superpowers/specs/2026-10-18-barang-create-persist-design.md`, `2026-10-18-barang-edit-design.md` (update notes)
 
 ---
