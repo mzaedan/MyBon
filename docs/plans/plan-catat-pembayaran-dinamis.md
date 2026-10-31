@@ -10,6 +10,11 @@
 > `wwwroot/helpers/money-input.js`), so a typed letter never reaches the field and the thousands are
 > grouped while typing. The submit still posts plain digits, which this plan's parse already reads.
 > See `docs/plans/plan-jumlah-bayar-angka-saja.md`.
+> Update (2026-10-31): a rejected payment now explains itself **inside the sheet, under the field it belongs
+> to** (**Jumlah bayar wajib diisi** under the amount, **Tanggal wajib diisi** under the date) instead of the
+> page banner above the title, and the sheet reopens on that message. `AddPayment` writes
+> `TempData["BonPayJumlahError"]` / `TempData["BonPayTanggalError"]`; a missing bon and a database failure
+> still report in the banner. See `docs/plans/plan-validasi-jumlah-bayar-dalam-modal.md`.
 
 ## Architecture
 

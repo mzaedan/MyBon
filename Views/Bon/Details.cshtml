@@ -9,6 +9,13 @@
     var status = TempData["BonStatus"] as string;
     var error = TempData["BonError"] as string;
 
+    // A rejected payment keeps its messages beside their fields, so the sheet explains itself in place
+    // rather than the page banner above the title.
+    var payJumlahError = TempData["BonPayJumlahError"] as string;
+    var payTanggalError = TempData["BonPayTanggalError"] as string;
+    var payHasError = !string.IsNullOrWhiteSpace(payJumlahError)
+        || !string.IsNullOrWhiteSpace(payTanggalError);
+
     // Same reading as the list, the card and the form, so a page and its card never disagree.
     string FormatRupiah(decimal jumlah) =>
         $"Rp {jumlah.ToString("#,##0.##", CultureInfo.GetCultureInfo("id-ID"))}";
@@ -140,7 +147,7 @@
     </div>
 </div>
 
-<div id="bonPaySheet" class="bon-pay" hidden>
+<div id="bonPaySheet" class="bon-pay" data-error="@(payHasError.ToString().ToLowerInvariant())" hidden>
     <div class="bon-pay-scrim" data-bon-pay-close></div>
 
     @* Saving posts the amount, date, and note straight into bon_payment; the redirect repaints
@@ -184,6 +191,10 @@
                    placeholder="Tulis jumlah"
                    autocomplete="off"
                    data-money-input />
+            @* A rejected save answers under the field; the script clears it as the amount becomes valid. *@
+            <span id="bonPayJumlahError"
+                  class="pelanggan-field-error"
+                  role="alert"@(string.IsNullOrWhiteSpace(payJumlahError) ? " hidden" : string.Empty)>@payJumlahError</span>
             <hr class="page-rule" />
         </div>
 
@@ -193,7 +204,7 @@
                 <input id="bonPayTanggal" type="hidden" name="Tanggal" value="@todayIso" />
                 <button type="button"
                         id="bonPayTanggalBtn"
-                        class="bon-picker-trigger bon-date-trigger"
+                        class="bon-picker-trigger bon-date-trigger@(string.IsNullOrWhiteSpace(payTanggalError) ? string.Empty : " input-validation-error")"
                         aria-haspopup="dialog"
                         aria-expanded="false"
                         aria-controls="bonPayCalendar"
@@ -202,6 +213,10 @@
                 </button>
                 <i class="bi bi-calendar bon-field-icon bon-date-icon" aria-hidden="true"></i>
             </div>
+            @* A cleared date is answered under the row; picking a day clears it again. *@
+            <span id="bonPayTanggalError"
+                  class="pelanggan-field-error"
+                  role="alert"@(string.IsNullOrWhiteSpace(payTanggalError) ? " hidden" : string.Empty)>@payTanggalError</span>
             <hr class="page-rule" />
         </div>
 

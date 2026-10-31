@@ -164,7 +164,8 @@ public class BonController(IBonService bonService) : BaseController
     /// <summary>
     /// Records one save from the Catat pembayaran sheet — the amount typed, its date, and the note — and
     /// sends the shopkeeper back to the page, so Ringkasan, Riwayat pembayaran, and the sisa hint repaint
-    /// from the notebook. A rejected save reports its message on the page instead of a bare status code.
+    /// from the notebook. A rejected field rides back under its own field in the sheet; a failure with no
+    /// field (a missing bon, a database error) still reports on the page banner.
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -175,8 +176,14 @@ public class BonController(IBonService bonService) : BaseController
             if (request.BonId <= 0)
                 return RedirectToAction(nameof(Index));
 
-            // A cleared date and an amount over the column's length each say what went wrong.
-            TempData["BonError"] = FirstModelStateMessage() ?? "Jumlah bayar wajib diisi.";
+            // Each message keeps its field, so the sheet explains itself where the field sits.
+            TempData["BonPayJumlahError"] = ModelStateMessage(nameof(request.Jumlah));
+            TempData["BonPayTanggalError"] = ModelStateMessage(nameof(request.Tanggal));
+
+            // A rejected bind with no field message still has to say something, so the banner answers it.
+            if (TempData["BonPayJumlahError"] is null && TempData["BonPayTanggalError"] is null)
+                TempData["BonError"] = FirstModelStateMessage() ?? "Gagal mencatat pembayaran.";
+
             return RedirectToAction(nameof(Details), new { id = request.BonId });
         }
 
@@ -186,10 +193,19 @@ public class BonController(IBonService bonService) : BaseController
         {
             TempData["BonStatus"] = result.Message;
         }
+        else if (result.ErrorType == ErrorType.Validation)
+        {
+            // The service keys its messages by field, so the sheet, not the page banner, answers them.
+            TempData["BonPayJumlahError"] = FieldMessage(result, "Jumlah");
+            TempData["BonPayTanggalError"] = FieldMessage(result, "Tanggal");
+
+            if (TempData["BonPayJumlahError"] is null && TempData["BonPayTanggalError"] is null)
+                TempData["BonError"] = result.Message ?? "Gagal mencatat pembayaran.";
+        }
         else
         {
-            // The field message reads better on the page than the generic "Validation failed.".
-            TempData["BonError"] = FirstErrorOrMessage(result) ?? result.Message ?? "Gagal mencatat pembayaran.";
+            // A missing bon and a database failure are page-level, not field validation.
+            TempData["BonError"] = result.Message ?? "Gagal mencatat pembayaran.";
         }
 
         // A bon that no longer exists has no page to return to, so the notebook itself answers.
@@ -208,6 +224,23 @@ public class BonController(IBonService bonService) : BaseController
             .SelectMany(entry => entry.Errors)
             .Select(error => error.ErrorMessage)
             .FirstOrDefault(text => !string.IsNullOrWhiteSpace(text));
+
+    /// <summary>
+    /// Reads the message the model state holds for one field of a rejected POST, so the payment sheet can
+    /// paint it under that field instead of the page banner.
+    /// </summary>
+    private string? ModelStateMessage(string fieldName) =>
+        ModelState.TryGetValue(fieldName, out var entry)
+            ? entry.Errors
+                .Select(error => error.ErrorMessage)
+                .FirstOrDefault(text => !string.IsNullOrWhiteSpace(text))
+            : null;
+
+    /// <summary>Reads the message an <see cref="ErrorOr"/> carries for one field, if it carries any.</summary>
+    private static string? FieldMessage(ErrorOr result, string fieldName) =>
+        result.Errors is not null && result.Errors.TryGetValue(fieldName, out var messages)
+            ? messages.FirstOrDefault(text => !string.IsNullOrWhiteSpace(text))
+            : null;
 
     /// <summary>Reads the first field message an <see cref="ErrorOr"/> carries.</summary>
     private static string? FirstErrorOrMessage(ErrorOr result) =>

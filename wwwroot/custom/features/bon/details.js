@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
             (initial || panel).focus();
         }
 
-        var controller = { close: close };
+        var controller = { close: close, open: open };
 
         trigger.addEventListener('click', open);
 
@@ -275,7 +275,8 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         : null;
 
-    createSheet({
+    var paySheetEl = document.getElementById('bonPaySheet');
+    var paySheet = createSheet({
         sheetId: 'bonPaySheet',
         triggerId: 'catatPembayaranBtn',
         panelSelector: '.bon-pay-sheet',
@@ -292,13 +293,67 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Saving posts the sheet to the server; the redirect repaints the page, so only a second click
-    // before that POST lands needs stopping.
     var payForm = document.getElementById('bonPayForm');
+    var payJumlah = document.getElementById('bonPayJumlah');
+    var payJumlahError = document.getElementById('bonPayJumlahError');
+    var payTanggal = document.getElementById('bonPayTanggal');
+    var payTanggalError = document.getElementById('bonPayTanggalError');
+    var payTanggalBtn = document.getElementById('bonPayTanggalBtn');
     var paySubmitting = false;
+
+    // The amount reads the way the server does: dots group thousands, a comma marks the decimals.
+    function readPayJumlah() {
+        var digits = String(payJumlah ? payJumlah.value : '')
+            .replace(/\./g, '')
+            .replace(/\s/g, '')
+            .replace(',', '.');
+        var amount = parseFloat(digits);
+        return isNaN(amount) ? 0 : amount;
+    }
+
+    function setPayFieldError(field, errorEl, message) {
+        if (errorEl) {
+            errorEl.textContent = message;
+            errorEl.hidden = false;
+        }
+
+        if (field) {
+            field.classList.add('input-validation-error');
+            field.setAttribute('aria-invalid', 'true');
+        }
+    }
+
+    function clearPayFieldError(field, errorEl) {
+        if (!errorEl || errorEl.hidden) {
+            return;
+        }
+
+        errorEl.textContent = '';
+        errorEl.hidden = true;
+
+        if (field) {
+            field.classList.remove('input-validation-error');
+            field.removeAttribute('aria-invalid');
+        }
+    }
 
     if (payForm) {
         payForm.addEventListener('submit', function (event) {
+            // An empty or zero amount is answered under the field, so the sheet never posts it and the
+            // page banner above the title stays out of it.
+            if (readPayJumlah() <= 0) {
+                event.preventDefault();
+                setPayFieldError(payJumlah, payJumlahError, 'Jumlah bayar wajib diisi');
+
+                if (payJumlah) {
+                    payJumlah.focus();
+                }
+
+                return;
+            }
+
+            // Saving posts the sheet to the server; the redirect repaints the page, so only a second click
+            // before that POST lands needs stopping.
             if (paySubmitting) {
                 event.preventDefault();
                 return;
@@ -306,6 +361,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
             paySubmitting = true;
         });
+    }
+
+    if (payJumlah) {
+        // The message belongs to the field: it goes the moment the field holds a real amount.
+        payJumlah.addEventListener('input', function () {
+            if (readPayJumlah() > 0) {
+                clearPayFieldError(payJumlah, payJumlahError);
+            }
+        });
+    }
+
+    // The calendar writes the hidden Tanggal field itself, so its message clears on the overlay's clicks,
+    // after the calendar's own handler has stored the day it picked.
+    var payCalendarOverlay = document.getElementById('bonPayCalendar');
+    if (payCalendarOverlay) {
+        payCalendarOverlay.addEventListener('click', function () {
+            if (payTanggal && payTanggal.value !== '') {
+                clearPayFieldError(payTanggalBtn, payTanggalError);
+            }
+        });
+    }
+
+    // A rejected save repaints the page, so the sheet reopens on the message the server left for it.
+    if (paySheet && paySheetEl && paySheetEl.getAttribute('data-error') === 'true') {
+        paySheet.open();
+
+        if (payJumlah) {
+            payJumlah.focus();
+        }
     }
 
     createSheet({

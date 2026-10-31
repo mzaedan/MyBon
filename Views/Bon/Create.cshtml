@@ -26,8 +26,35 @@
 <hr class="page-rule" />
 
 <form method="post" asp-action="Create" class="pelanggan-form">
-    @* Item lines are added by script, so every message is reported at the top of the form. *@
-    <div asp-validation-summary="All" class="pelanggan-field-error" role="alert"></div>
+    @* Item lines are added by script, so their messages — and any form-wide failure — are reported at
+       the top of the form. Every named field keeps its own message under its input. *@
+    @{
+        var topMessages = new List<string>();
+
+        foreach (var entry in ViewData.ModelState)
+        {
+            if (!string.IsNullOrEmpty(entry.Key) && !entry.Key.StartsWith("Items", StringComparison.Ordinal))
+                continue;
+
+            if (entry.Value is null)
+                continue;
+
+            foreach (var error in entry.Value.Errors)
+            {
+                if (!string.IsNullOrWhiteSpace(error.ErrorMessage))
+                    topMessages.Add(error.ErrorMessage);
+            }
+        }
+    }
+    @if (topMessages.Count > 0)
+    {
+        <ul class="pelanggan-field-error" role="alert">
+            @foreach (var message in topMessages)
+            {
+                <li>@message</li>
+            }
+        </ul>
+    }
 
     <div class="pelanggan-field">
         <span class="pelanggan-field-label" id="pelangganLabel">Pelanggan</span>
