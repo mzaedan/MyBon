@@ -9,12 +9,18 @@
     string FormatRupiah(decimal jumlah) =>
         $"Rp {jumlah.ToString("#,##0.##", CultureInfo.GetCultureInfo("id-ID"))}";
 
-    // The picker carries the raw price in data-harga, so the line arithmetic never parses a label.
-    string FormatHarga(decimal harga) =>
-        harga.ToString("0.##", CultureInfo.InvariantCulture);
+    // The notebook writes the date the Indonesian way: 12 Maret 2026.
+    string FormatTanggal(DateOnly tanggal) =>
+        tanggal.ToString("d MMMM yyyy", CultureInfo.GetCultureInfo("id-ID"));
 
     var selectedCustomer = Model.Customers.FirstOrDefault(customer => customer.Id == Model.PelangganId);
     var pelangganLabel = selectedCustomer?.Nama ?? "Pilih pelanggan";
+
+    // The row paints the Indonesian date; the hidden field the form posts keeps the ISO value.
+    var tanggalIso = Model.Tanggal?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty;
+    var tanggalLabel = Model.Tanggal is DateOnly tanggal ? FormatTanggal(tanggal) : "Pilih tanggal";
+    var tanggalBulan = (Model.Tanggal ?? DateOnly.FromDateTime(DateTime.Today))
+        .ToString("MMMM yyyy", CultureInfo.GetCultureInfo("id-ID"));
 }
 
 <hr class="page-rule" />
@@ -43,13 +49,23 @@
     </div>
 
     <div class="pelanggan-field">
-        <label class="pelanggan-field-label" for="tanggal">Tanggal</label>
+        <span class="pelanggan-field-label" id="tanggalLabel">Tanggal</span>
         <div class="bon-field-with-icon">
-            <input asp-for="Tanggal"
-                   type="date"
-                   id="tanggal"
-                   class="pelanggan-field-input bon-date" />
-            <i class="bi bi-calendar bon-field-icon" aria-hidden="true"></i>
+            @* The row is a trigger like the Catat pembayaran sheet; the form posts the ISO date in the hidden field. *@
+            <input id="tanggal"
+                   name="Tanggal"
+                   type="hidden"
+                   value="@tanggalIso" />
+            <button type="button"
+                    id="tanggalBtn"
+                    class="bon-picker-trigger bon-date-trigger@(Model.Tanggal is null ? " is-empty" : "")"
+                    aria-haspopup="dialog"
+                    aria-expanded="false"
+                    aria-controls="bonTanggalCalendar"
+                    aria-labelledby="tanggalLabel tanggalValue">
+                <span id="tanggalValue">@tanggalLabel</span>
+            </button>
+            <i class="bi bi-calendar bon-field-icon bon-date-icon" aria-hidden="true"></i>
         </div>
         <span asp-validation-for="Tanggal" class="pelanggan-field-error"></span>
         <hr class="page-rule" />
@@ -88,7 +104,7 @@
     </div>
 
     <div id="bonLinesContainer">
-        <!-- baris barang akan ditambahkan oleh JavaScript -->
+        <!-- Item lines are added by script. -->
     </div>
 
     <div class="bon-total-row">
@@ -149,8 +165,13 @@
     </div>
 </template>
 
+@* Lines a rejected POST already picked are handed to the script, so a validation error paints them
+   again instead of dropping everything the shopkeeper chose. *@
+<script type="application/json" id="bonInitialLines">@Json.Serialize(Model.Lines)</script>
 
-<div id="bonPicker" class="bon-picker" hidden>
+<div id="bonPicker" class="bon-picker"
+     data-search-url="@Url.Action("SearchBarang", "Bon")"
+     hidden>
     <div class="bon-picker-scrim" data-bon-picker-close></div>
     <div class="bon-picker-sheet"
          role="dialog"
@@ -178,26 +199,9 @@
             <hr class="page-rule" />
         </div>
         <div class="bon-picker-list">
-            @foreach (var barang in Model.Barangs)
-            {
-                <div class="bon-barang-row">
-                    <button type="button"
-                            class="bon-picker-item"
-                            data-id="@barang.Id"
-                            data-nama="@barang.Nama"
-                            data-satuan="@barang.Satuan"
-                            data-harga="@FormatHarga(barang.Harga)">
-                        <span class="bon-picker-item-info">
-                            <span class="bon-picker-item-name">@barang.Nama</span>
-                            <span class="bon-picker-item-unit">@(string.IsNullOrWhiteSpace(barang.Satuan) ? "-" : barang.Satuan)</span>
-                        </span>
-                        <span class="bon-picker-item-price">@FormatRupiah(barang.Harga)</span>
-                    </button>
-                    <hr class="page-rule" />
-                </div>
-            }
+            @* The first page rides along; the sheet asks the server for the rest while the shopkeeper types. *@
+            <partial name="_BarangRows" model="Model.Barangs" />
         </div>
-        <p class="bon-customer-empty" id="bonBarangEmpty" hidden="@(Model.Barangs.Count == 0 ? null : "hidden")">Belum ada barang di buku. Tambahkan barang dulu.</p>
     </div>
 </div>
 
@@ -253,7 +257,44 @@
     </div>
 </div>
 
+<div id="bonTanggalCalendar" class="bon-cal bon-cal--page" hidden>
+    <div class="bon-cal-scrim" data-bon-cal-close></div>
+    <div class="bon-cal-popup"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="bonTanggalCalTitle"
+         tabindex="-1">
+        <div class="bon-cal-head">
+            <button type="button" class="bon-cal-nav" data-bon-cal-prev aria-label="Bulan sebelumnya">
+                <i class="bi bi-chevron-left" aria-hidden="true"></i>
+            </button>
+            <div id="bonTanggalCalTitle" class="bon-cal-title" aria-live="polite">@tanggalBulan</div>
+            <button type="button" class="bon-cal-nav" data-bon-cal-next aria-label="Bulan berikutnya">
+                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <div class="bon-cal-weekdays" aria-hidden="true">
+            <span>Sen</span>
+            <span>Sel</span>
+            <span>Rab</span>
+            <span>Kam</span>
+            <span>Jum</span>
+            <span>Sab</span>
+            <span>Min</span>
+        </div>
+
+        <div id="bonTanggalCalGrid" class="bon-cal-grid" role="grid" aria-labelledby="bonTanggalCalTitle"></div>
+
+        <div class="bon-cal-actions">
+            <button type="button" class="bon-cal-clear" data-bon-cal-clear>Clear</button>
+            <button type="button" class="bon-cal-today" data-bon-cal-today>Hari ini</button>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/helpers/bon-calendar.js" asp-append-version="true"></script>
     <script src="~/custom/features/bon/create.js" asp-append-version="true"></script>
 }

@@ -2,7 +2,7 @@
 
 **Goal:** Make **Catat Bon** read and write the notebook. `/Bon` lists real bons, `/Bon/Create` saves a header plus its item lines, and `/Bon/Details/{id}` reads one bon back. Today all three views are hardcoded markup and `BonController` never touches the database.
 
-**Status:** Slices 1-4 are implemented and verified against Postgres on 2026-10-25. `/Bon` reads real bons through `BonService`, `/Bon/Create` loads both sheets from the notebook and saves a header with its lines and first payment, and `/Bon/Details/{id}` reads one bon through `BonDetailDto` and paints its own header, totals, payment history, and item lines. The two bottom sheets on Details are still visual, so recording a payment and writing a line wait for the Follow-ups. Both decisions in [Open decisions](#open-decisions) are locked.
+**Status:** Slices 1-4 are implemented and verified against Postgres on 2026-10-25; Slice 5 was added on 2026-10-31. `/Bon` reads real bons through `BonService`, `/Bon/Create` loads both sheets from the notebook and saves a header with its lines and first payment, and `/Bon/Details/{id}` reads one bon through `BonDetailDto` and paints its own header, totals, payment history, and item lines. The item picker on Create asks the server for its rows instead of carrying the whole stock list, and a rejected POST repaints the lines it already had. The two bottom sheets on Details are still visual, so recording a payment and writing a line wait for the Follow-ups. Both decisions in [Open decisions](#open-decisions) are locked.
 
 ## Architecture
 
@@ -155,7 +155,7 @@ A rolled-back insert burns a number, so the series can skip. That is accepted: a
 ## Slice 4: views and JS
 
 - [x] **Step 1:** `Index.cshtml` renders `_Cards` in a loop, deletes the four hardcoded cards, keeps `.bon-card*`, `.bon-search*` and `.cta-catat-bon`, and gains the empty state the Barang list has. The search row is a real `q` field, the title reports the total, and the stack carries `data-search-url` so `index.js` can page and search it.
-- [x] **Step 2:** `Create.cshtml` turns `method="get"` into a POST form with an antiforgery token, fills the customer rows in `#bonCustomerPicker` from the model (name, phone, sisa), keeping `data-nama` on each `.bon-customer-item`, and replaces the hardcoded picker buttons with the items the page carries (`data-id`, `data-nama`, `data-satuan`, `data-harga`), so the hidden field submits the id. Both sheets filter their rendered rows by name, and the date field starts on today.
+- [x] **Step 2:** `Create.cshtml` turns `method="get"` into a POST form with an antiforgery token, fills the customer rows in `#bonCustomerPicker` from the model (name, phone, sisa), keeping `data-nama` on each `.bon-customer-item`, and replaces the hardcoded picker buttons with the items the page carries (`data-id`, `data-nama`, `data-satuan`, `data-harga`), so the hidden field submits the id. The customer sheet filters its rendered rows by name and the date field starts on today; the item picker's rows moved to Slice 5.
 - [x] **Step 3:** `create.js` posts `Items[i].BarangId` / `Items[i].Jumlah`, renumbering the lines in order on every add, remove, and submit so model binding fills the list; the subtotal and total arithmetic read the raw price instead of the painted label.
 - [x] **Step 4:** `Details(int id)` reads one bon through `IBonService.GetDetailAsync` and returns `BonDetailDto`: header from `Nomor` and `NamaPelanggan`, summary from the computed totals, history from `Payments` (oldest first, `Cicilan n` rendered from the row order), lines from `Items` with `harga_satuan x jumlah satuan`, and the DTO's `Status` beside the date. `ViewData["Title"]` is the number, `BackHref` is the list, and a missing id is a 404. The payment sheet's hint reads the real sisa (or **Bon ini sudah lunas.**) and its date starts on today, but **Simpan pembayaran** and a picked item still write nothing: those stay Follow-ups. Empty history and an empty line list get their own muted note (`.bon-detail-empty`).
 
@@ -167,6 +167,66 @@ A rolled-back insert burns a number, so the series can skip. That is accepted: a
 - The list card carries `/Bon/Details/14`, so a card opens its own page.
 - `/Bon/Details/99999` answered `404`; the same call with `X-Requested-With: XMLHttpRequest` answered the `ErrorOr` JSON.
 - `dotnet build` succeeded with 0 warnings and 0 errors.
+
+---
+
+## Slice 5: dynamic item picker
+
+`/Bon/Create` no longer ships the whole stock list inside the page. The picker paints the first page that
+`GetFormAsync` returns and asks `IBonService.SearchBarangAsync` for the rest while the shopkeeper types.
+A rejected POST paints the lines it already picked again instead of starting over.
+
+### File map
+
+- Create: `Models/Bon/DTOs/BonLineDto.cs` (one repainted line: item id, name, unit, price, jumlah)
+- Create: `Views/Bon/_BarangRows.cshtml` (picker rows plus the load-more button, mirrors `Views/Barang/_Cards.cshtml`)
+- Modify: `Models/Bon/DTOs/BonFormDto.cs` (`Barangs` becomes `PagedResult<BonBarangOptionDto>`)
+- Modify: `Models/Bon/ViewModels/CreateBonViewModel.cs` (`Barangs` type, new `[BindNever] Lines`)
+- Modify: `Domain/Interfaces/IBonService.cs`, `Domain/Services/BonService.cs` (`SearchBarangAsync`,
+  `ResolveLinesAsync`, private `ReadBarangPageAsync`, `BarangPageSize = 20`)
+- Modify: `Controllers/BonController.cs` (`SearchBarang`, `Lines` refilled on both rejected POST paths)
+- Modify: `Views/Bon/Create.cshtml` (`data-search-url`, `_BarangRows`, `#bonInitialLines`)
+- Modify: `wwwroot/custom/features/bon/create.js` (debounced server search, load-more, initial lines)
+- Modify: `wwwroot/css/site.css` (`.bon-picker-load-more`)
+
+### Steps
+
+- [x] **Step 1:** `SearchBarangAsync(string? keyword, int page)` matches the item name with the same
+  `ILIKE` escape `SearchAsync` uses, orders by `Nama` then `Id`, pages **20** rows in the database, and
+  returns `PagedResult<BonBarangOptionDto>` so the sheet knows whether another page follows.
+- [x] **Step 2:** `GetFormAsync` returns the first picker page only, so the Create page carries at most
+  20 items whichever way it is read.
+- [x] **Step 3:** `SearchBarang(q, page)` answers `_BarangRows` for AJAX callers and the `ErrorOr` JSON
+  for a failed lookup; a page request gets the same partial rather than a status code.
+- [x] **Step 4:** `create.js` debounces the search box (250 ms), aborts the in-flight request, replaces
+  only the sheet's rows so the box keeps focus and its text, and appends the next page through the
+  button the server renders. Closing the sheet clears the term and loads page 1 again. Without
+  `data-search-url` the sheet falls back to filtering the rows the page shipped.
+- [x] **Step 5:** `ResolveLinesAsync` re-reads the posted barang ids from the stock list, and the
+  controller fills `CreateBonViewModel.Lines` on both rejected POST paths. The view hands the lines to
+  the script as JSON in `#bonInitialLines`, and `create.js` paints each one through `#bonLineTemplate`,
+  so a validation error never drops what was already picked.
+- [x] **Step 6:** `dotnet build` succeeds with 0 warnings and 0 errors.
+
+### Verification (Postgres, 2026-10-31)
+
+- `/Bon/Create` painted the 11 stock rows as the first page, carried `data-search-url="/Bon/SearchBarang"`,
+  and `#bonInitialLines` read `[]`.
+- `/Bon/SearchBarang?q=kopi` answered `200` with **kopi**, **kopi gooday**, and **kopi sachet**;
+  `q=zzz` painted **Belum ada barang yang cocok. Coba kata kunci lain.**; `q=%` matched the wildcard
+  literally (0 rows).
+- With 25 temporary items on top of the real 11, the first page painted 20 rows and a **Muat barang
+  berikutnya** button pointing at page 2; page 2 painted the remaining 5 and no button. The temporary
+  rows were deleted again, leaving the 11 real items.
+- A POST with two lines and no customer answered `200` with **Pelanggan wajib dipilih** and
+  `#bonInitialLines` carrying both lines (`kopi gooday` x 2, `kopi` x 1), so the form repaints them.
+- A second POST with the customer filled and a **Total Bayar** above the lines answered `200` with
+  **Total bayar tidak boleh lebih dari total belanja** and `#bonInitialLines` carrying the line
+  (`kopi gooday` x 3), so the service's rejection path repaints the form too; no `bon` row was written
+  (the notebook still held `BN-001` only).
+- A temporary stock item named `zz </script> test` came back as `zz \u003C/script\u003E test` inside
+  `#bonInitialLines`, so a name cannot break out of the JSON block. The temporary item was deleted
+  again, leaving the 11 real items.
 
 ---
 
@@ -183,3 +243,7 @@ Both were locked on 2026-10-25:
 - Edit and delete a bon; the slicing specs have no design for either.
 - Stock movement: a bon does not touch `barang` beyond reading its price.
 
+
+> Update: adding a barang from Details is no longer a follow-up. The **Tambah barang** sheet lists the real
+> stock list, searches and pages through `/Bon/SearchBarang`, and a pick writes the line through
+> `POST /Bon/AddItem`. See `docs/plans/plan-tambah-barang-dinamis.md`.

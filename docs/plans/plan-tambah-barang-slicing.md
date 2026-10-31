@@ -76,3 +76,7 @@ Still open:
 ## Non-goals
 
 Writing the picked item into the bon, quantity, subtotal, totals, price reads from `barang`, server-side search, validation, Tailwind, Phosphor icon paths, a new JS library.
+
+> Update: the eight hardcoded rows are gone. The sheet lists the real stock list, searches and pages
+> through `/Bon/SearchBarang`, and a pick writes the line through `POST /Bon/AddItem`, so Ringkasan,
+> Daftar barang, and Total belanja follow the notebook. See `docs/plans/plan-tambah-barang-dinamis.md`.

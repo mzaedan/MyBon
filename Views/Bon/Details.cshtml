@@ -5,6 +5,10 @@
     ViewData["Title"] = Model.Nomor;
     ViewData["BackHref"] = Url.Action("Index", "Bon");
 
+    // The add sheet writes through a POST that redirects back here, so its outcome rides in TempData.
+    var status = TempData["BonStatus"] as string;
+    var error = TempData["BonError"] as string;
+
     // Same reading as the list, the card and the form, so a page and its card never disagree.
     string FormatRupiah(decimal jumlah) =>
         $"Rp {jumlah.ToString("#,##0.##", CultureInfo.GetCultureInfo("id-ID"))}";
@@ -19,6 +23,16 @@
 
 <div class="bon-detail-page">
     <hr class="page-rule" />
+
+    @if (!string.IsNullOrWhiteSpace(status))
+    {
+        <p class="bon-notice" role="status">@status</p>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(error))
+    {
+        <p class="bon-notice bon-notice--error" role="alert">@error</p>
+    }
 
     <div class="bon-detail-meta">
         <div class="bon-detail-name">@Model.NamaPelanggan</div>
@@ -223,7 +237,7 @@
     </div>
 </div>
 
-<div id="bonAddSheet" class="bon-add" hidden>
+<div id="bonAddSheet" class="bon-add" data-search-url="@Url.Action("SearchBarang", "Bon")" hidden>
     <div class="bon-add-scrim" data-bon-add-close></div>
     <div class="bon-add-sheet"
          role="dialog"
@@ -250,94 +264,22 @@
             <hr class="page-rule" />
         </div>
 
-        <div class="bon-add-list">
-            <div class="bon-add-row">
-                <button type="button" class="bon-add-item" data-nama="Beras Ramos 5 kg" data-satuan="karung" data-harga="Rp 78.000">
-                    <span class="bon-add-item-info">
-                        <span class="bon-add-item-name">Beras Ramos 5 kg</span>
-                        <span class="bon-add-item-unit">karung</span>
-                    </span>
-                    <span class="bon-add-item-price">Rp 78.000</span>
-                </button>
-                <hr class="page-rule" />
-            </div>
-            <div class="bon-add-row">
-                <button type="button" class="bon-add-item" data-nama="Minyak Goreng 2 L" data-satuan="botol" data-harga="Rp 34.000">
-                    <span class="bon-add-item-info">
-                        <span class="bon-add-item-name">Minyak Goreng 2 L</span>
-                        <span class="bon-add-item-unit">botol</span>
-                    </span>
-                    <span class="bon-add-item-price">Rp 34.000</span>
-                </button>
-                <hr class="page-rule" />
-            </div>
-            <div class="bon-add-row">
-                <button type="button" class="bon-add-item" data-nama="Gula Pasir" data-satuan="kg" data-harga="Rp 17.500">
-                    <span class="bon-add-item-info">
-                        <span class="bon-add-item-name">Gula Pasir</span>
-                        <span class="bon-add-item-unit">kg</span>
-                    </span>
-                    <span class="bon-add-item-price">Rp 17.500</span>
-                </button>
-                <hr class="page-rule" />
-            </div>
-            <div class="bon-add-row">
-                <button type="button" class="bon-add-item" data-nama="Telur Ayam" data-satuan="kg" data-harga="Rp 28.000">
-                    <span class="bon-add-item-info">
-                        <span class="bon-add-item-name">Telur Ayam</span>
-                        <span class="bon-add-item-unit">kg</span>
-                    </span>
-                    <span class="bon-add-item-price">Rp 28.000</span>
-                </button>
-                <hr class="page-rule" />
-            </div>
-            <div class="bon-add-row">
-                <button type="button" class="bon-add-item" data-nama="Mie Instan" data-satuan="dus" data-harga="Rp 125.000">
-                    <span class="bon-add-item-info">
-                        <span class="bon-add-item-name">Mie Instan</span>
-                        <span class="bon-add-item-unit">dus</span>
-                    </span>
-                    <span class="bon-add-item-price">Rp 125.000</span>
-                </button>
-                <hr class="page-rule" />
-            </div>
-            <div class="bon-add-row">
-                <button type="button" class="bon-add-item" data-nama="Kopi Sachet" data-satuan="renceng" data-harga="Rp 12.000">
-                    <span class="bon-add-item-info">
-                        <span class="bon-add-item-name">Kopi Sachet</span>
-                        <span class="bon-add-item-unit">renceng</span>
-                    </span>
-                    <span class="bon-add-item-price">Rp 12.000</span>
-                </button>
-                <hr class="page-rule" />
-            </div>
-            <div class="bon-add-row">
-                <button type="button" class="bon-add-item" data-nama="Sabun Mandi" data-satuan="pcs" data-harga="Rp 4.500">
-                    <span class="bon-add-item-info">
-                        <span class="bon-add-item-name">Sabun Mandi</span>
-                        <span class="bon-add-item-unit">pcs</span>
-                    </span>
-                    <span class="bon-add-item-price">Rp 4.500</span>
-                </button>
-                <hr class="page-rule" />
-            </div>
-            <div class="bon-add-row">
-                <button type="button" class="bon-add-item" data-nama="Garam Dapur" data-satuan="bungkus" data-harga="Rp 3.000">
-                    <span class="bon-add-item-info">
-                        <span class="bon-add-item-name">Garam Dapur</span>
-                        <span class="bon-add-item-unit">bungkus</span>
-                    </span>
-                    <span class="bon-add-item-price">Rp 3.000</span>
-                </button>
-                <hr class="page-rule" />
-            </div>
-        </div>
+        @* Picking a row writes one unit straight into the bon; the POST redirects back here, so this
+           page repaints its Ringkasan, Daftar barang, and total from the notebook. *@
+        <form method="post" asp-action="AddItem" id="bonAddForm" class="bon-add-form">
+            <input type="hidden" name="BonId" value="@Model.Id" />
+            <input type="hidden" name="BarangId" id="bonAddBarangId" />
 
-        <p class="bon-add-empty" id="bonAddEmpty" hidden>Belum ada barang yang cocok.</p>
+            <div class="bon-add-list">
+                @* The first page rides along; the sheet asks the server for the rest while the shopkeeper types. *@
+                <partial name="_BarangRows" model="Model.Barangs" />
+            </div>
+        </form>
     </div>
 </div>
 
 @section Scripts {
+    <script src="~/helpers/bon-calendar.js" asp-append-version="true"></script>
     <script src="~/custom/features/bon/details.js" asp-append-version="true"></script>
 }
 

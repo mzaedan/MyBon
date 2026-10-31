@@ -28,6 +28,12 @@ public class BonService(
     /// </summary>
     private const int PageSize = 8;
 
+    /// <summary>
+    /// Rows the Create form's item picker paints per request. Wider than the bon list because the
+    /// sheet is a picker, but still fixed here so a caller cannot ask for the whole stock at once.
+    /// </summary>
+    private const int BarangPageSize = 20;
+
     /// <summary>Largest amount the numeric(14,2) money columns hold.</summary>
     private const decimal MaxMoney = 999_999_999_999.99m;
 
@@ -134,6 +140,10 @@ public class BonService(
         if (bon is null)
             return ErrorOr<BonDetailDto>.CreateFailure("Bon tidak ditemukan.", ErrorType.NotFound);
 
+        // The Tambah barang sheet paints this first page and asks for the rest through SearchBarangAsync,
+        // so the detail page never carries the whole stock list.
+        bon.Barangs = await ReadBarangPageAsync(null, 1);
+
         return ErrorOr<BonDetailDto>.CreateSuccess("Berhasil memuat detail bon", bon);
     }
 
@@ -160,10 +170,91 @@ public class BonService(
             })
             .ToListAsync();
 
+        // The picker paints this first page and asks for the rest through SearchBarangAsync, so the
+        // Create page never carries the whole stock list.
+        var barangs = await ReadBarangPageAsync(null, 1);
+
+        return ErrorOr<BonFormDto>.CreateSuccess(
+            "Berhasil memuat pilihan pelanggan dan barang",
+            new BonFormDto
+            {
+                Customers = customers,
+                Barangs = barangs
+            });
+    }
+
+    public async Task<ErrorOr<PagedResult<BonBarangOptionDto>>> SearchBarangAsync(string? keyword, int page)
+    {
+        var term = Normalize(keyword);
+        var barangs = await ReadBarangPageAsync(term, page);
+
+        return ErrorOr<PagedResult<BonBarangOptionDto>>.CreateSuccess(
+            term is null
+                ? "Berhasil memuat daftar barang"
+                : barangs.Total == 0
+                    ? $"Tidak ada barang yang cocok dengan \"{term}\""
+                    : $"Ditemukan {barangs.Total} barang",
+            barangs);
+    }
+
+    public async Task<List<BonLineDto>> ResolveLinesAsync(IEnumerable<CreateBonItemRequest> items)
+    {
+        var requested = items.Where(item => item.BarangId is not null).ToList();
+        if (requested.Count == 0)
+            return [];
+
+        var barangIds = requested.Select(item => item.BarangId!.Value).Distinct().ToList();
         var barangs = await _dbContext.Barangs
             .AsNoTracking()
+            .Where(b => barangIds.Contains(b.Id))
+            .ToDictionaryAsync(b => b.Id);
+
+        var lines = new List<BonLineDto>(requested.Count);
+
+        // The posted order is the order the shopkeeper wrote, so a line keeps its place on the form.
+        foreach (var item in requested)
+        {
+            if (!barangs.TryGetValue(item.BarangId!.Value, out var barang))
+                continue;
+
+            lines.Add(new BonLineDto
+            {
+                BarangId = barang.Id,
+                Nama = barang.Nama,
+                Satuan = barang.Satuan,
+                Harga = barang.Harga,
+                Jumlah = item.Jumlah
+            });
+        }
+
+        return lines;
+    }
+
+    /// <summary>
+    /// Reads one page of the stock list for the Create form's item picker, ordered by name so the
+    /// sheet reads like an index. Only the name is matched; units and prices are not searched.
+    /// </summary>
+    private async Task<PagedResult<BonBarangOptionDto>> ReadBarangPageAsync(string? keyword, int page)
+    {
+        var term = Normalize(keyword);
+        var currentPage = page < 1 ? 1 : page;
+
+        var query = _dbContext.Barangs.AsNoTracking();
+
+        if (term is not null)
+        {
+            var pattern = ToLikePattern(term);
+            query = query.Where(b => EF.Functions.ILike(b.Nama, pattern, LikeEscapeCharacter));
+        }
+
+        var ordered = query
             .OrderBy(b => b.Nama)
-            .ThenBy(b => b.Id)
+            .ThenBy(b => b.Id);
+
+        var total = await ordered.CountAsync();
+        var items = await ordered
+            .Skip((currentPage - 1) * BarangPageSize)
+            .Take(BarangPageSize)
             .Select(b => new BonBarangOptionDto
             {
                 Id = b.Id,
@@ -173,13 +264,13 @@ public class BonService(
             })
             .ToListAsync();
 
-        return ErrorOr<BonFormDto>.CreateSuccess(
-            "Berhasil memuat pilihan pelanggan dan barang",
-            new BonFormDto
-            {
-                Customers = customers,
-                Barangs = barangs
-            });
+        return new PagedResult<BonBarangOptionDto>
+        {
+            Items = items,
+            Total = total,
+            Page = currentPage,
+            PageSize = BarangPageSize
+        };
     }
 
     public async Task<ErrorOr<Bon>> CreateAsync(CreateBonRequest request)
@@ -312,6 +403,60 @@ public class BonService(
         }
 
         return ErrorOr<Bon>.CreateSuccess($"Bon {bon.Nomor} tersimpan", bon);
+    }
+
+    public async Task<ErrorOr> AddItemAsync(AddBonItemRequest request)
+    {
+        if (request.BarangId is null)
+            return ErrorOr.CreateValidationFailure(new Dictionary<string, string[]>
+            {
+                ["BarangId"] = ["Barang wajib dipilih"]
+            });
+
+        var bonExists = await _dbContext.Bons
+            .AsNoTracking()
+            .AnyAsync(b => b.Id == request.BonId);
+
+        if (!bonExists)
+            return ErrorOr.CreateFailure("Bon tidak ditemukan.", ErrorType.NotFound);
+
+        // Every value below is present because the block above rejected the empties.
+        var barang = await _dbContext.Barangs
+            .AsNoTracking()
+            .FirstOrDefaultAsync(b => b.Id == request.BarangId.Value);
+
+        if (barang is null)
+            return ErrorOr.CreateValidationFailure(new Dictionary<string, string[]>
+            {
+                ["BarangId"] = ["Barang tidak ditemukan"]
+            });
+
+        // The line freezes the stock values it was written at, so changing a master price later never
+        // rewrites an old page.
+        _dbContext.BonItems.Add(new BonItem
+        {
+            BonId = request.BonId,
+            BarangId = barang.Id,
+            NamaBarang = barang.Nama,
+            Satuan = barang.Satuan,
+            HargaSatuan = barang.Harga,
+            Jumlah = 1,
+            Tanggal = DateOnly.FromDateTime(DateTime.Today)
+        });
+
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+        catch (Exception ex) when (IsDatabaseFailure(ex))
+        {
+            _logger.LogError(ex, "Gagal menambah barang {BarangId} ke bon {BonId}.", barang.Id, request.BonId);
+
+            return ErrorOr.CreateFailure(
+                "Gagal menyimpan barang. Coba tambah lagi.", ErrorType.Unexpected);
+        }
+
+        return ErrorOr.CreateSuccess($"{barang.Nama} ditambahkan ke bon");
     }
 
     /// <summary>

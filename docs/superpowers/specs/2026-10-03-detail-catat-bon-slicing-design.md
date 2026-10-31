@@ -140,3 +140,6 @@ Login, database, different detail per bon, query-string binding, real payment, r
 > Update: **Tambah barang** now opens the item bottom sheet from the export (`Detail Catat Bon Tambah Barang`). See `docs/plans/plan-tambah-barang-slicing.md`. Picking a row closes it; no line, stock, or total is written.
 
 > Update: the page is no longer the BN-014 mockup. `/Bon/Details/{id}` reads one bon through `IBonService.GetDetailAsync` and paints its own header, Ringkasan, payment history, and item lines; a missing id is a 404. The two sheets stay visual. See `docs/plans/plan-bon-dinamis.md` (Slice 4, Step 4).
+
+> Update: **Tambah barang** now lists the real stock list and writes the picked line into the bon; a pick
+> is no longer visual. See `docs/plans/plan-tambah-barang-dinamis.md`.

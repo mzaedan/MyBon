@@ -1,0 +1,46 @@
+@using System.Globalization
+@model MyBon.Models.Common.PagedResult<MyBon.Models.Bon.DTOs.BonBarangOptionDto>
+
+@{
+    // Amounts read like the Create form: Rp 185.000, with at most two decimals.
+    string FormatRupiah(decimal jumlah) =>
+        $"Rp {jumlah.ToString("#,##0.##", CultureInfo.GetCultureInfo("id-ID"))}";
+
+    // The picker carries the raw price in data-harga, so the line arithmetic never parses a label.
+    string FormatHarga(decimal harga) =>
+        harga.ToString("0.##", CultureInfo.InvariantCulture);
+}
+
+@* The picker's search and load-more scripts read the total back, so the empty note agrees with the
+   rows this page actually paints. *@
+<div class="bon-barang-rows" data-total="@Model.Total">
+    @foreach (var barang in Model.Items)
+    {
+        <div class="bon-barang-row">
+            <button type="button"
+                    class="bon-picker-item"
+                    data-id="@barang.Id"
+                    data-nama="@barang.Nama"
+                    data-satuan="@barang.Satuan"
+                    data-harga="@FormatHarga(barang.Harga)">
+                <span class="bon-picker-item-info">
+                    <span class="bon-picker-item-name">@barang.Nama</span>
+                    <span class="bon-picker-item-unit">@(string.IsNullOrWhiteSpace(barang.Satuan) ? "-" : barang.Satuan)</span>
+                </span>
+                <span class="bon-picker-item-price">@FormatRupiah(barang.Harga)</span>
+            </button>
+            <hr class="page-rule" />
+        </div>
+    }
+</div>
+
+@if (Model.Total == 0)
+{
+    <p class="bon-customer-empty">Belum ada barang yang cocok. Coba kata kunci lain.</p>
+}
+
+@if (Model.HasMore)
+{
+    @* A plain button: the server owns the page number and marks the last page by not rendering it. *@
+    <button type="button" class="bon-picker-load-more" data-next-page="@(Model.Page + 1)">Muat barang berikutnya</button>
+}

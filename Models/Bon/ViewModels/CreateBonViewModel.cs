@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MyBon.Models.Bon.DTOs;
 using MyBon.Models.Bon.Requests;
+using MyBon.Models.Common;
 
 namespace MyBon.Models.Bon.ViewModels;
 
@@ -17,5 +18,12 @@ public class CreateBonViewModel : CreateBonRequest
 
     /// <summary>Rows painted by the item picker; the controller fills them, the client never posts them.</summary>
     [BindNever]
-    public List<BonBarangOptionDto> Barangs { get; set; } = [];
+    public PagedResult<BonBarangOptionDto> Barangs { get; set; } = new();
+
+    /// <summary>
+    /// Lines a rejected POST had already picked. The controller reads them back from the stock list,
+    /// so the form repaints every line instead of starting over. The client never posts this list.
+    /// </summary>
+    [BindNever]
+    public List<BonLineDto> Lines { get; set; } = [];
 }

@@ -1,6 +1,8 @@
-/* Bon > Create: the customer and item sheets, the barang lines, and the running totals. The form
-   posts one CreateBonRequest: PelangganId, Tanggal, TotalBayar, and Items[i].BarangId / Items[i].Jumlah.
-   Prices are shown only; the server re-reads them from the stock list when the bon is saved. */
+/* Bon > Create: the customer and item sheets, the Tanggal calendar shared with
+   helpers/bon-calendar.js, the barang lines, and the running totals. The form posts one
+   CreateBonRequest: PelangganId, Tanggal, TotalBayar, and Items[i].BarangId / Items[i].Jumlah.
+   Prices are shown only; the server re-reads them from the stock list when the bon is saved. The item
+   sheet asks the server for its rows, so the page never carries the whole stock list. */
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
@@ -11,6 +13,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     initBarangLines(shell);
     initCustomerPicker(shell);
+    initTanggalCalendar(shell);
+
+    // The Tanggal row opens the same calendar popup the Catat pembayaran sheet uses.
+    function initTanggalCalendar(shell) {
+        if (!window.BonCalendar) {
+            return;
+        }
+
+        window.BonCalendar.create({
+            // The calendar is absolute, so it lives on the shell instead of inside the scrolling form.
+            host: shell,
+            overlayId: 'bonTanggalCalendar',
+            triggerId: 'tanggalBtn',
+            valueId: 'tanggalValue',
+            inputId: 'tanggal',
+            titleId: 'bonTanggalCalTitle',
+            gridId: 'bonTanggalCalGrid'
+        });
+    }
 
     // Amounts read like the notebook: Rp 78.000, with at most two decimals.
     function formatRupiah(value) {
@@ -57,19 +78,125 @@ document.addEventListener('DOMContentLoaded', function () {
         // The overlays are absolute, so they live on the shell instead of inside the scrolling main.
         shell.appendChild(picker);
 
+        // The item sheet asks the server for its rows, so the page carries only the first page.
         var sheet = picker.querySelector('.bon-picker-sheet');
+        var listEl = picker.querySelector('.bon-picker-list');
         var search = document.getElementById('bonBarangSearch');
-        var empty = document.getElementById('bonBarangEmpty');
-        var rows = Array.prototype.slice.call(picker.querySelectorAll('.bon-barang-row'));
+        var searchUrl = picker.getAttribute('data-search-url');
+        var debounceMs = 250;
+        var timer = null;
+        var pending = null;
         var lastFocus = null;
         var currentLine = null;
 
-        wireSearch(search, rows, empty, '.bon-picker-item-name');
+        wireBarangSearch();
 
         function focusables() {
             return Array.prototype.slice.call(
                 sheet.querySelectorAll('button:not([disabled]), input:not([disabled]), [href]')
             );
+        }
+
+        // Without the endpoint the sheet keeps the rows the page shipped and filters them here.
+        function wireBarangSearch() {
+            if (!search || !listEl) {
+                return;
+            }
+
+            if (!searchUrl) {
+                var rows = Array.prototype.slice.call(picker.querySelectorAll('.bon-barang-row'));
+                wireSearch(search, rows, listEl.querySelector('.bon-customer-empty'), '.bon-picker-item-name');
+                return;
+            }
+
+            search.addEventListener('input', function () {
+                window.clearTimeout(timer);
+                timer = window.setTimeout(function () {
+                    loadPage(search.value.trim(), 1, false);
+                }, debounceMs);
+            });
+        }
+
+        function loadPage(term, page, append) {
+            if (!listEl || !searchUrl) {
+                return;
+            }
+
+            if (pending) {
+                // Drop the in-flight response: a newer keystroke already asked for the latest term.
+                pending.abort();
+            }
+
+            var request = $.ajax({
+                url: searchUrl,
+                method: 'GET',
+                data: { q: term, page: page },
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+
+            pending = request;
+
+            request
+                .done(function (html) {
+                    if (append) {
+                        appendPage(html);
+                        return;
+                    }
+
+                    // Only the rows are replaced, so the box keeps focus and its text.
+                    listEl.innerHTML = html;
+                })
+                .fail(function (xhr, status) {
+                    if (status !== 'abort') {
+                        listEl.innerHTML =
+                            '<p class="bon-customer-empty">Gagal memuat barang. Coba lagi.</p>';
+                    }
+                })
+                .always(function () {
+                    if (pending === request) {
+                        pending = null;
+                    }
+                });
+        }
+
+        function appendPage(html) {
+            // Parsed detached, so the wrapper the response carries cannot duplicate the rows already
+            // on the sheet; only the new rows and the next button are moved in.
+            var response = $('<div>').html(html);
+            var incoming = response.find('.bon-barang-rows').html();
+            var rowsEl = listEl.querySelector('.bon-barang-rows');
+
+            if (incoming && rowsEl) {
+                rowsEl.insertAdjacentHTML('beforeend', incoming);
+            }
+
+            var button = listEl.querySelector('.bon-picker-load-more');
+            var next = response.find('.bon-picker-load-more');
+
+            if (!button) {
+                return;
+            }
+
+            // No button in the response means the server has no page after this one.
+            if (next.length) {
+                button.replaceWith(next[0]);
+            } else {
+                button.remove();
+            }
+        }
+
+        function resetSearch() {
+            if (!search) {
+                return;
+            }
+
+            var hadTerm = search.value.trim() !== '';
+            search.value = '';
+
+            // The sheet always reopens on the first page, never on the last search it fetched.
+            if (hadTerm) {
+                loadPage('', 1, false);
+            }
         }
 
         function openPicker(triggerBtn) {
@@ -94,15 +221,7 @@ document.addEventListener('DOMContentLoaded', function () {
             picker.hidden = true;
             picker.classList.remove('is-open');
 
-            if (search) {
-                search.value = '';
-            }
-            rows.forEach(function (row) {
-                row.hidden = false;
-            });
-            if (empty) {
-                empty.hidden = rows.length > 0;
-            }
+            resetSearch();
 
             if (lastFocus) {
                 var trigger = lastFocus.closest('.bon-picker-trigger');
@@ -199,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        function buatBaris() {
+        function buatBaris(data) {
             var clone = template.content.cloneNode(true);
             var lineDiv = clone.querySelector('.bon-line');
 
@@ -227,6 +346,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
             container.appendChild(clone);
             renumberLines();
+
+            // A line a rejected POST handed back is painted exactly like one picked by hand.
+            if (data) {
+                isiBaris(lineDiv, data);
+            }
+        }
+
+        function isiBaris(line, data) {
+            var hidden = line.querySelector('.barang-hidden');
+            var trigger = line.querySelector('.barang-trigger');
+            var label = line.querySelector('.barang-trigger-label');
+            var hargaEl = line.querySelector('.barang-harga');
+            var satuanEl = line.querySelector('.barang-satuan');
+            var jumlah = line.querySelector('.barang-jumlah');
+            var harga = Number(data.harga) || 0;
+
+            // The form posts the item id; the name, unit, and price are painted only.
+            if (hidden) {
+                hidden.value = data.barangId != null ? String(data.barangId) : '';
+            }
+            if (label) {
+                label.textContent = data.nama || 'Pilih barang';
+            }
+            if (trigger) {
+                trigger.classList.toggle('is-empty', !data.barangId);
+            }
+            if (hargaEl) {
+                hargaEl.setAttribute('data-harga', String(harga));
+                hargaEl.textContent = formatRupiah(harga);
+            }
+            if (satuanEl) {
+                satuanEl.textContent = data.satuan || '-';
+            }
+            if (jumlah) {
+                jumlah.value = data.jumlah || 1;
+            }
+
+            hitungSubtotal(line);
+            hitungTotalBelanja();
         }
 
         function resetBaris(line) {
@@ -264,9 +422,54 @@ document.addEventListener('DOMContentLoaded', function () {
             hitungTotalBelanja();
         }
 
-        buatBaris();
+        // A rejected POST hands its lines back as JSON, so every picked item is painted again instead
+        // of the form starting over.
+        function bacaBarisAwal() {
+            var el = document.getElementById('bonInitialLines');
+            if (!el) {
+                return [];
+            }
 
-        tambahBtn.addEventListener('click', buatBaris);
+            try {
+                var parsed = JSON.parse(el.textContent || '[]');
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                // A malformed payload is treated as "no lines", so the form still opens.
+                return [];
+            }
+        }
+
+        var initialLines = bacaBarisAwal();
+
+        if (initialLines.length === 0) {
+            buatBaris();
+        } else {
+            initialLines.forEach(function (line) {
+                buatBaris(line);
+            });
+        }
+
+        tambahBtn.addEventListener('click', function () {
+            buatBaris();
+        });
+
+        if (listEl) {
+            // Delegated on the list, so the handler survives every search re-render.
+            listEl.addEventListener('click', function (event) {
+                var button = event.target.closest('.bon-picker-load-more');
+                if (!button) {
+                    return;
+                }
+
+                // The server owns the page number: every render ships a button pointing at the page after it.
+                var nextPage = parseInt(button.getAttribute('data-next-page'), 10);
+                if (!nextPage) {
+                    return;
+                }
+
+                loadPage(search ? search.value.trim() : '', nextPage, true);
+            });
+        }
 
         picker.addEventListener('click', function (event) {
             if (event.target.closest('[data-bon-picker-close]')) {

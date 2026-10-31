@@ -1,6 +1,7 @@
-/* Bon > Details: the Catat pembayaran sheet with its Tanggal calendar, the Tambah barang sheet,
-   and the local item filter. Visual only: Simpan closes the payment sheet and picking a barang
-   closes the picker until both get their own POST actions from the Bon dinamis plan. */
+/* Bon > Details: the Catat pembayaran sheet with its Tanggal calendar (drawn by the shared
+   helpers/bon-calendar.js), the Tambah barang sheet, and the stock rows that sheet lists. Picking a
+   barang submits #bonAddForm, so the line is written and this page repaints from the notebook. The
+   payment sheet is still visual: Simpan only closes it. */
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
@@ -9,275 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    var MONTHS = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-    ];
-
-    function pad2(value) {
-        return value < 10 ? '0' + value : String(value);
-    }
-
-    function parseIso(value) {
-        var match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || '');
-        if (!match) {
-            return null;
-        }
-
-        return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
-    }
-
-    function toIso(date) {
-        return date.getFullYear() + '-' + pad2(date.getMonth() + 1) + '-' + pad2(date.getDate());
-    }
-
-    function startOfMonth(date) {
-        return new Date(date.getFullYear(), date.getMonth(), 1);
-    }
-
-    function addDays(date, days) {
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
-    }
-
-    function addMonths(date, months) {
-        return new Date(date.getFullYear(), date.getMonth() + months, 1);
-    }
-
-    function sameDay(a, b) {
-        return a.getFullYear() === b.getFullYear()
-            && a.getMonth() === b.getMonth()
-            && a.getDate() === b.getDate();
-    }
-
-    function formatTanggal(date) {
-        return date.getDate() + ' ' + MONTHS[date.getMonth()] + ' ' + date.getFullYear();
-    }
-
     var openSheet = null;
-
-    function createCalendar() {
-        var overlay = document.getElementById('bonPayCalendar');
-        var trigger = document.getElementById('bonPayTanggalBtn');
-        var valueEl = document.getElementById('bonPayTanggalValue');
-        var input = document.getElementById('bonPayTanggal');
-        var popup = overlay ? overlay.querySelector('.bon-cal-popup') : null;
-        var title = document.getElementById('bonCalTitle');
-        var grid = document.getElementById('bonCalGrid');
-
-        if (!overlay || !trigger || !valueEl || !input || !popup || !title || !grid) {
-            return null;
-        }
-
-        var selected = parseIso(input.value);
-        var view = startOfMonth(selected || new Date());
-
-        function renderTrigger() {
-            if (selected) {
-                valueEl.textContent = formatTanggal(selected);
-                input.value = toIso(selected);
-                trigger.classList.remove('is-empty');
-                return;
-            }
-
-            valueEl.textContent = 'Pilih tanggal';
-            input.value = '';
-            trigger.classList.add('is-empty');
-        }
-
-        function createDay(date, today) {
-            var button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'bon-cal-day';
-            button.setAttribute('role', 'gridcell');
-            button.setAttribute('aria-label', formatTanggal(date));
-            button.setAttribute('aria-selected', selected && sameDay(date, selected) ? 'true' : 'false');
-            button.dataset.date = toIso(date);
-            button.textContent = String(date.getDate());
-
-            if (date.getMonth() !== view.getMonth()) {
-                button.classList.add('is-outside');
-            }
-
-            if (sameDay(date, today)) {
-                button.classList.add('is-today');
-                button.setAttribute('aria-current', 'date');
-            }
-
-            if (selected && sameDay(date, selected)) {
-                button.classList.add('is-selected');
-            }
-
-            return button;
-        }
-
-        function render() {
-            title.textContent = MONTHS[view.getMonth()] + ' ' + view.getFullYear();
-            grid.textContent = '';
-
-            // Monday-first like the export's Sen..Min header, so Sunday is the last column.
-            var offset = (view.getDay() + 6) % 7;
-            var start = addDays(view, -offset);
-            var today = new Date();
-
-            for (var week = 0; week < 6; week++) {
-                var row = document.createElement('div');
-                row.className = 'bon-cal-week';
-                row.setAttribute('role', 'row');
-
-                for (var day = 0; day < 7; day++) {
-                    row.appendChild(createDay(addDays(start, week * 7 + day), today));
-                }
-
-                grid.appendChild(row);
-            }
-        }
-
-        function focusViewDate() {
-            var target = grid.querySelector('.bon-cal-day.is-selected')
-                || grid.querySelector('[data-date="' + toIso(view) + '"]')
-                || grid.querySelector('.bon-cal-day');
-            if (target) {
-                target.focus();
-            }
-        }
-
-        function position() {
-            var shellRect = shell.getBoundingClientRect();
-            var triggerRect = trigger.getBoundingClientRect();
-            var height = popup.offsetHeight;
-            var top = triggerRect.top - shellRect.top - height - 8;
-
-            if (top < 12) {
-                top = triggerRect.bottom - shellRect.top + 8;
-            }
-
-            var maxTop = shellRect.height - height - 12;
-            if (top > maxTop) {
-                top = Math.max(12, maxTop);
-            }
-
-            popup.style.top = Math.round(top) + 'px';
-        }
-
-        function open() {
-            renderTrigger();
-            render();
-            overlay.hidden = false;
-            overlay.classList.add('is-open');
-            trigger.setAttribute('aria-expanded', 'true');
-            position();
-            focusViewDate();
-            window.addEventListener('resize', position);
-        }
-
-        function close(restoreFocus) {
-            if (overlay.hidden) {
-                return;
-            }
-
-            overlay.hidden = true;
-            overlay.classList.remove('is-open');
-            trigger.setAttribute('aria-expanded', 'false');
-            window.removeEventListener('resize', position);
-
-            if (restoreFocus !== false) {
-                trigger.focus();
-            }
-        }
-
-        function pick(date) {
-            selected = date;
-            renderTrigger();
-            close();
-        }
-
-        trigger.addEventListener('click', function () {
-            view = startOfMonth(selected || new Date());
-            open();
-        });
-
-        overlay.addEventListener('click', function (event) {
-            if (event.target.closest('[data-bon-cal-close]')) {
-                close();
-                return;
-            }
-
-            if (event.target.closest('[data-bon-cal-prev]')) {
-                view = addMonths(view, -1);
-                render();
-                focusViewDate();
-                return;
-            }
-
-            if (event.target.closest('[data-bon-cal-next]')) {
-                view = addMonths(view, 1);
-                render();
-                focusViewDate();
-                return;
-            }
-
-            if (event.target.closest('[data-bon-cal-clear]')) {
-                selected = null;
-                renderTrigger();
-                close();
-                return;
-            }
-
-            if (event.target.closest('[data-bon-cal-today]')) {
-                pick(new Date());
-                return;
-            }
-
-            var day = event.target.closest('.bon-cal-day');
-            if (!day) {
-                return;
-            }
-
-            var date = parseIso(day.dataset.date);
-            if (date) {
-                pick(date);
-            }
-        });
-
-        grid.addEventListener('keydown', function (event) {
-            var steps = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
-            var step = steps[event.key];
-            if (!step) {
-                return;
-            }
-
-            var days = Array.prototype.slice.call(grid.querySelectorAll('.bon-cal-day'));
-            var index = days.indexOf(document.activeElement);
-            var next = index === -1 ? null : days[index + step];
-            if (!next) {
-                return;
-            }
-
-            event.preventDefault();
-            next.focus();
-        });
-
-        overlay.addEventListener('keydown', function (event) {
-            if (event.key !== 'Escape') {
-                return;
-            }
-
-            // Close the popup only; the sheet keeps its own Escape.
-            event.preventDefault();
-            event.stopPropagation();
-            close();
-        });
-
-        renderTrigger();
-
-        return {
-            close: close,
-            isOpen: function () {
-                return !overlay.hidden;
-            },
-            popup: popup
-        };
-    }
 
     function createSheet(config) {
         var sheet = document.getElementById(config.sheetId);
@@ -355,7 +88,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            if (config.pickSelector && event.target.closest(config.pickSelector)) {
+            var picked = config.pickSelector ? event.target.closest(config.pickSelector) : null;
+            if (!picked) {
+                return;
+            }
+
+            // The caller decides what a pick means: the add sheet writes it, the rest just close.
+            if (config.onPick) {
+                config.onPick(picked);
+            } else {
                 close();
             }
         });
@@ -395,27 +136,113 @@ document.addEventListener('DOMContentLoaded', function () {
         return controller;
     }
 
+    var addForm = document.getElementById('bonAddForm');
+    var addBarangId = document.getElementById('bonAddBarangId');
     var addSearch = document.getElementById('bonAddSearch');
-    var addEmpty = document.getElementById('bonAddEmpty');
-    var addRows = Array.prototype.slice.call(document.querySelectorAll('.bon-add-row'));
+    var addSheet = document.getElementById('bonAddSheet');
+    var addList = addSheet ? addSheet.querySelector('.bon-add-list') : null;
 
-    function resetAddSearch() {
-        if (!addSearch) {
+    // The sheet asks the server for its rows, so the page carries only the first page of stock.
+    var addSearchUrl = addSheet ? addSheet.getAttribute('data-search-url') : null;
+    var debounceMs = 250;
+    var addTimer = null;
+    var addPending = null;
+
+    // One tap is one line; a second tap before the POST lands would write the line twice.
+    var addSubmitting = false;
+
+    function loadAddPage(term, page, append) {
+        if (!addList || !addSearchUrl) {
             return;
         }
 
-        addSearch.value = '';
+        if (addPending) {
+            // Drop the in-flight response: a newer keystroke already asked for the latest term.
+            addPending.abort();
+        }
 
-        addRows.forEach(function (row) {
-            row.hidden = false;
+        var request = $.ajax({
+            url: addSearchUrl,
+            method: 'GET',
+            data: { q: term, page: page },
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
 
-        if (addEmpty) {
-            addEmpty.hidden = true;
+        addPending = request;
+
+        request
+            .done(function (html) {
+                if (append) {
+                    appendAddPage(html);
+                    return;
+                }
+
+                // Only the rows are replaced, so the box keeps focus and its text.
+                addList.innerHTML = html;
+            })
+            .fail(function (xhr, status) {
+                if (status !== 'abort') {
+                    addList.innerHTML =
+                        '<p class="bon-customer-empty">Gagal memuat barang. Coba lagi.</p>';
+                }
+            })
+            .always(function () {
+                if (addPending === request) {
+                    addPending = null;
+                }
+            });
+    }
+
+    function appendAddPage(html) {
+        // Parsed detached, so the wrapper the response carries cannot duplicate the rows already on
+        // the sheet; only the new rows and the next button are moved in.
+        var response = $('<div>').html(html);
+        var incoming = response.find('.bon-barang-rows').html();
+        var rowsEl = addList.querySelector('.bon-barang-rows');
+
+        if (incoming && rowsEl) {
+            rowsEl.insertAdjacentHTML('beforeend', incoming);
+        }
+
+        var button = addList.querySelector('.bon-picker-load-more');
+        var next = response.find('.bon-picker-load-more');
+
+        if (!button) {
+            return;
+        }
+
+        // No button in the response means the server has no page after this one.
+        if (next.length) {
+            button.replaceWith(next[0]);
+        } else {
+            button.remove();
         }
     }
 
-    var calendar = createCalendar();
+    function resetAddSearch() {
+        if (!addSearch || !addList) {
+            return;
+        }
+
+        var hadTerm = addSearch.value.trim() !== '';
+        addSearch.value = '';
+
+        // The sheet always reopens on the first page, never on the last search it fetched.
+        if (hadTerm) {
+            loadAddPage('', 1, false);
+        }
+    }
+
+    var calendar = window.BonCalendar
+        ? window.BonCalendar.create({
+            overlayId: 'bonPayCalendar',
+            triggerId: 'bonPayTanggalBtn',
+            valueId: 'bonPayTanggalValue',
+            inputId: 'bonPayTanggal',
+            titleId: 'bonCalTitle',
+            gridId: 'bonCalGrid'
+        })
+        : null;
 
     createSheet({
         sheetId: 'bonPaySheet',
@@ -439,29 +266,50 @@ document.addEventListener('DOMContentLoaded', function () {
         panelSelector: '.bon-add-sheet',
         initialFocusId: 'bonAddSearch',
         closeSelector: '[data-bon-add-close]',
-        pickSelector: '.bon-add-item',
+        pickSelector: '.bon-picker-item',
+        onPick: function (item) {
+            // One tap writes one unit; the server copies the name, unit, and price from the stock list.
+            if (addSubmitting || !addForm || !addBarangId) {
+                return;
+            }
+
+            var id = item.getAttribute('data-id') || '';
+            if (id === '') {
+                return;
+            }
+
+            addSubmitting = true;
+            addBarangId.value = id;
+            addForm.submit();
+        },
         onClose: resetAddSearch
     });
 
-    // The export paints a search row; the sheet filters its eight rows locally so the box is not dead.
-    if (addSearch) {
+    // Typing asks the server for the first page that matches; the box never filters a stale page.
+    if (addSearch && addSearchUrl) {
         addSearch.addEventListener('input', function () {
-            var term = addSearch.value.trim().toLowerCase();
-            var matches = 0;
+            window.clearTimeout(addTimer);
+            addTimer = window.setTimeout(function () {
+                loadAddPage(addSearch.value.trim(), 1, false);
+            }, debounceMs);
+        });
+    }
 
-            addRows.forEach(function (row) {
-                var nameEl = row.querySelector('.bon-add-item-name');
-                var name = nameEl ? nameEl.textContent.toLowerCase() : '';
-                var isMatch = term === '' || name.indexOf(term) !== -1;
-                row.hidden = !isMatch;
-                if (isMatch) {
-                    matches++;
-                }
-            });
-
-            if (addEmpty) {
-                addEmpty.hidden = matches > 0;
+    if (addList) {
+        // Delegated on the list, so the handler survives every search re-render.
+        addList.addEventListener('click', function (event) {
+            var button = event.target.closest('.bon-picker-load-more');
+            if (!button) {
+                return;
             }
+
+            // The server owns the page number: every render ships a button pointing at the page after it.
+            var nextPage = parseInt(button.getAttribute('data-next-page'), 10);
+            if (!nextPage) {
+                return;
+            }
+
+            loadAddPage(addSearch ? addSearch.value.trim() : '', nextPage, true);
         });
     }
 });

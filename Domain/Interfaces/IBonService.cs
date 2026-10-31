@@ -27,10 +27,32 @@ public interface IBonService
     Task<ErrorOr<BonDetailDto>> GetDetailAsync(int id);
 
     /// <summary>
-    /// Returns the rows the Create form paints: every customer with what they still owe, and every
-    /// stock item with its current price. Both sheets are filled from this one call.
+    /// Returns the rows the Create form paints: every customer with what they still owe, and the first
+    /// page of stock items its picker shows. The pages after that one come from
+    /// <see cref="SearchBarangAsync"/>.
     /// </summary>
     Task<ErrorOr<BonFormDto>> GetFormAsync();
+
+    /// <summary>
+    /// Returns one page of the stock items the Create form's picker lists, matching
+    /// <paramref name="keyword"/> against the item name only. Paging runs in the database, so a picker
+    /// request never loads the rows it does not paint.
+    /// </summary>
+    Task<ErrorOr<PagedResult<BonBarangOptionDto>>> SearchBarangAsync(string? keyword, int page);
+
+    /// <summary>
+    /// Re-reads the lines a rejected form posted, with each item's current name, unit, and price, so
+    /// the form can paint them again instead of dropping what was already picked. An id that no longer
+    /// exists is skipped; validation has already reported it.
+    /// </summary>
+    Task<List<BonLineDto>> ResolveLinesAsync(IEnumerable<CreateBonItemRequest> items);
+
+    /// <summary>
+    /// Writes one picked stock item into an existing bon as a new line of one unit, dated today. The
+    /// name, unit, and price are copied from the stock list, never posted by the client. A missing bon
+    /// is reported as not found, so the sheet can never write into a page that is not there.
+    /// </summary>
+    Task<ErrorOr> AddItemAsync(AddBonItemRequest request);
 
     /// <summary>
     /// Writes one bon with its item lines and, when money was paid up front, its first payment row.

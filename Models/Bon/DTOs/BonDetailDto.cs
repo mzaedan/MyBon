@@ -1,3 +1,5 @@
+using MyBon.Models.Common;
+
 namespace MyBon.Models.Bon.DTOs;
 
 /// <summary>
@@ -38,4 +40,10 @@ public class BonDetailDto
 
     /// <summary>Payments oldest first, the way the history is read.</summary>
     public List<BonDetailPaymentDto> Payments { get; set; } = [];
+
+    /// <summary>
+    /// First page of the stock list the Tambah barang sheet paints. The sheet asks the server for the
+    /// pages after this one, so the detail page never carries the whole stock list.
+    /// </summary>
+    public PagedResult<BonBarangOptionDto> Barangs { get; set; } = new();
 }
