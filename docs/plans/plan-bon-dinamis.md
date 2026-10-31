@@ -253,3 +253,9 @@ Both were locked on 2026-10-25:
 > writes one `bon_payment` row and redirects back to the page. See
 > `docs/plans/plan-catat-pembayaran-dinamis.md`.
 
+> Update (2026-10-31): deleting a bon is no longer a follow-up for a settled page. When the page reads
+> **Lunas**, **Catat pembayaran** and **Tambah barang** give way to one **Hapus bon** action, which opens
+> `/Bon/Delete/{id}` and writes through `POST /Bon/Delete`. `IBonService.DeleteAsync` refuses a page that
+> still owes money, so a debt is never erased. Editing a bon stays open. See
+> `docs/plans/plan-bon-hapus-lunas.md`.
+

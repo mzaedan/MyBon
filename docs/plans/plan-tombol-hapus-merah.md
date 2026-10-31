@@ -30,7 +30,7 @@
 
 - No new palette token, no hover/transition, no `--danger` variable: the red stays a literal `#B00020`, the way the field rules already write it.
 - Item delete is still unimplemented, so the Barang button remains an entry point whose target 404s.
-- `pelanggan-empty-btn` and the Bon actions keep the accent blue: they are not delete entry points.
+- `pelanggan-empty-btn` keeps the accent blue: it is not a delete entry point. The Bon actions keep it too, except on a settled page.
 
 ## Verification
 

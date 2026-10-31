@@ -146,3 +146,8 @@ Login, database, different detail per bon, query-string binding, real payment, r
 
 > Update: **Tambah barang** now lists the real stock list and writes the picked line into the bon; a pick
 > is no longer visual. See `docs/plans/plan-tambah-barang-dinamis.md`.
+
+> Update (2026-10-31): a settled page swaps its two write buttons for one red **Hapus bon** action, which opens
+> `/Bon/Delete/{id}` and writes through `POST /Bon/Delete`. A page that still owes money keeps **Catat
+> pembayaran** and **Tambah barang**, and the service refuses to delete it. See
+> `docs/plans/plan-bon-hapus-lunas.md`.

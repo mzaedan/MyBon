@@ -1,0 +1,35 @@
+@model MyBon.Models.Bon.DTOs.BonDetailDto
+
+@{
+    ViewData["Title"] = "Hapus bon";
+    ViewData["BackHref"] = Url.Action("Details", "Bon", new { id = Model.Id });
+}
+
+<hr class="page-rule" />
+
+<div class="pelanggan-delete">
+    <div class="pelanggan-delete-body">
+        <div class="pelanggan-delete-art">
+            <div class="pelanggan-delete-lottie" id="lottie-trash"></div>
+        </div>
+
+        @* The copy names the page and its customer, so the confirmation reads as one bon, not the book. *@
+        <p class="pelanggan-delete-copy">
+            Bon @Model.Nomor milik @Model.NamaPelanggan beserta barang dan pembayarannya hilang dari daftar.
+        </p>
+    </div>
+
+    <form method="post" asp-action="Delete" class="pelanggan-form-actions pelanggan-delete-actions">
+        <input type="hidden" asp-for="Id" />
+        <a class="pelanggan-btn pelanggan-btn-batal"
+           asp-controller="Bon"
+           asp-action="Details"
+           asp-route-id="@Model.Id">Batal</a>
+        <button type="submit" class="pelanggan-btn pelanggan-btn-hapus">Hapus bon</button>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <script src="~/custom/features/bon/delete.js" asp-append-version="true"></script>
+}

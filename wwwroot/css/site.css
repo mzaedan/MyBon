@@ -1724,6 +1724,16 @@ a.bon-card:focus-visible {
   color: #ffffff;
 }
 
+/* Destructive action: a settled page can only be removed, so its one action keeps the Hapus red. */
+.bon-action--hapus {
+  background: #B00020;
+  color: #ffffff;
+}
+
+a.bon-action--hapus {
+  color: #ffffff;
+}
+
 .bon-action:focus-visible {
   outline: 2px solid var(--text);
   outline-offset: 2px;

@@ -541,6 +541,54 @@ public class BonService(
             : $"Pembayaran {FormatRupiah(jumlah)} dicatat. Sisa {FormatRupiah(sisa - jumlah)}");
     }
 
+    public async Task<ErrorOr> DeleteAsync(int id)
+    {
+        // The number names the page in the notice, and the two sums decide whether the page is settled.
+        // Both are read from their own tables, the way the sheet reads them, never from a column.
+        var bon = await _dbContext.Bons
+            .AsNoTracking()
+            .Where(b => b.Id == id)
+            .Select(b => new
+            {
+                b.Nomor,
+                TotalBelanja = b.Items.Sum(item => item.HargaSatuan * item.Jumlah),
+                TotalBayar = b.Payments.Sum(payment => payment.Jumlah)
+            })
+            .FirstOrDefaultAsync();
+
+        if (bon is null)
+            return ErrorOr.CreateFailure("Bon tidak ditemukan.", ErrorType.NotFound);
+
+        // The entry point is painted only on a settled page, and erasing a page that is still owed
+        // money would hide the debt, so the rule is enforced here as well.
+        if (bon.TotalBelanja - bon.TotalBayar > 0)
+            return ErrorOr.CreateFailure(
+                "Hanya bon yang sudah lunas yang bisa dihapus.", ErrorType.Validation);
+
+        var page = await _dbContext.Bons.FirstOrDefaultAsync(b => b.Id == id);
+        if (page is null)
+            return ErrorOr.CreateFailure("Bon tidak ditemukan.", ErrorType.NotFound);
+
+        // The database cascades the delete to bon_item and bon_payment, so the lines and the history
+        // go with the page without the service loading them just to remove them.
+        _dbContext.Bons.Remove(page);
+
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+        catch (Exception ex) when (IsDatabaseFailure(ex))
+        {
+            _dbContext.Entry(page).State = EntityState.Detached;
+            _logger.LogError(ex, "Gagal menghapus bon {Id}.", id);
+
+            return ErrorOr.CreateFailure(
+                "Gagal menghapus bon. Coba hapus lagi.", ErrorType.Unexpected);
+        }
+
+        return ErrorOr.CreateSuccess($"Bon {bon.Nomor} dihapus dari buku");
+    }
+
     /// <summary>
     /// Reads the typed total the way the notebook writes money: dots group thousands and a comma marks
     /// decimals, so "50.000" and "50,5" keep their meaning under any server culture. An empty field is

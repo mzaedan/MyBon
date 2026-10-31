@@ -66,4 +66,10 @@ public interface IBonService
     /// Prices are read from the stock list, never from <paramref name="request"/>.
     /// </summary>
     Task<ErrorOr<Bon>> CreateAsync(CreateBonRequest request);
+
+    /// <summary>
+    /// Removes a settled bon with every line and payment recorded under it. A page that is still owed
+    /// money is refused, so a debt is never erased, and a missing id is reported as not found.
+    /// </summary>
+    Task<ErrorOr> DeleteAsync(int id);
 }

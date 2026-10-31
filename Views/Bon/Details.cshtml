@@ -68,23 +68,38 @@
     </div>
 
     <div class="bon-detail-actions">
-        <button type="button"
-                class="bon-action bon-action--bayar"
-                id="catatPembayaranBtn"
-                aria-haspopup="dialog"
-                aria-expanded="false"
-                aria-controls="bonPaySheet">
-            Catat pembayaran
-        </button>
-        <button type="button"
-                class="bon-action bon-action--barang"
-                id="tambahBarangBtn"
-                aria-haspopup="dialog"
-                aria-expanded="false"
-                aria-controls="bonAddSheet">
-            <i class="bi bi-plus" aria-hidden="true"></i>
-            <span>Tambah barang</span>
-        </button>
+        @if (Model.Lunas)
+        {
+            @* A settled page has nothing left to record, so both write entry points retire and the only
+               write left is removing the page itself. *@
+            <a class="bon-action bon-action--hapus"
+               asp-controller="Bon"
+               asp-action="Delete"
+               asp-route-id="@Model.Id">
+                <i class="bi bi-trash" aria-hidden="true"></i>
+                <span>Hapus bon</span>
+            </a>
+        }
+        else
+        {
+            <button type="button"
+                    class="bon-action bon-action--bayar"
+                    id="catatPembayaranBtn"
+                    aria-haspopup="dialog"
+                    aria-expanded="false"
+                    aria-controls="bonPaySheet">
+                Catat pembayaran
+            </button>
+            <button type="button"
+                    class="bon-action bon-action--barang"
+                    id="tambahBarangBtn"
+                    aria-haspopup="dialog"
+                    aria-expanded="false"
+                    aria-controls="bonAddSheet">
+                <i class="bi bi-plus" aria-hidden="true"></i>
+                <span>Tambah barang</span>
+            </button>
+        }
     </div>
 
     <div class="bon-detail-section">
@@ -147,173 +162,171 @@
     </div>
 </div>
 
-<div id="bonPaySheet" class="bon-pay" data-error="@(payHasError.ToString().ToLowerInvariant())" hidden>
-    <div class="bon-pay-scrim" data-bon-pay-close></div>
+@* A settled page has no write left: both sheets belong to the two buttons it no longer shows,
+   so it carries neither of them. *@
+@if (!Model.Lunas)
+{
+    <div id="bonPaySheet" class="bon-pay" data-error="@(payHasError.ToString().ToLowerInvariant())" hidden>
+        <div class="bon-pay-scrim" data-bon-pay-close></div>
 
-    @* Saving posts the amount, date, and note straight into bon_payment; the redirect repaints
-       Ringkasan, Riwayat pembayaran, and the sisa hint from the notebook. *@
-    <form method="post"
-          asp-action="AddPayment"
-          id="bonPayForm"
-          class="bon-pay-sheet"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="bonPayTitle"
-          tabindex="-1">
-        <input type="hidden" name="BonId" value="@Model.Id" />
+        @* Saving posts the amount, date, and note straight into bon_payment; the redirect repaints
+           Ringkasan, Riwayat pembayaran, and the sisa hint from the notebook. *@
+        <form method="post"
+              asp-action="AddPayment"
+              id="bonPayForm"
+              class="bon-pay-sheet"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="bonPayTitle"
+              tabindex="-1">
+            <input type="hidden" name="BonId" value="@Model.Id" />
 
-        <div class="bon-pay-head">
-            <div id="bonPayTitle" class="bon-pay-title">Catat pembayaran</div>
-            <button type="button" class="bon-pay-close" data-bon-pay-close aria-label="Tutup">
-                <i class="bi bi-x-lg" aria-hidden="true"></i>
-            </button>
-        </div>
-
-        @if (Model.Lunas)
-        {
-            <p class="bon-pay-hint">Bon ini sudah lunas.</p>
-        }
-        else
-        {
-            <p class="bon-pay-hint">Sisa hutang @FormatRupiah(Model.SisaHutang). Kalau bayar kurang, masuk cicilan.</p>
-        }
-
-        <div class="pelanggan-field">
-            <label class="pelanggan-field-label" for="bonPayJumlah">Jumlah bayar</label>
-            @* The same money field as Barang's Harga: letters never land here, thousands are grouped
-               while typing, and the submit strips the dots so the server parses plain digits. *@
-            <input id="bonPayJumlah"
-                   name="Jumlah"
-                   type="text"
-                   inputmode="decimal"
-                   maxlength="20"
-                   class="pelanggan-field-input bon-money-input"
-                   placeholder="Tulis jumlah"
-                   autocomplete="off"
-                   data-money-input />
-            @* A rejected save answers under the field; the script clears it as the amount becomes valid. *@
-            <span id="bonPayJumlahError"
-                  class="pelanggan-field-error"
-                  role="alert"@(string.IsNullOrWhiteSpace(payJumlahError) ? " hidden" : string.Empty)>@payJumlahError</span>
-            <hr class="page-rule" />
-        </div>
-
-        <div class="pelanggan-field">
-            <span class="pelanggan-field-label" id="bonPayTanggalLabel">Tanggal</span>
-            <div class="bon-field-with-icon">
-                <input id="bonPayTanggal" type="hidden" name="Tanggal" value="@todayIso" />
-                <button type="button"
-                        id="bonPayTanggalBtn"
-                        class="bon-picker-trigger bon-date-trigger@(string.IsNullOrWhiteSpace(payTanggalError) ? string.Empty : " input-validation-error")"
-                        aria-haspopup="dialog"
-                        aria-expanded="false"
-                        aria-controls="bonPayCalendar"
-                        aria-labelledby="bonPayTanggalLabel bonPayTanggalValue">
-                    <span id="bonPayTanggalValue">@FormatTanggal(today)</span>
+            <div class="bon-pay-head">
+                <div id="bonPayTitle" class="bon-pay-title">Catat pembayaran</div>
+                <button type="button" class="bon-pay-close" data-bon-pay-close aria-label="Tutup">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i>
                 </button>
-                <i class="bi bi-calendar bon-field-icon bon-date-icon" aria-hidden="true"></i>
             </div>
-            @* A cleared date is answered under the row; picking a day clears it again. *@
-            <span id="bonPayTanggalError"
-                  class="pelanggan-field-error"
-                  role="alert"@(string.IsNullOrWhiteSpace(payTanggalError) ? " hidden" : string.Empty)>@payTanggalError</span>
-            <hr class="page-rule" />
+
+            <p class="bon-pay-hint">Sisa hutang @FormatRupiah(Model.SisaHutang). Kalau bayar kurang, masuk cicilan.</p>
+
+            <div class="pelanggan-field">
+                <label class="pelanggan-field-label" for="bonPayJumlah">Jumlah bayar</label>
+                @* The same money field as Barang's Harga: letters never land here, thousands are grouped
+                   while typing, and the submit strips the dots so the server parses plain digits. *@
+                <input id="bonPayJumlah"
+                       name="Jumlah"
+                       type="text"
+                       inputmode="decimal"
+                       maxlength="20"
+                       class="pelanggan-field-input bon-money-input"
+                       placeholder="Tulis jumlah"
+                       autocomplete="off"
+                       data-money-input />
+                @* A rejected save answers under the field; the script clears it as the amount becomes valid. *@
+                <span id="bonPayJumlahError"
+                      class="pelanggan-field-error"
+                      role="alert"@(string.IsNullOrWhiteSpace(payJumlahError) ? " hidden" : string.Empty)>@payJumlahError</span>
+                <hr class="page-rule" />
+            </div>
+
+            <div class="pelanggan-field">
+                <span class="pelanggan-field-label" id="bonPayTanggalLabel">Tanggal</span>
+                <div class="bon-field-with-icon">
+                    <input id="bonPayTanggal" type="hidden" name="Tanggal" value="@todayIso" />
+                    <button type="button"
+                            id="bonPayTanggalBtn"
+                            class="bon-picker-trigger bon-date-trigger@(string.IsNullOrWhiteSpace(payTanggalError) ? string.Empty : " input-validation-error")"
+                            aria-haspopup="dialog"
+                            aria-expanded="false"
+                            aria-controls="bonPayCalendar"
+                            aria-labelledby="bonPayTanggalLabel bonPayTanggalValue">
+                        <span id="bonPayTanggalValue">@FormatTanggal(today)</span>
+                    </button>
+                    <i class="bi bi-calendar bon-field-icon bon-date-icon" aria-hidden="true"></i>
+                </div>
+                @* A cleared date is answered under the row; picking a day clears it again. *@
+                <span id="bonPayTanggalError"
+                      class="pelanggan-field-error"
+                      role="alert"@(string.IsNullOrWhiteSpace(payTanggalError) ? " hidden" : string.Empty)>@payTanggalError</span>
+                <hr class="page-rule" />
+            </div>
+
+            <div class="pelanggan-field">
+                <label class="pelanggan-field-label" for="bonPayCatatan">Catatan</label>
+                <textarea id="bonPayCatatan"
+                          name="Catatan"
+                          maxlength="200"
+                          class="pelanggan-field-input pelanggan-field-textarea"
+                          placeholder="Tulis catatan (opsional)"
+                          rows="2"></textarea>
+                <hr class="page-rule" />
+            </div>
+
+            <button type="submit" class="bon-pay-submit">Simpan pembayaran</button>
+        </form>
+
+        <div id="bonPayCalendar" class="bon-cal" hidden>
+            <div class="bon-cal-scrim" data-bon-cal-close></div>
+            <div class="bon-cal-popup"
+                 role="dialog"
+                 aria-modal="true"
+                 aria-labelledby="bonCalTitle"
+                 tabindex="-1">
+                <div class="bon-cal-head">
+                    <button type="button" class="bon-cal-nav" data-bon-cal-prev aria-label="Bulan sebelumnya">
+                        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                    </button>
+                    <div id="bonCalTitle" class="bon-cal-title" aria-live="polite">Oktober 2026</div>
+                    <button type="button" class="bon-cal-nav" data-bon-cal-next aria-label="Bulan berikutnya">
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <div class="bon-cal-weekdays" aria-hidden="true">
+                    <span>Sen</span>
+                    <span>Sel</span>
+                    <span>Rab</span>
+                    <span>Kam</span>
+                    <span>Jum</span>
+                    <span>Sab</span>
+                    <span>Min</span>
+                </div>
+
+                <div id="bonCalGrid" class="bon-cal-grid" role="grid" aria-labelledby="bonCalTitle"></div>
+
+                <div class="bon-cal-actions">
+                    <button type="button" class="bon-cal-clear" data-bon-cal-clear>Clear</button>
+                    <button type="button" class="bon-cal-today" data-bon-cal-today>Hari ini</button>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <div class="pelanggan-field">
-            <label class="pelanggan-field-label" for="bonPayCatatan">Catatan</label>
-            <textarea id="bonPayCatatan"
-                      name="Catatan"
-                      maxlength="200"
-                      class="pelanggan-field-input pelanggan-field-textarea"
-                      placeholder="Tulis catatan (opsional)"
-                      rows="2"></textarea>
-            <hr class="page-rule" />
-        </div>
-
-        <button type="submit" class="bon-pay-submit">Simpan pembayaran</button>
-    </form>
-
-    <div id="bonPayCalendar" class="bon-cal" hidden>
-        <div class="bon-cal-scrim" data-bon-cal-close></div>
-        <div class="bon-cal-popup"
+    <div id="bonAddSheet" class="bon-add"
+         data-search-url="@Url.Action("SearchBarang", "Bon", new { stepper = true })"
+         hidden>
+        <div class="bon-add-scrim" data-bon-add-close></div>
+        <div class="bon-add-sheet"
              role="dialog"
              aria-modal="true"
-             aria-labelledby="bonCalTitle"
+             aria-labelledby="bonAddTitle"
              tabindex="-1">
-            <div class="bon-cal-head">
-                <button type="button" class="bon-cal-nav" data-bon-cal-prev aria-label="Bulan sebelumnya">
-                    <i class="bi bi-chevron-left" aria-hidden="true"></i>
-                </button>
-                <div id="bonCalTitle" class="bon-cal-title" aria-live="polite">Oktober 2026</div>
-                <button type="button" class="bon-cal-nav" data-bon-cal-next aria-label="Bulan berikutnya">
-                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            <div class="bon-add-head">
+                <div id="bonAddTitle" class="bon-add-title">Tambah barang</div>
+                <button type="button" class="bon-add-close" data-bon-add-close aria-label="Tutup">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i>
                 </button>
             </div>
 
-            <div class="bon-cal-weekdays" aria-hidden="true">
-                <span>Sen</span>
-                <span>Sel</span>
-                <span>Rab</span>
-                <span>Kam</span>
-                <span>Jum</span>
-                <span>Sab</span>
-                <span>Min</span>
+            <div class="bon-add-search" role="search">
+                <div class="bon-add-search-row">
+                    <i class="bi bi-search bon-add-search-icon" aria-hidden="true"></i>
+                    <input id="bonAddSearch"
+                           type="search"
+                           class="bon-add-search-input"
+                           placeholder="Cari barang"
+                           aria-label="Cari barang"
+                           autocomplete="off" />
+                </div>
+                <hr class="page-rule" />
             </div>
 
-            <div id="bonCalGrid" class="bon-cal-grid" role="grid" aria-labelledby="bonCalTitle"></div>
+            @* Picking a row writes the count its stepper shows straight into the bon; the POST redirects
+               back here, so this page repaints its Ringkasan, Daftar barang, and total from the notebook. *@
+            <form method="post" asp-action="AddItem" id="bonAddForm" class="bon-add-form">
+                <input type="hidden" name="BonId" value="@Model.Id" />
+                <input type="hidden" name="BarangId" id="bonAddBarangId" />
+                <input type="hidden" name="Jumlah" id="bonAddJumlah" value="1" />
 
-            <div class="bon-cal-actions">
-                <button type="button" class="bon-cal-clear" data-bon-cal-clear>Clear</button>
-                <button type="button" class="bon-cal-today" data-bon-cal-today>Hari ini</button>
-            </div>
+                <div class="bon-add-list">
+                    @* The first page rides along; the sheet asks the server for the rest while the shopkeeper types. *@
+                    <partial name="_BarangRows" model="Model.Barangs" />
+                </div>
+            </form>
         </div>
     </div>
-</div>
-
-<div id="bonAddSheet" class="bon-add"
-     data-search-url="@Url.Action("SearchBarang", "Bon", new { stepper = true })"
-     hidden>
-    <div class="bon-add-scrim" data-bon-add-close></div>
-    <div class="bon-add-sheet"
-         role="dialog"
-         aria-modal="true"
-         aria-labelledby="bonAddTitle"
-         tabindex="-1">
-        <div class="bon-add-head">
-            <div id="bonAddTitle" class="bon-add-title">Tambah barang</div>
-            <button type="button" class="bon-add-close" data-bon-add-close aria-label="Tutup">
-                <i class="bi bi-x-lg" aria-hidden="true"></i>
-            </button>
-        </div>
-
-        <div class="bon-add-search" role="search">
-            <div class="bon-add-search-row">
-                <i class="bi bi-search bon-add-search-icon" aria-hidden="true"></i>
-                <input id="bonAddSearch"
-                       type="search"
-                       class="bon-add-search-input"
-                       placeholder="Cari barang"
-                       aria-label="Cari barang"
-                       autocomplete="off" />
-            </div>
-            <hr class="page-rule" />
-        </div>
-
-        @* Picking a row writes the count its stepper shows straight into the bon; the POST redirects
-           back here, so this page repaints its Ringkasan, Daftar barang, and total from the notebook. *@
-        <form method="post" asp-action="AddItem" id="bonAddForm" class="bon-add-form">
-            <input type="hidden" name="BonId" value="@Model.Id" />
-            <input type="hidden" name="BarangId" id="bonAddBarangId" />
-            <input type="hidden" name="Jumlah" id="bonAddJumlah" value="1" />
-
-            <div class="bon-add-list">
-                @* The first page rides along; the sheet asks the server for the rest while the shopkeeper types. *@
-                <partial name="_BarangRows" model="Model.Barangs" />
-            </div>
-        </form>
-    </div>
-</div>
+}
 
 @section Scripts {
     <script src="~/helpers/bon-calendar.js" asp-append-version="true"></script>

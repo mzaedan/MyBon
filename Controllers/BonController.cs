@@ -216,6 +216,51 @@ public class BonController(IBonService bonService) : BaseController
     }
 
     /// <summary>
+    /// Shows the confirmation screen for removing a settled bon, the way the Barang and Pelanggan
+    /// sheets confirm their deletes, so a full page of history never goes on a single tap.
+    /// </summary>
+    public async Task<IActionResult> Delete(int id)
+    {
+        var result = await _bonService.GetDetailAsync(id);
+
+        return ToActionResult(result, bon =>
+        {
+            ViewData["Title"] = "Hapus bon";
+            ViewData["BackHref"] = Url.Action(nameof(Details), "Bon", new { id = bon.Id });
+
+            return View(bon);
+        });
+    }
+
+    /// <summary>
+    /// Removes a settled bon with its lines and payments and returns to the notebook with the service's
+    /// notice. A page that still owes money is refused on its own sheet, so a debt is never erased.
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [ActionName("Delete")]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var result = await _bonService.DeleteAsync(id);
+
+        if (IsAjaxRequest)
+            return ToActionResult(result);
+
+        if (!result.Success)
+        {
+            TempData["BonError"] = result.Message ?? "Gagal menghapus bon.";
+
+            // A bon that no longer exists has no page to return to, so the notebook itself answers.
+            return result.ErrorType == ErrorType.NotFound
+                ? RedirectToAction(nameof(Index))
+                : RedirectToAction(nameof(Details), new { id });
+        }
+
+        TempData["BonStatus"] = result.Message;
+        return RedirectToAction(nameof(Index));
+    }
+
+    /// <summary>
     /// Reads the first message the model state carries for a rejected POST, so the page shows what the
     /// field said instead of a hardcoded fallback.
     /// </summary>
