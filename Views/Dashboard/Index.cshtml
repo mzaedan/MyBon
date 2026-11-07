@@ -1,5 +1,16 @@
+@model MyBon.Models.Dashboard.DTOs.DashboardSummaryDto
+@using System.Globalization
+
 @{
     ViewData["Title"] = "Ringkasan bon";
+
+    // The big number reads like the export mockup: thousands grouped the Indonesian way, no decimals.
+    string FormatRupiah(decimal jumlah) =>
+        $"Rp {jumlah.ToString("N0", CultureInfo.GetCultureInfo("id-ID"))}";
+
+    // The sold count groups its thousands the same way, so 1018 reads 1.018.
+    string FormatJumlah(int jumlah) =>
+        jumlah.ToString("N0", CultureInfo.GetCultureInfo("id-ID"));
 }
 
 <div class="dashboard-page">
@@ -7,7 +18,7 @@
 
     <section class="hutang-block">
         <div class="hutang-label">Total hutang semua customer</div>
-        <div class="hutang-value">Rp 325.500</div>
+        <div class="hutang-value">@FormatRupiah(Model.TotalHutang)</div>
         <div class="hutang-hint">Semua bon yang belum lunas</div>
     </section>
 
@@ -15,34 +26,32 @@
 
     <div class="sold-row">
         <div class="sold-label">Jumlah produk terjual</div>
-        <div class="sold-value">47</div>
+        <div class="sold-value">@FormatJumlah(Model.TotalProdukTerjual)</div>
     </div>
 
     <div class="list-title">Belum lunas</div>
 
-    <div class="debt-list">
-        <div class="debt-row">
-            <div class="debt-content">
-                <span class="debt-name">Siti Aminah</span>
-                <span class="debt-amount">Rp 185.000</span>
-            </div>
-            <hr class="page-rule" />
+    @* Only the biggest debts ride along; the service ranks the customers and the page paints its rows. *@
+    @if (Model.BelumLunas.Count == 0)
+    {
+        <p class="debt-empty">Belum ada hutang. Semua bon lunas.</p>
+    }
+    else
+    {
+        <div class="debt-list">
+            @foreach (var debt in Model.BelumLunas)
+            {
+                <div class="debt-row">
+                    <div class="debt-content">
+                        <span class="debt-name">@debt.Nama</span>
+                        <span class="debt-amount">@FormatRupiah(debt.SisaHutang)</span>
+                    </div>
+                    <hr class="page-rule" />
+                </div>
+            }
         </div>
-        <div class="debt-row">
-            <div class="debt-content">
-                <span class="debt-name">Budi Santoso</span>
-                <span class="debt-amount">Rp 92.000</span>
-            </div>
-            <hr class="page-rule" />
-        </div>
-        <div class="debt-row">
-            <div class="debt-content">
-                <span class="debt-name">Rina Wahyuni</span>
-                <span class="debt-amount">Rp 48.500</span>
-            </div>
-            <hr class="page-rule" />
-        </div>
-    </div>
+    }
 
-    <button type="button" class="cta-catat-bon">Catat bon baru</button>
+    @* The page's one write entry point: same anchor and label as the Bon list, so both roads reach the form. *@
+    <a class="cta-catat-bon" asp-controller="Bon" asp-action="Create">Catat bon baru</a>
 </div>

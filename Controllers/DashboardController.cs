@@ -1,8 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
+using MyBon.Domain.Interfaces;
 
 namespace MyBon.Controllers;
 
-public class DashboardController : Controller
+public class DashboardController(IDashboardService dashboardService) : BaseController
 {
-    public IActionResult Index() => View();
+    private readonly IDashboardService _dashboardService = dashboardService;
+
+    public async Task<IActionResult> Index()
+    {
+        var result = await _dashboardService.GetSummaryAsync();
+
+        return ToActionResult(result, data => View(data));
+    }
 }
+

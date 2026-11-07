@@ -274,6 +274,13 @@ textarea {
   flex-direction: column;
 }
 
+.debt-empty {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
 .debt-row {
   display: flex;
   flex-direction: column;
