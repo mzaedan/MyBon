@@ -1,0 +1,70 @@
+@{
+    ViewData["Title"] = "Masuk";
+    Layout = "_LayoutAuth";
+}
+
+@* Static slice. The form posts in docs/plans/plan-login.md. *@
+<div class="auth-page">
+    <header class="auth-head">
+        <p class="auth-shop">MY BON</p>
+        <h1 class="auth-title">Masuk</h1>
+    </header>
+
+    <hr class="page-rule" />
+
+    <section class="auth-brand">
+        <div class="auth-mark" aria-hidden="true">
+            <div class="auth-nota">
+                <span class="auth-nota-rp">Rp</span>
+                <i class="bi bi-check-lg auth-nota-check"></i>
+                <span class="auth-nota-fold"></span>
+            </div>
+        </div>
+
+        <div class="auth-brand-text">
+            <p class="auth-tagline">Buku hutang warung</p>
+            <p class="auth-desc">Simpan bon, pantau hutang pelanggan, dan catat bayaran di satu buku.</p>
+        </div>
+    </section>
+
+    <div class="auth-form">
+        <div class="pelanggan-field auth-field">
+            <label class="pelanggan-field-label" for="login-email">Email</label>
+            <input class="pelanggan-field-input"
+                   id="login-email"
+                   name="Email"
+                   type="email"
+                   placeholder="Tulis email"
+                   autocomplete="email" />
+            <hr class="page-rule" />
+        </div>
+
+        <div class="pelanggan-field auth-field">
+            <label class="pelanggan-field-label" for="login-password">Kata sandi</label>
+            <input class="pelanggan-field-input"
+                   id="login-password"
+                   name="Password"
+                   type="password"
+                   placeholder="Tulis kata sandi"
+                   autocomplete="current-password" />
+            <hr class="page-rule" />
+        </div>
+    </div>
+
+    <div class="auth-forgot-row">
+        <button type="button" class="auth-forgot">Lupa kata sandi?</button>
+    </div>
+
+    <div class="auth-actions">
+        <button type="button" class="auth-btn auth-btn-primary">Masuk ke buku hutang</button>
+        <button type="button" class="auth-btn auth-btn-secondary">Buat akun toko baru</button>
+    </div>
+
+    <div class="auth-spacer"></div>
+
+    <hr class="page-rule" />
+
+    <p class="auth-note">
+        Lupa kata sandi atau email? Hubungi pemilik toko untuk atur ulang akun.
+    </p>
+</div>

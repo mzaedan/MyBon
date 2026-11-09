@@ -36,6 +36,12 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
+// Short alias for the sign-in screen; /Auth/Login stays the canonical route.
+app.MapControllerRoute(
+    name: "login",
+    pattern: "login",
+    defaults: new { controller = "Auth", action = "Login" });
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Dashboard}/{action=Index}/{id?}")
