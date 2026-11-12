@@ -2464,10 +2464,23 @@ a.bon-action--hapus {
   flex: 1 1 auto;
   flex-direction: column;
   min-height: 0;
-  padding: 8px 20px calc(24px + var(--safe-bottom));
+  /* Mirrors the shell header offset (.app-header padding-top + .app-header-inner's 8px) so the
+     login wordmark sits on the same line as the wordmark on every other page. */
+  padding: calc(max(24px, calc(var(--safe-top) + 8px)) + 8px) 20px calc(24px + var(--safe-bottom));
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  /* The shell is a fixed phone frame, so the login column can outgrow it on a short
+     window. The scroll stays (wheel, touch, keyboard) but the classic desktop
+     scrollbar is dropped: it would paint over the frame's right edge and shift the
+     column by its width. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.auth-main::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .auth-page {
@@ -2480,25 +2493,9 @@ a.bon-action--hapus {
 .auth-head {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-}
-
-.auth-shop {
-  margin: 0;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: normal;
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-.auth-title {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 400;
-  line-height: normal;
-  color: var(--text);
-  white-space: nowrap;
+  /* Same 4px rhythm as .app-header-text, so the wordmark and the screen title line up with
+     every other page. The type itself comes from .app-wordmark and .app-screen-title. */
+  gap: 4px;
 }
 
 .auth-brand {

@@ -4,10 +4,12 @@
 }
 
 @* Static slice. The form posts in docs/plans/plan-login.md. *@
+@* The header reuses the shell's own wordmark/title classes so the login cannot drift from
+   the header every other page renders. *@
 <div class="auth-page">
     <header class="auth-head">
-        <p class="auth-shop">MY BON</p>
-        <h1 class="auth-title">Masuk</h1>
+        <p class="app-wordmark">MY BON</p>
+        <h1 class="app-screen-title">Masuk</h1>
     </header>
 
     <hr class="page-rule" />
@@ -29,13 +31,16 @@
 
     <div class="auth-form">
         <div class="pelanggan-field auth-field">
-            <label class="pelanggan-field-label" for="login-email">Email</label>
+            <label class="pelanggan-field-label" for="login-username">Username</label>
             <input class="pelanggan-field-input"
-                   id="login-email"
-                   name="Email"
-                   type="email"
-                   placeholder="Tulis email"
-                   autocomplete="email" />
+                   id="login-username"
+                   name="Username"
+                   type="text"
+                   placeholder="Tulis username"
+                   autocapitalize="none"
+                   autocorrect="off"
+                   spellcheck="false"
+                   autocomplete="username" />
             <hr class="page-rule" />
         </div>
 
@@ -65,6 +70,6 @@
     <hr class="page-rule" />
 
     <p class="auth-note">
-        Lupa kata sandi atau email? Hubungi pemilik toko untuk atur ulang akun.
+        Lupa kata sandi atau username? Hubungi pemilik toko untuk atur ulang akun.
     </p>
 </div>

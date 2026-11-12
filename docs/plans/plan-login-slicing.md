@@ -15,7 +15,7 @@
 - The app name is **MY BON**, not the mockup's `CatatHutang`.
 - Buttons and the forgot control are visual only (`type="button"`). There is no POST target yet.
 - Use Bootstrap Icons for the check inside the brand mark; do not copy Phosphor SVG paths from the export.
-- Placeholders stay honest: `Tulis email`, `Tulis kata sandi`.
+- Placeholders stay honest: `Tulis username`, `Tulis kata sandi`.
 
 ## Architecture
 
@@ -49,10 +49,10 @@ wwwroot/css/site.css    .auth-* block at the end, reusing .page-rule and .pelang
 
 - [ ] **Step 1:** Header: a small **MY BON** line over the **Masuk** title, then a `.page-rule`.
 - [ ] **Step 2:** Brand row: 64px white mark with a 1px accent border; a 32×37 blue receipt holding **Rp**, a white check, and a folded corner; tagline **Buku hutang warung**; the description.
-- [ ] **Step 3:** Fields **Email** (`type="email"`) and **Kata sandi** (`type="password"`), each reusing `.pelanggan-field*` and `.page-rule`.
+- [ ] **Step 3:** Fields **Username** (`type="text"`, `autocomplete="username"`) and **Kata sandi** (`type="password"`), each reusing `.pelanggan-field*` and `.page-rule`.
 - [ ] **Step 4:** **Lupa kata sandi?** right aligned.
 - [ ] **Step 5:** Primary **Masuk ke buku hutang** and secondary **Buat akun toko baru**.
-- [ ] **Step 6:** Spacer, bottom rule, note **Lupa kata sandi atau email? Hubungi pemilik toko untuk atur ulang akun.**
+- [ ] **Step 6:** Spacer, bottom rule, note **Lupa kata sandi atau username? Hubungi pemilik toko untuk atur ulang akun.**
 
 ## Slice 3: styling
 
@@ -72,3 +72,9 @@ wwwroot/css/site.css    .auth-* block at the end, reusing .page-rule and .pelang
 ## Non-goals
 
 Cookie authentication, the `pengguna` table, username/password validation, redirect by role, `ReturnUrl`, rate limiting, the Dashboard/Pelanggan/Barang guards, forgot-password flow, registration, Tailwind, and Phosphor icon paths. These stay in `docs/plans/plan-login.md`.
+
+## Updates
+
+- `docs/plans/plan-perbaikan-scrollbar-login.md` — the frame scrollbar is hidden (`scrollbar-width: none` + `.auth-main::-webkit-scrollbar`), so no bar paints on the frame edge on a short window.
+- `docs/plans/plan-perbaikan-header-login.md` — supersedes Slice 2 Step 1 and the `8px` top padding in Slice 3 Step 1: the header now reuses the shell's `.app-wordmark` / `.app-screen-title` at the shell header's offset, and `.auth-shop` / `.auth-title` are gone.
+- Sign-in now asks for **Username**, not an email: Slice 2 Steps 3 and 6 paint `login-username` (`name="Username"`, `type="text"`, `autocomplete="username"`, `autocapitalize="none"`, `spellcheck="false"`) and the bottom note reads **Lupa kata sandi atau username?**. The account key is `pengguna.username` in `docs/plans/plan-login.md`, so the field matches the credential the app will actually verify.
