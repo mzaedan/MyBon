@@ -30,6 +30,9 @@
     // The sheet's stock rows carry a quantity stepper; the Create picker asks for the same partial
     // without it, so the flag lives on this page only.
     ViewData["Stepper"] = true;
+
+    // Attribute guards are the boundary; this flag only decides which controls are painted.
+    var canWrite = ViewData["CanWriteBon"] is bool allowed && allowed;
 }
 
 <div class="bon-detail-page">
@@ -67,40 +70,43 @@
         </div>
     </div>
 
-    <div class="bon-detail-actions">
-        @if (Model.Lunas)
-        {
-            @* A settled page has nothing left to record, so both write entry points retire and the only
-               write left is removing the page itself. *@
-            <a class="bon-action bon-action--hapus"
-               asp-controller="Bon"
-               asp-action="Delete"
-               asp-route-id="@Model.Id">
-                <i class="bi bi-trash" aria-hidden="true"></i>
-                <span>Hapus bon</span>
-            </a>
-        }
-        else
-        {
-            <button type="button"
-                    class="bon-action bon-action--bayar"
-                    id="catatPembayaranBtn"
-                    aria-haspopup="dialog"
-                    aria-expanded="false"
-                    aria-controls="bonPaySheet">
-                Catat pembayaran
-            </button>
-            <button type="button"
-                    class="bon-action bon-action--barang"
-                    id="tambahBarangBtn"
-                    aria-haspopup="dialog"
-                    aria-expanded="false"
-                    aria-controls="bonAddSheet">
-                <i class="bi bi-plus" aria-hidden="true"></i>
-                <span>Tambah barang</span>
-            </button>
-        }
-    </div>
+    @if (canWrite)
+    {
+        <div class="bon-detail-actions">
+            @if (Model.Lunas)
+            {
+                @* A settled page has nothing left to record, so both write entry points retire and the only
+                   write left is removing the page itself. *@
+                <a class="bon-action bon-action--hapus"
+                   asp-controller="Bon"
+                   asp-action="Delete"
+                   asp-route-id="@Model.Id">
+                    <i class="bi bi-trash" aria-hidden="true"></i>
+                    <span>Hapus bon</span>
+                </a>
+            }
+            else
+            {
+                <button type="button"
+                        class="bon-action bon-action--bayar"
+                        id="catatPembayaranBtn"
+                        aria-haspopup="dialog"
+                        aria-expanded="false"
+                        aria-controls="bonPaySheet">
+                    Catat pembayaran
+                </button>
+                <button type="button"
+                        class="bon-action bon-action--barang"
+                        id="tambahBarangBtn"
+                        aria-haspopup="dialog"
+                        aria-expanded="false"
+                        aria-controls="bonAddSheet">
+                    <i class="bi bi-plus" aria-hidden="true"></i>
+                    <span>Tambah barang</span>
+                </button>
+            }
+        </div>
+    }
 
     <div class="bon-detail-section">
         <div class="bon-detail-title">Riwayat pembayaran</div>
@@ -163,8 +169,8 @@
 </div>
 
 @* A settled page has no write left: both sheets belong to the two buttons it no longer shows,
-   so it carries neither of them. *@
-@if (!Model.Lunas)
+   so it carries neither of them. A customer page carries no sheet at all. *@
+@if (canWrite && !Model.Lunas)
 {
     <div id="bonPaySheet" class="bon-pay" data-error="@(payHasError.ToString().ToLowerInvariant())" hidden>
         <div class="bon-pay-scrim" data-bon-pay-close></div>
@@ -329,9 +335,12 @@
 }
 
 @section Scripts {
-    <script src="~/helpers/bon-calendar.js" asp-append-version="true"></script>
-    <script src="~/helpers/money-input.js" asp-append-version="true"></script>
-    <script src="~/custom/features/bon/details.js" asp-append-version="true"></script>
+    @if (canWrite)
+    {
+        <script src="~/helpers/bon-calendar.js" asp-append-version="true"></script>
+        <script src="~/helpers/money-input.js" asp-append-version="true"></script>
+        <script src="~/custom/features/bon/details.js" asp-append-version="true"></script>
+    }
 }
 
 

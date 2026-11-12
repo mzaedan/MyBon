@@ -1,0 +1,69 @@
+@model CreatePenggunaRequest
+
+@{
+    var namaPelanggan = ViewData["NamaPelanggan"] as string;
+    var untukPelanggan = Model.PelangganId is not null;
+
+    ViewData["Title"] = untukPelanggan ? "Buat akun pelanggan" : "Buat akun admin";
+    ViewData["BackHref"] = Url.Action("Index");
+}
+
+<hr class="page-rule" />
+
+@if (untukPelanggan && !string.IsNullOrWhiteSpace(namaPelanggan))
+{
+    <p class="pelanggan-notice">Akun untuk @namaPelanggan.</p>
+}
+
+<form method="post" asp-action="Create" class="pelanggan-form">
+    <div asp-validation-summary="ModelOnly" class="pelanggan-field-error" role="alert"></div>
+
+    <input type="hidden" asp-for="PelangganId" />
+
+    <div class="pelanggan-field">
+        <label class="pelanggan-field-label" asp-for="Username">Username</label>
+        <input asp-for="Username"
+               type="text"
+               class="pelanggan-field-input"
+               placeholder="Tulis username"
+               autocapitalize="none"
+               autocorrect="off"
+               spellcheck="false"
+               autocomplete="username" />
+        <span asp-validation-for="Username" class="pelanggan-field-error"></span>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-field">
+        <label class="pelanggan-field-label" asp-for="Nama">Nama</label>
+        <input asp-for="Nama"
+               type="text"
+               class="pelanggan-field-input"
+               placeholder="Tulis nama"
+               autocomplete="name" />
+        <span asp-validation-for="Nama" class="pelanggan-field-error"></span>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-field">
+        <label class="pelanggan-field-label" asp-for="Password">Kata sandi</label>
+        <input asp-for="Password"
+               type="password"
+               class="pelanggan-field-input"
+               placeholder="Minimal 8 karakter"
+               autocomplete="new-password" />
+        <span asp-validation-for="Password" class="pelanggan-field-error"></span>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-form-actions">
+        <a class="pelanggan-btn pelanggan-btn-batal"
+           asp-controller="Pengguna"
+           asp-action="Index">Batal</a>
+        <button type="submit" class="pelanggan-btn pelanggan-btn-simpan">Simpan akun</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

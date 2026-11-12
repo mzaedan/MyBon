@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyBon.Models;
 
@@ -11,6 +12,8 @@ public class HomeController : Controller
         return View();
     }
 
+    /// <summary>Stays anonymous so a broken request can still render its explanation.</summary>
+    [AllowAnonymous]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

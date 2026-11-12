@@ -1,0 +1,26 @@
+@inject IContext AppContext
+
+@{
+    ViewData["Title"] = "Tidak ada akses";
+
+    var isPelanggan = AppContext.Identity.IsInRole(Peran.Pelanggan);
+    var kembaliController = isPelanggan ? "Bon" : "Dashboard";
+    var kembaliLabel = isPelanggan ? "Kembali ke bon kamu" : "Kembali ke dashboard";
+}
+
+<hr class="page-rule" />
+
+<div class="bon-detail-section">
+    <p class="bon-detail-empty">
+        Akun ini tidak punya akses ke halaman tersebut.
+    </p>
+</div>
+
+<div class="pelanggan-form-actions">
+    <a class="pelanggan-btn pelanggan-btn-simpan"
+       asp-controller="@kembaliController"
+       asp-action="Index">@kembaliLabel</a>
+    <a class="pelanggan-btn pelanggan-btn-batal"
+       asp-controller="Auth"
+       asp-action="GantiPassword">Ganti kata sandi</a>
+</div>

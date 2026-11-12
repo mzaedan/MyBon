@@ -1,18 +1,39 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MyBon.Domain.Constants;
 using MyBon.Domain.Enums;
 using MyBon.Domain.Interfaces;
+using MyBon.Models.Bon.DTOs;
 using MyBon.Models.Bon.Requests;
 using MyBon.Models.Bon.ViewModels;
 using MyBon.Models.Common;
 
 namespace MyBon.Controllers;
 
+/// <summary>
+/// The shared Catat Bon menu. Both roles reach the list and the detail page; every write entry point
+/// and the stock picker carry <c>[Authorize(Roles = Peran.Admin)]</c> on top.
+/// </summary>
+[Authorize]
 public class BonController(IBonService bonService) : BaseController
 {
     private readonly IBonService _bonService = bonService;
 
     public async Task<IActionResult> Index(string? q)
     {
+        ViewData["CanWriteBon"] = IsAdmin;
+
+        if (IsPelanggan)
+        {
+            if (PelangganId is not int pelangganId)
+                return NoCustomerAccount();
+
+            var mine = await _bonService.SearchMineAsync(pelangganId, q, 1);
+            ViewData["SearchQuery"] = q?.Trim();
+
+            return ToActionResult(mine, data => View(data));
+        }
+
         var result = await _bonService.SearchAsync(q, 1);
         ViewData["SearchQuery"] = q?.Trim();
 
@@ -21,6 +42,27 @@ public class BonController(IBonService bonService) : BaseController
 
     public async Task<IActionResult> Search(string? q, int page = 1)
     {
+        ViewData["CanWriteBon"] = IsAdmin;
+
+        if (IsPelanggan)
+        {
+            if (PelangganId is not int pelangganId)
+                return NoCustomerAccount();
+
+            var mine = await _bonService.SearchMineAsync(pelangganId, q, page);
+
+            if (IsAjaxRequest)
+            {
+                if (!mine.Success || mine.Data is null)
+                    return Json(mine);
+
+                return PartialView("_Cards", mine.Data);
+            }
+
+            ViewData["SearchQuery"] = q?.Trim();
+            return ToActionResult(mine, data => View(nameof(Index), data));
+        }
+
         var result = await _bonService.SearchAsync(q, page);
 
         if (IsAjaxRequest)
@@ -35,6 +77,7 @@ public class BonController(IBonService bonService) : BaseController
         return ToActionResult(result, data => View(nameof(Index), data));
     }
 
+    [Authorize(Roles = Peran.Admin)]
     public async Task<IActionResult> Create()
     {
         var form = await _bonService.GetFormAsync();
@@ -50,6 +93,7 @@ public class BonController(IBonService bonService) : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Peran.Admin)]
     public async Task<IActionResult> Create(CreateBonViewModel request)
     {
         if (!ModelState.IsValid)
@@ -90,6 +134,7 @@ public class BonController(IBonService bonService) : BaseController
     /// the Tambah barang sheet on Details needs; the Create picker takes the same rows without it.
     /// AJAX callers get the rows as HTML; a failed lookup answers the <c>ErrorOr</c> JSON.
     /// </summary>
+    [Authorize(Roles = Peran.Admin)]
     public async Task<IActionResult> SearchBarang(string? q, int page = 1, bool stepper = false)
     {
         // The partial asks this flag back, so the rows it paints always match the sheet that asked.
@@ -110,6 +155,24 @@ public class BonController(IBonService bonService) : BaseController
 
     public async Task<IActionResult> Details(int id)
     {
+        ViewData["CanWriteBon"] = IsAdmin;
+
+        if (IsPelanggan)
+        {
+            if (PelangganId is not int pelangganId)
+                return NoCustomerAccount();
+
+            var mine = await _bonService.GetMineDetailAsync(id, pelangganId);
+
+            return ToActionResult(mine, bon =>
+            {
+                ViewData["Title"] = bon.Nomor;
+                ViewData["BackHref"] = Url.Action(nameof(Index), "Bon");
+
+                return View(bon);
+            });
+        }
+
         var result = await _bonService.GetDetailAsync(id);
 
         return ToActionResult(result, bon =>
@@ -129,6 +192,7 @@ public class BonController(IBonService bonService) : BaseController
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Peran.Admin)]
     public async Task<IActionResult> AddItem(AddBonItemRequest request)
     {
         if (!ModelState.IsValid || request.BarangId is null)
@@ -169,6 +233,7 @@ public class BonController(IBonService bonService) : BaseController
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Peran.Admin)]
     public async Task<IActionResult> AddPayment(AddBonPaymentRequest request)
     {
         if (!ModelState.IsValid)
@@ -219,6 +284,7 @@ public class BonController(IBonService bonService) : BaseController
     /// Shows the confirmation screen for removing a settled bon, the way the Barang and Pelanggan
     /// sheets confirm their deletes, so a full page of history never goes on a single tap.
     /// </summary>
+    [Authorize(Roles = Peran.Admin)]
     public async Task<IActionResult> Delete(int id)
     {
         var result = await _bonService.GetDetailAsync(id);
@@ -239,6 +305,7 @@ public class BonController(IBonService bonService) : BaseController
     [HttpPost]
     [ValidateAntiForgeryToken]
     [ActionName("Delete")]
+    [Authorize(Roles = Peran.Admin)]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var result = await _bonService.DeleteAsync(id);
@@ -309,4 +376,18 @@ public class BonController(IBonService bonService) : BaseController
         request.Customers = form.Data.Customers;
         request.Barangs = form.Data.Barangs;
     }
+
+    /// <summary>True when the signed-in account holds the customer role.</summary>
+    private bool IsPelanggan => Context?.Identity.IsInRole(Peran.Pelanggan) == true;
+
+    /// <summary>Customer row the signed-in account reads, or <c>null</c> for an admin request.</summary>
+    private int? PelangganId => Context?.Identity.PelangganId;
+
+    /// <summary>
+    /// A customer account without a customer row may never fall back to the whole notebook, so it is
+    /// refused with the same <see cref="ErrorOr"/> body an AJAX caller already understands.
+    /// </summary>
+    private IActionResult NoCustomerAccount() =>
+        ToActionResult(ErrorOr.CreateFailure(
+            "Akun ini belum terhubung ke pelanggan.", ErrorType.Forbidden));
 }

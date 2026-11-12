@@ -1,3 +1,4 @@
+@inject IContext AppContext
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -18,6 +19,10 @@
 </head>
 <body class="app-body">
     @{
+        var identity = AppContext.Identity;
+        var isAdmin = identity.IsInRole(Peran.Admin);
+        var isPelanggan = identity.IsInRole(Peran.Pelanggan);
+
         var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Dashboard";
         bool IsActive(string controller) =>
             string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase);
@@ -37,6 +42,40 @@
                     <p class="app-wordmark">MY BON</p>
                     <h1 class="app-screen-title">@ViewData["Title"]</h1>
                 </div>
+
+                @if (identity.IsAuthenticated)
+                {
+                    @* The account's own screens live here: no bottom-nav slot is spent on them. *@
+                    <div class="app-header-actions">
+                        <span class="app-user-chip" title="@identity.FullName (@identity.Peran)">@identity.FullName</span>
+
+                        @if (isAdmin)
+                        {
+                            <a class="app-header-link"
+                               asp-controller="Pengguna"
+                               asp-action="Index"
+                               aria-label="Kelola pengguna"
+                               title="Kelola pengguna">
+                                <i class="bi bi-gear" aria-hidden="true"></i>
+                            </a>
+                        }
+
+                        <a class="app-header-link"
+                           asp-controller="Auth"
+                           asp-action="GantiPassword"
+                           aria-label="Ganti kata sandi"
+                           title="Ganti kata sandi">
+                            <i class="bi bi-key" aria-hidden="true"></i>
+                        </a>
+
+                        @* Signing out is a POST with an antiforgery token, so a link cannot do it. *@
+                        <form method="post" asp-controller="Auth" asp-action="Logout" class="app-logout">
+                            <button type="submit" class="app-header-link" aria-label="Keluar" title="Keluar">
+                                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </div>
+                }
             </div>
         </header>
 
@@ -44,30 +83,44 @@
             @RenderBody()
         </main>
 
-        <nav class="bottom-nav" aria-label="Navigasi utama">
-            <div class="bottom-nav-bar">
-                <a class="bottom-nav-item @(IsActive("Dashboard") ? "active" : "")"
-                   asp-controller="Dashboard" asp-action="Index">
-                    <i class="bi @(IsActive("Dashboard") ? "bi-house-fill" : "bi-house")"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a class="bottom-nav-item @(IsActive("Pelanggan") ? "active" : "")"
-                   asp-controller="Pelanggan" asp-action="Index">
-                    <i class="bi @(IsActive("Pelanggan") ? "bi-people-fill" : "bi-people")"></i>
-                    <span>Pelanggan</span>
-                </a>
-                <a class="bottom-nav-item @(IsActive("Barang") ? "active" : "")"
-                   asp-controller="Barang" asp-action="Index">
-                    <i class="bi @(IsActive("Barang") ? "bi-box-seam-fill" : "bi-box-seam")"></i>
-                    <span>Barang</span>
-                </a>
-                <a class="bottom-nav-item @(IsActive("Bon") ? "active" : "")"
-                   asp-controller="Bon" asp-action="Index">
-                    <i class="bi bi-journal-text"></i>
-                    <span>Catat Bon</span>
-                </a>
-            </div>
-        </nav>
+        @if (identity.IsAuthenticated)
+        {
+            @* The admin runs the shop and sees four tabs; a customer shares only Catat Bon. *@
+            <nav class="bottom-nav @(isPelanggan ? "bottom-nav--single" : string.Empty)" aria-label="Navigasi utama">
+                <div class="bottom-nav-bar">
+                    @if (isPelanggan)
+                    {
+                        <a class="bottom-nav-item active" asp-controller="Bon" asp-action="Index">
+                            <i class="bi bi-journal-text"></i>
+                            <span>Catat Bon</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="bottom-nav-item @(IsActive("Dashboard") ? "active" : "")"
+                           asp-controller="Dashboard" asp-action="Index">
+                            <i class="bi @(IsActive("Dashboard") ? "bi-house-fill" : "bi-house")"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a class="bottom-nav-item @(IsActive("Pelanggan") ? "active" : "")"
+                           asp-controller="Pelanggan" asp-action="Index">
+                            <i class="bi @(IsActive("Pelanggan") ? "bi-people-fill" : "bi-people")"></i>
+                            <span>Pelanggan</span>
+                        </a>
+                        <a class="bottom-nav-item @(IsActive("Barang") ? "active" : "")"
+                           asp-controller="Barang" asp-action="Index">
+                            <i class="bi @(IsActive("Barang") ? "bi-box-seam-fill" : "bi-box-seam")"></i>
+                            <span>Barang</span>
+                        </a>
+                        <a class="bottom-nav-item @(IsActive("Bon") ? "active" : "")"
+                           asp-controller="Bon" asp-action="Index">
+                            <i class="bi bi-journal-text"></i>
+                            <span>Catat Bon</span>
+                        </a>
+                    }
+                </div>
+            </nav>
+        }
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

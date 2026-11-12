@@ -5,6 +5,9 @@
     var status = TempData["BonStatus"] as string;
     var query = (ViewData["SearchQuery"] as string ?? string.Empty).Trim();
     var isSearching = query.Length > 0;
+
+    // Attribute guards are the boundary; this flag only decides which controls are painted.
+    var canWrite = ViewData["CanWriteBon"] is bool allowed && allowed;
 }
 
 @if (Model.Total == 0 && !isSearching)
@@ -19,10 +22,15 @@
             </div>
 
             <p class="bon-empty-copy">
-                Belum ada bon di buku. Catat bon baru untuk mulai menulis hutang pelanggan.
+                @(canWrite
+                    ? "Belum ada bon di buku. Catat bon baru untuk mulai menulis hutang pelanggan."
+                    : "Belum ada bon untuk kamu.")
             </p>
 
-            <a class="cta-catat-bon" asp-controller="Bon" asp-action="Create">Catat bon baru</a>
+            @if (canWrite)
+            {
+                <a class="cta-catat-bon" asp-controller="Bon" asp-action="Create">Catat bon baru</a>
+            }
         </div>
     </div>
 }
@@ -46,8 +54,10 @@ else
             <div class="bon-search-row">
                 <i class="bi bi-search bon-search-icon" aria-hidden="true"></i>
                 <input class="bon-search-input" id="bon-search-input" type="search" name="q"
-                       value="@query" placeholder="Cari nomor atau nama" autocomplete="off"
-                       aria-label="Cari nomor bon atau nama pelanggan" />
+                       value="@query"
+                       placeholder="@(canWrite ? "Cari nomor atau nama" : "Cari nomor bon")"
+                       autocomplete="off"
+                       aria-label="@(canWrite ? "Cari nomor bon atau nama pelanggan" : "Cari nomor bon")" />
             </div>
             <hr class="page-rule" />
         </form>
@@ -58,7 +68,10 @@ else
             <partial name="_Cards" model="Model" />
         </div>
 
-        <a class="cta-catat-bon" asp-controller="Bon" asp-action="Create">Catat bon baru</a>
+        @if (canWrite)
+        {
+            <a class="cta-catat-bon" asp-controller="Bon" asp-action="Create">Catat bon baru</a>
+        }
     </div>
 }
 

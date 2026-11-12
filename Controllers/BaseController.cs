@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using MyBon.Domain.Abstractions;
+using MyBon.Domain.Constants;
 using MyBon.Domain.Enums;
 using MyBon.Models.Common;
 
@@ -13,6 +15,17 @@ public abstract class BaseController : Controller
 {
     private const string AjaxRequestedWithValue = "XMLHttpRequest";
     private const string JsonContentType = "application/json";
+
+    private IContext? _context;
+
+    /// <summary>
+    /// Gets the signed-in user for this request, resolved lazily from the request services so a
+    /// controller never takes <see cref="IContext"/> in its constructor.
+    /// </summary>
+    protected IContext? Context => _context ??= HttpContext?.RequestServices.GetService<IContext>();
+
+    /// <summary>Whether the signed-in user holds the admin role.</summary>
+    protected bool IsAdmin => Context?.Identity.IsInRole(Peran.Admin) == true;
 
     /// <summary>Gets a value indicating whether the current request expects a JSON response.</summary>
     protected bool IsAjaxRequest =>

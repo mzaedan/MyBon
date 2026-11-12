@@ -1,5 +1,7 @@
 using System.Globalization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MyBon.Domain.Constants;
 using MyBon.Domain.Enums;
 using MyBon.Domain.Interfaces;
 using MyBon.Models.Barang.Requests;
@@ -7,6 +9,8 @@ using MyBon.Models.Common;
 
 namespace MyBon.Controllers;
 
+/// <summary>The stock list. Admin only: prices never reach a customer's browser.</summary>
+[Authorize(Roles = Peran.Admin)]
 public class BarangController(IBarangService barangService) : BaseController
 {
     private readonly IBarangService _barangService = barangService;

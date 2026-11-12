@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MyBon.Domain.Constants;
 using MyBon.Domain.Enums;
 using MyBon.Domain.Interfaces;
 using MyBon.Models.Common;
@@ -6,9 +8,14 @@ using MyBon.Models.Pelanggan.Requests;
 
 namespace MyBon.Controllers;
 
-public class PelangganController(IPelangganService pelangganService) : BaseController
+/// <summary>The customer notebook. Admin only: a customer never reads another customer's page.</summary>
+[Authorize(Roles = Peran.Admin)]
+public class PelangganController(
+    IPelangganService pelangganService,
+    IPenggunaService penggunaService) : BaseController
 {
     private readonly IPelangganService _pelangganService = pelangganService;
+    private readonly IPenggunaService _penggunaService = penggunaService;
 
     public async Task<IActionResult> Index(string? q)
     {
@@ -64,6 +71,15 @@ public class PelangganController(IPelangganService pelangganService) : BaseContr
     public async Task<IActionResult> Details(int id)
     {
         var result = await _pelangganService.GetByIdAsync(id);
+
+        // The page tells the admin whether this customer can already sign in, and offers the
+        // create-account button only when they cannot.
+        if (result.Success && result.Data is not null)
+        {
+            var akun = await _penggunaService.GetByPelangganIdAsync(id);
+            ViewData["PenggunaId"] = akun.Success && akun.Data is not null ? akun.Data.Id : (int?)null;
+        }
+
         return ToActionResult(result, pelanggan =>
         {
             ViewData["Title"] = pelanggan.Nama;

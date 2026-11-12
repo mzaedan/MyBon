@@ -2,7 +2,7 @@
 
 **Goal:** Put every page behind a login. Accounts live in the local `pengguna` table (username + hashed password). There are exactly **two roles**:
 
-- **Pemilik** — the shop owner. Full access: the whole app as it stands today (dashboard, customers, stock, bons, payments, deleting settled bons) **plus** account management. There is no separate cashier role — the owner is the cashier.
+- **Admin** — the shop owner. Full access: the whole app as it stands today (dashboard, customers, stock, bons, payments, deleting settled bons) **plus** account management. There is no separate cashier role — the owner is the cashier.
 - **Pelanggan** — a customer with their own account, tied to exactly one `pelanggan` row. The only menu they reach is **Catat Bon** (`Bon/Index`, `Bon/Details`), and inside that menu they see **only their own bons**, read-only. No dashboard, no stock, no other customer's page, no write action anywhere.
 
 **Depends on:** `Program.cs`, `Controllers/BaseController.cs`, `Data/AppDbContext.cs`, `Views/Shared/_Layout.cshtml`, tokens in `wwwroot/css/site.css`.
@@ -13,7 +13,7 @@
 
 ## Permission matrix
 
-| Screen / action | Pemilik | Pelanggan |
+| Screen / action | Admin | Pelanggan |
 |---|---|---|
 | `Dashboard/Index` | yes | no |
 | `Pelanggan/*` (list, details, create, edit, delete) | yes | no |
@@ -30,7 +30,7 @@ Rationale: the owner runs the shop and holds every key. A customer shares the **
 
 | Role | Redirect |
 |---|---|
-| Pemilik | `Dashboard/Index` |
+| Admin | `Dashboard/Index` |
 | Pelanggan | `Bon/Index` |
 
 `ReturnUrl` still wins over both when it is local (`Url.IsLocalUrl`), so a deep link survives the login.
@@ -45,10 +45,10 @@ GET  /Auth/Ditolak               -> "no access" page for a signed-in user withou
 GET  /Auth/GantiPassword         -> own password, both roles
 
 fallback policy: RequireAuthenticatedUser
-[Authorize(Roles = Peran.Pemilik)]   -> class of DashboardController, PelangganController,
+[Authorize(Roles = Peran.Admin)]   -> class of DashboardController, PelangganController,
                                         BarangController, PenggunaController
 [Authorize]                          -> class of BonController (the shared Catat Bon menu)
-[Authorize(Roles = Peran.Pemilik)]   -> BonController.Create (GET + POST), SearchBarang, AddItem,
+[Authorize(Roles = Peran.Admin)]   -> BonController.Create (GET + POST), SearchBarang, AddItem,
                                         AddPayment, Delete, DeleteConfirmed
 [AllowAnonymous]                     -> AuthController, Home/Error
 
@@ -59,7 +59,7 @@ claim usr  -> "usr"                       (pengguna.username, matches AGENTS.md)
 claim pid  -> "pid"                       (pengguna.pelanggan_id, only for the Pelanggan role)
 ```
 
-Guard at **controller level** for the back office: `Dashboard`, `Pelanggan`, `Barang` and `Pengguna` belong to the owner alone, so one attribute per class is easier to audit than twenty scattered over actions. `BonController` is the one shared controller — `[Authorize]` on the class lets both roles in, and its six write actions carry `[Authorize(Roles = Peran.Pemilik)]` on top. Attributes are the security boundary; `ViewData["CanWriteBon"]` only decides whether the create CTA, the action bar and the two sheets are painted.
+Guard at **controller level** for the back office: `Dashboard`, `Pelanggan`, `Barang` and `Pengguna` belong to the owner alone, so one attribute per class is easier to audit than twenty scattered over actions. `BonController` is the one shared controller — `[Authorize]` on the class lets both roles in, and its six write actions carry `[Authorize(Roles = Peran.Admin)]` on top. Attributes are the security boundary; `ViewData["CanWriteBon"]` only decides whether the create CTA, the action bar and the two sheets are painted.
 
 `IContext` / `IIdentityContext` finally get introduced here, because role checks inside views and services must not read `HttpContext.User` (AGENTS.md rule). `ContextMiddleware` fills a scoped `Context` from the cookie claims once per request, and exposes `Identity.PelangganId` for the customer screens.
 
@@ -91,7 +91,7 @@ Migration: `dotnet ef migrations add CreatePenggunaTable` (Design/Tools packages
 
 **Create**
 
-- `Domain/Enums/PeranPengguna.cs` — `{ Pemilik, Pelanggan }`
+- `Domain/Enums/PeranPengguna.cs` — `{ Admin, Pelanggan }`
 - `Domain/Constants/Peran.cs` — `const string` mirrors used by `[Authorize(Roles = ...)]`
 - `Domain/Entities/Pengguna.cs` — `PelangganId` + `Pelanggan?` navigation
 - `Domain/Interfaces/IAuthService.cs`, `Domain/Interfaces/IPenggunaService.cs`
@@ -115,8 +115,8 @@ Migration: `dotnet ef migrations add CreatePenggunaTable` (Design/Tools packages
 
 - `Data/AppDbContext.cs` — `DbSet<Pengguna>` + `OnModelCreating` block (columns, unique indexes, check constraint, cascade)
 - `Program.cs` — cookie authentication, authorization fallback, rate limiter, `IAuthService`/`IPenggunaService`/`IPasswordHasher<Pengguna>`/`IContext` registrations, `UseAuthentication()`, `UseMiddleware<ContextMiddleware>()`, `UseRateLimiter()`, seeder call
-- `Controllers/BaseController.cs` — lazy `Context` property + `IsPemilik` helper
-- `Controllers/DashboardController.cs`, `PelangganController.cs`, `BarangController.cs`, `BonController.cs` — `[Authorize(Roles = Peran.Pemilik)]` on the class
+- `Controllers/BaseController.cs` — lazy `Context` property + `IsAdmin` helper
+- `Controllers/DashboardController.cs`, `PelangganController.cs`, `BarangController.cs`, `BonController.cs` — `[Authorize(Roles = Peran.Admin)]` on the class
 - `Domain/Interfaces/IBonService.cs` + `Domain/Services/BonService.cs` — `SearchMineAsync`, `GetMineDetailAsync` filtered by `pelangganId`
 - `Views/Bon/Index.cshtml` — both **Catat bon baru** CTAs, the empty-state copy and the search placeholder follow `ViewData["CanWriteBon"]`
 - `Views/Bon/Details.cshtml` — action bar, both sheets and the sheet scripts follow `ViewData["CanWriteBon"]`
@@ -129,11 +129,11 @@ Migration: `dotnet ef migrations add CreatePenggunaTable` (Design/Tools packages
 
 ## Slice 1: schema and the first account
 
-- [ ] **Step 1:** `PeranPengguna { Pemilik, Pelanggan }`, and `Domain/Constants/Peran.cs` holding `public const string Pemilik = nameof(PeranPengguna.Pemilik);` plus the same for `Pelanggan`, because `[Authorize(Roles = ...)]` needs a compile-time constant.
+- [ ] **Step 1:** `PeranPengguna { Admin, Pelanggan }`, and `Domain/Constants/Peran.cs` holding `public const string Admin = nameof(PeranPengguna.Admin);` plus the same for `Pelanggan`, because `[Authorize(Roles = ...)]` needs a compile-time constant.
 - [ ] **Step 2:** `Pengguna : BaseEntity` with `Id`, `Username`, `Nama`, `PasswordHash`, `Peran`, `PelangganId?`, `Pelanggan?`, `Aktif`, `TerakhirMasuk?`. No data annotations on the entity.
 - [ ] **Step 3:** `AppDbContext`: `DbSet<Pengguna>`; `ToTable("pengguna", table => table.HasCheckConstraint("ck_pengguna_peran_pelanggan", "peran <> 'Pelanggan' OR pelanggan_id IS NOT NULL"))`; snake_case columns; `HasMaxLength` on `username` (50), `nama` (200), `password_hash` (500), `peran` (20); `HasConversion<string>()` on `Peran`; unique index on `username`; unique index on `pelanggan_id`; `HasOne(p => p.Pelanggan).WithMany().HasForeignKey(p => p.PelangganId).OnDelete(DeleteBehavior.Cascade)`; `aktif` default `true`; `created_at` default `CURRENT_TIMESTAMP`.
 - [ ] **Step 4:** `dotnet ef migrations add CreatePenggunaTable` then `dotnet ef database update` (Postgres from `docker-compose.yml`, port 5439).
-- [ ] **Step 5:** `PenggunaSeeder.SeedAsync` inserts the owner only when the table has no row: username `pemilik`, `Peran = Pemilik`, `PelangganId = null`, password from `Auth:SeedPassword` (user-secrets / `Auth__SeedPassword`) hashed with `IPasswordHasher<Pengguna>`. A missing password skips seeding with a warning instead of inventing one.
+- [ ] **Step 5:** `PenggunaSeeder.SeedAsync` inserts the owner only when the table has no row: username `admin`, `Peran = Admin`, `PelangganId = null`, password from `Auth:SeedPassword` (user-secrets / `Auth__SeedPassword`) hashed with `IPasswordHasher<Pengguna>`. A missing password skips seeding with a warning instead of inventing one.
 - [ ] **Step 6:** Call the seeder from `Program.cs` inside a scope after `builder.Build()`.
 
 ## Slice 2: sign in and sign out
@@ -155,13 +155,13 @@ Migration: `dotnet ef migrations add CreatePenggunaTable` (Design/Tools packages
 - [ ] **Step 1:** `IIdentityContext` (`Id`, `Username`, `FullName`, `Email?`, `Peran`, `PelangganId`, `IsAuthenticated`, `IsInRole(string)`) and `IContext` (`Identity`) in `Domain/Abstractions/`.
 - [ ] **Step 2:** `Infrastructure/Contexts/Context.cs` reads the claims once in its constructor.
 - [ ] **Step 3:** `Infrastructure/Middleware/ContextMiddleware.cs` puts the scoped `Context` on `HttpContext.Items` so services inject `IContext` normally.
-- [ ] **Step 4:** `BaseController` gains a lazy `Context` property (no `IContext` in controller constructors) plus `protected bool IsPemilik => Context?.Identity.IsInRole(Peran.Pemilik) == true;`, which every shared screen uses to set `ViewData["CanWriteBon"]`.
+- [ ] **Step 4:** `BaseController` gains a lazy `Context` property (no `IContext` in controller constructors) plus `protected bool IsAdmin => Context?.Identity.IsInRole(Peran.Admin) == true;`, which every shared screen uses to set `ViewData["CanWriteBon"]`.
 - [ ] **Step 5:** `Views/_ViewImports.cshtml` adds `@using MyBon.Domain.Abstractions` so a view can `@inject IContext Context` when it needs the name or role.
 
 ## Slice 4: lock the back office to the owner
 
-- [ ] **Step 1:** `[Authorize(Roles = Peran.Pemilik)]` on the class of `DashboardController`, `PelangganController`, `BarangController` and `PenggunaController`. One attribute closes every action in each of them, including the AJAX `Search` endpoints their lists call.
-- [ ] **Step 2:** `BonController` keeps `[Authorize]` on the class (both roles reach the menu) and gains `[Authorize(Roles = Peran.Pemilik)]` on `Create` (GET + POST), `SearchBarang`, `AddItem`, `AddPayment`, `Delete` (GET) and `DeleteConfirmed` — the six write entry points plus the stock picker.
+- [ ] **Step 1:** `[Authorize(Roles = Peran.Admin)]` on the class of `DashboardController`, `PelangganController`, `BarangController` and `PenggunaController`. One attribute closes every action in each of them, including the AJAX `Search` endpoints their lists call.
+- [ ] **Step 2:** `BonController` keeps `[Authorize]` on the class (both roles reach the menu) and gains `[Authorize(Roles = Peran.Admin)]` on `Create` (GET + POST), `SearchBarang`, `AddItem`, `AddPayment`, `Delete` (GET) and `DeleteConfirmed` — the six write entry points plus the stock picker.
 - [ ] **Step 3:** `HomeController.Error` gets `[AllowAnonymous]`; `Home/Privacy` stays behind the fallback policy.
 - [ ] **Step 4:** Cookie events: `OnRedirectToLogin` / `OnRedirectToAccessDenied` answer `401` / `403` with an `ErrorOr` JSON body for `X-Requested-With: XMLHttpRequest` or `Accept: application/json`, and redirect otherwise. Without this an AJAX call answers a 302 and the partial never updates.
 - [ ] **Step 5:** `Views/Auth/Ditolak.cshtml`: signed in but wrong role, with a link back to the dashboard (owner) or to **Catat Bon** (customer).
@@ -173,7 +173,7 @@ Migration: `dotnet ef migrations add CreatePenggunaTable` (Design/Tools packages
 - [ ] **Step 1:** `IBonService.SearchMineAsync(int pelangganId, string? keyword, int page)` — the existing list query with `b.PelangganId == pelangganId` added, same paging, ordering and total, returning `PagedResult<BonListItemDto>`.
 - [ ] **Step 2:** `IBonService.GetMineDetailAsync(int bonId, int pelangganId)` — the existing detail read with the ownership check inside the query; a bon belonging to someone else returns `ErrorType.NotFound` with the same message as a bon that does not exist.
 - [ ] **Step 3:** `BonController.Index`/`Search` branch on the role: a customer calls `SearchMineAsync` with `Context.Identity.PelangganId`, the owner keeps `SearchAsync`. A customer account without a `PelangganId` is answered as no access (403), never as the whole notebook.
-- [ ] **Step 4:** `BonController.Details` sets `ViewData["CanWriteBon"] = Context.Identity.IsInRole(Peran.Pemilik)` and reads the bon through `GetMineDetailAsync` for a customer, through `GetDetailAsync` for the owner; the customer path leaves `Barangs` empty so the picker partial has nothing to paint.
+- [ ] **Step 4:** `BonController.Details` sets `ViewData["CanWriteBon"] = Context.Identity.IsInRole(Peran.Admin)` and reads the bon through `GetMineDetailAsync` for a customer, through `GetDetailAsync` for the owner; the customer path leaves `Barangs` empty so the picker partial has nothing to paint.
 - [ ] **Step 5:** `Views/Bon/Details.cshtml`: wrap the action bar (Hapus bon / Catat pembayaran / Tambah barang) and the `@if (!Model.Lunas)` sheets block in `@if (canWrite && ...)`, and render the `@section Scripts` (`bon-calendar.js`, `money-input.js`, `details.js`) only when `canWrite`. Meta, Ringkasan, Riwayat pembayaran and Daftar barang stay shared, so both roles read identical markup and no tuned owner layout is duplicated.
 - [ ] **Step 6:** `Views/Bon/Index.cshtml`: **Catat bon baru** renders only for the owner; for a customer the empty state reads `Belum ada bon untuk kamu.` and the search placeholder becomes `Cari nomor bon` (their own name is not worth searching).
 - [ ] **Step 7:** `_Cards.cshtml` stays as it is — `NamaPelanggan` is the customer's own name and the card still links to `Bon/Details`, so a customer opens their own page from the same card. Verify the load-more button keeps calling `Bon/Search`, which now returns only their rows.
@@ -183,9 +183,9 @@ Rejected alternative: a separate read-only detail view for customers. It would d
 
 ## Slice 6: account management for the owner
 
-- [ ] **Step 1:** `IPenggunaService`/`PenggunaService`: `DaftarAsync`, `BuatPemilikAsync`, `BuatAkunPelangganAsync(int pelangganId, ...)`, `ResetPasswordAsync`, `SetAktifAsync`, `GantiPasswordAsync(own)` — all return `ErrorOr` and never expose `PasswordHash`.
-- [ ] **Step 2:** Guards as business errors, not exceptions: username already taken → `ErrorType.Conflict`; customer already has an account → `Conflict`; unknown account or customer → `NotFound`; deactivating the last active **Pemilik** → `Conflict`; an account may not deactivate itself.
-- [ ] **Step 3:** `PenggunaController` with `[Authorize(Roles = Peran.Pemilik)]`: `Index`, `Create` (GET/POST, optional `?pelangganId=`), `ResetPassword` (POST), `SetAktif` (POST) — all POSTs `[ValidateAntiForgeryToken]`.
+- [ ] **Step 1:** `IPenggunaService`/`PenggunaService`: `DaftarAsync`, `BuatAdminAsync`, `BuatAkunPelangganAsync(int pelangganId, ...)`, `ResetPasswordAsync`, `SetAktifAsync`, `GantiPasswordAsync(own)` — all return `ErrorOr` and never expose `PasswordHash`.
+- [ ] **Step 2:** Guards as business errors, not exceptions: username already taken → `ErrorType.Conflict`; customer already has an account → `Conflict`; unknown account or customer → `NotFound`; deactivating the last active **Admin** → `Conflict`; an account may not deactivate itself.
+- [ ] **Step 3:** `PenggunaController` with `[Authorize(Roles = Peran.Admin)]`: `Index`, `Create` (GET/POST, optional `?pelangganId=`), `ResetPassword` (POST), `SetAktif` (POST) — all POSTs `[ValidateAntiForgeryToken]`.
 - [ ] **Step 4:** `Views/Pengguna/Index.cshtml` + `Create.cshtml` + `wwwroot/custom/features/pengguna/index.js` in the existing mobile shell; the list shows name, username, role, active state and last sign-in, never the hash.
 - [ ] **Step 5:** `Pelanggan/Details` shows **Buatkan akun** for a customer without one and an "sudah punya akun" note otherwise; the button links to `Pengguna/Create?pelangganId=`.
 - [ ] **Step 6:** `AuthController.GantiPassword` (GET/POST) so both roles can change their own password; the POST verifies the old password and signs the user in again with fresh claims.
@@ -208,7 +208,7 @@ Planned checks on this machine (`dotnet run`, Postgres from `docker-compose.yml`
 - [ ] Wrong password → form re-renders with **Username atau password salah**, HTTP 200, no cookie. An inactive account answers the same message.
 - [ ] `ReturnUrl=https://example.com` is ignored; the owner lands on `Dashboard/Index` (no open redirect).
 - [ ] `POST /Auth/Login` without an antiforgery token → 400.
-- [ ] **Pemilik:** every screen and every write action works exactly as today; the header offers `/Pengguna` and **Keluar**.
+- [ ] **Admin:** every screen and every write action works exactly as today; the header offers `/Pengguna` and **Keluar**.
 - [ ] **Pelanggan:** signing in lands on `/Bon`; the nav shows **Catat Bon** only; `/Dashboard`, `/Pelanggan`, `/Barang`, `/Pengguna` all answer the 403 page.
 - [ ] `GET /Bon` as a customer lists only that customer's bons, and `GET /Bon/Search?page=2` stays inside them; `GET /Bon/Details/<bon milik pelanggan lain>` → 404 with the same body as a missing bon.
 - [ ] The customer's `Bon/Details` paints no **Hapus bon**, **Catat pembayaran** or **Tambah barang**, and its HTML carries no `bon-add-list` rows or sheet scripts.
@@ -222,3 +222,56 @@ Planned checks on this machine (`dotnet run`, Postgres from `docker-compose.yml`
 ## Non-goals
 
 A separate cashier role (the owner already covers it), a dedicated `/BonSaya` route or customer menu (the customer shares **Catat Bon**), customer self-registration, customers recording their own payments or disputing a bon, email/WhatsApp notifications, external auth service (`AGENTS.md` §Auth Flow stays as documentation for a later switch), full ASP.NET Core Identity, email-based password reset, 2FA, per-user audit columns on `bon`/`bon_payment`, wrapper view models for the existing list pages, moving controllers into `Areas/`, switching the database to SQL Server.
+## Implementation status (2026-11-12)
+
+Implemented end to end. Decisions taken while building that refine the plan above:
+
+- **Role name is `Admin`, not `Pemilik`.** Renamed across this document, the enum, the constants,
+  the claims, the check constraint, and the UI.
+- **Schema is minimal: one new table, `pengguna`.** No `log_aktivitas`, no `peran`/`pengguna_peran`,
+  no audit columns on `bon`/`bon_payment`. Migration `20261112132753_CreatePenggunaTable` with both
+  check constraints (`ck_pengguna_peran`, `ck_pengguna_peran_pelanggan`) and the two unique indexes.
+- `pengguna.username` is trimmed and stored lowercase, so sign-in is case-insensitive under the
+  unique index.
+- `IIdentityContext.Peran` is `PeranPengguna?`; an anonymous or unparsable claim is never treated as
+  Admin by accident.
+- Account management uses one `IPenggunaService.BuatAsync(CreatePenggunaRequest)`: an empty
+  `PelangganId` creates an admin account, a value creates that customer's account. There is no
+  separate `BuatAdminAsync`/`BuatAkunPelangganAsync`.
+- `IPenggunaService` returns `PenggunaDto`, never the entity, so `password_hash` cannot reach a view
+  or a JSON response.
+- Cookie lifetime (8 h, 30 days with **Ingat saya**) lives as constants in `AuthController`; no
+  `Auth` section was added to `appsettings.json`. The seed password lives in user-secrets
+  (`Auth:SeedPassword`) and the seeder skips with a warning when it is missing.
+- Rate limiting uses `[EnableRateLimiting("login")]` on the POST action (the MVC form of the policy):
+  5 attempts / 5 minutes / client IP, `429` afterwards.
+- `AuthController` is not `[AllowAnonymous]` at class level: that attribute would have overridden the
+  `[Authorize]` on `Ditolak` and `GantiPassword`. Only the two `Login` actions are anonymous.
+- The login screen no longer offers **Buat akun toko baru**; accounts are created by an admin.
+- `HomeController` still does not inherit `BaseController`; only `[AllowAnonymous]` was added to `Error`.
+- `app.MapStaticAssets().AllowAnonymous()` — static assets are endpoints, so the authorization
+  fallback policy covered them too. Without the attribute an anonymous browser asking for
+  `/css/site.css` received `302 /Auth/Login?ReturnUrl=%2Fcss%2Fsite.css` and the sign-in screen
+  painted with no stylesheet, no Bootstrap, and no icons. Stylesheets, scripts, and images stay
+  public; every Razor page is still guarded.
+- Known limitation: disabling an account blocks its **next** sign-in but does not invalidate a cookie
+  already issued (no security stamp). Such a cookie lives at most 8 hours, or 30 days with
+  **Ingat saya**.
+
+Verified on this machine (HTTP, Postgres from `docker-compose.yml`):
+
+- `dotnet build` — 0 warnings, 0 errors.
+- `dotnet ef database update` — `pengguna` created with both check constraints, the unique
+  `username` index, and the unique `pelanggan_id` index.
+- `GET /Bon` anonymous → `302 /Auth/Login?ReturnUrl=%2FBon`; wrong password → `200` with
+  **Username atau password salah** and no cookie.
+- Admin lands on `Dashboard/Index`; customer lands on `Bon/Index`.
+- Customer `/Bon` lists only their own bons; another customer's `/Bon/Details/<id>` → `404`; their
+  own page paints no action bar, no sheets, and no sheet scripts.
+- Customer `POST /Bon/AddPayment` and `POST /Bon/Create` are refused; AJAX refusals answer `403`
+  with an `ErrorOr` body, anonymous AJAX answers `401`.
+- Admin still sees every bon, the create CTA, and the write controls; `/Pengguna` renders no hash.
+- Deactivating the signed-in admin is refused; an inactive customer's sign-in answers the generic
+  message; reactivating restores it. A duplicate account for one customer answers `Conflict`.
+- `POST /Auth/Logout` clears the cookie; `GET /Auth/Logout` is not routed; six sign-in attempts in
+  the window answer `429`.

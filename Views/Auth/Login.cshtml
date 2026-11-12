@@ -1,12 +1,20 @@
+@model LoginRequest
+
 @{
     ViewData["Title"] = "Masuk";
     Layout = "_LayoutAuth";
+
+    // A failed sign-in arrives as a model-level message, so it paints above the fields.
+    var messages = ViewData.ModelState[string.Empty]?.Errors
+        .Select(error => error.ErrorMessage)
+        .Where(text => !string.IsNullOrWhiteSpace(text))
+        .ToList() ?? new List<string>();
 }
 
-@* Static slice. The form posts in docs/plans/plan-login.md. *@
 @* The header reuses the shell's own wordmark/title classes so the login cannot drift from
    the header every other page renders. *@
-<div class="auth-page">
+<form class="auth-page" method="post" asp-controller="Auth" asp-action="Login">
+    <input type="hidden" asp-for="ReturnUrl" />
     <header class="auth-head">
         <p class="app-wordmark">MY BON</p>
         <h1 class="app-screen-title">Masuk</h1>
@@ -29,40 +37,49 @@
         </div>
     </section>
 
+    @if (messages.Count > 0)
+    {
+        <p class="auth-error" role="alert">@messages[0]</p>
+    }
+
     <div class="auth-form">
         <div class="pelanggan-field auth-field">
-            <label class="pelanggan-field-label" for="login-username">Username</label>
+            <label class="pelanggan-field-label" asp-for="Username">Username</label>
             <input class="pelanggan-field-input"
-                   id="login-username"
-                   name="Username"
+                   asp-for="Username"
                    type="text"
                    placeholder="Tulis username"
                    autocapitalize="none"
                    autocorrect="off"
                    spellcheck="false"
                    autocomplete="username" />
+            <span asp-validation-for="Username" class="pelanggan-field-error"></span>
             <hr class="page-rule" />
         </div>
 
         <div class="pelanggan-field auth-field">
-            <label class="pelanggan-field-label" for="login-password">Kata sandi</label>
+            <label class="pelanggan-field-label" asp-for="Password">Kata sandi</label>
             <input class="pelanggan-field-input"
-                   id="login-password"
-                   name="Password"
+                   asp-for="Password"
                    type="password"
                    placeholder="Tulis kata sandi"
                    autocomplete="current-password" />
+            <span asp-validation-for="Password" class="pelanggan-field-error"></span>
             <hr class="page-rule" />
         </div>
     </div>
+
+    <label class="auth-remember">
+        <input type="checkbox" asp-for="IngatSaya" />
+        <span>Ingat saya</span>
+    </label>
 
     <div class="auth-forgot-row">
         <button type="button" class="auth-forgot">Lupa kata sandi?</button>
     </div>
 
     <div class="auth-actions">
-        <button type="button" class="auth-btn auth-btn-primary">Masuk ke buku hutang</button>
-        <button type="button" class="auth-btn auth-btn-secondary">Buat akun toko baru</button>
+        <button type="submit" class="auth-btn auth-btn-primary">Masuk ke buku hutang</button>
     </div>
 
     <div class="auth-spacer"></div>
@@ -72,4 +89,8 @@
     <p class="auth-note">
         Lupa kata sandi atau username? Hubungi pemilik toko untuk atur ulang akun.
     </p>
-</div>
+</form>
+
+@section Scripts {
+    <script src="~/custom/features/auth/login.js" asp-append-version="true"></script>
+}

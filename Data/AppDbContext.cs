@@ -19,6 +19,8 @@ public class AppDbContext : DbContext
 
     public DbSet<BonPayment> BonPayments { get; set; }
 
+    public DbSet<Pengguna> Penggunas { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -48,6 +50,70 @@ public class AppDbContext : DbContext
             entity.Property(e => e.CreatedAt)
                   .HasColumnName("created_at")
                   .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        });
+
+        modelBuilder.Entity<Pengguna>(entity =>
+        {
+            entity.ToTable("pengguna", table =>
+            {
+                table.HasCheckConstraint("ck_pengguna_peran", "peran IN ('Admin', 'Pelanggan')");
+                // An admin never belongs to a customer, and a customer account always does; the
+                // database refuses either row that disagrees.
+                table.HasCheckConstraint(
+                    "ck_pengguna_peran_pelanggan",
+                    "(peran = 'Pelanggan' AND pelanggan_id IS NOT NULL) OR " +
+                    "(peran = 'Admin' AND pelanggan_id IS NULL)");
+            });
+
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Id)
+                  .HasColumnName("id")
+                  .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.Username)
+                  .HasColumnName("username")
+                  .IsRequired()
+                  .HasMaxLength(50);
+
+            entity.Property(e => e.Nama)
+                  .HasColumnName("nama")
+                  .IsRequired()
+                  .HasMaxLength(200);
+
+            entity.Property(e => e.PasswordHash)
+                  .HasColumnName("password_hash")
+                  .IsRequired()
+                  .HasMaxLength(500);
+
+            entity.Property(e => e.Peran)
+                  .HasColumnName("peran")
+                  .HasConversion<string>()
+                  .IsRequired()
+                  .HasMaxLength(20);
+
+            entity.Property(e => e.PelangganId)
+                  .HasColumnName("pelanggan_id");
+
+            entity.Property(e => e.Aktif)
+                  .HasColumnName("aktif")
+                  .HasDefaultValue(true);
+
+            entity.Property(e => e.TerakhirMasuk)
+                  .HasColumnName("terakhir_masuk");
+
+            entity.Property(e => e.CreatedAt)
+                  .HasColumnName("created_at")
+                  .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            // Deleting a customer removes their account with it; the bons keep their own cascade.
+            entity.HasOne(e => e.Pelanggan)
+                  .WithMany()
+                  .HasForeignKey(e => e.PelangganId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => e.Username).IsUnique();
+            entity.HasIndex(e => e.PelangganId).IsUnique();
         });
 
         modelBuilder.Entity<Barang>(entity =>

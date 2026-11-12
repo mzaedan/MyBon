@@ -2682,3 +2682,172 @@ a.bon-action--hapus {
   color: var(--muted);
 }
 
+/* --- Account management, sign-in feedback, and the signed-in header ------------------------- */
+
+.auth-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b42318;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.auth-remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.auth-remember input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+.app-header-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.app-user-chip {
+  max-width: 76px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.app-header-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-size: 16px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.app-header-link:active {
+  opacity: 0.9;
+}
+
+.app-header-link:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.app-logout {
+  margin: 0;
+}
+
+.bottom-nav--single .bottom-nav-bar {
+  justify-content: center;
+}
+
+.bottom-nav--single .bottom-nav-item {
+  flex: 0 1 88px;
+}
+
+.pelanggan-notice--error {
+  color: #b42318;
+}
+
+.pengguna-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.pengguna-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.pengguna-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pengguna-card-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.pengguna-card-meta {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 17px;
+}
+
+.pengguna-badge {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.pengguna-badge--aktif {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.pengguna-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.pengguna-inline-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.pengguna-inline-form .pelanggan-field-input {
+  width: 168px;
+}
+
+.pengguna-inline-form .pelanggan-btn {
+  width: auto;
+  min-height: 36px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.pengguna-reset summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.pengguna-reset[open] summary {
+  color: var(--text);
+}
+
+.pengguna-reset form {
+  margin-top: 8px;
+}

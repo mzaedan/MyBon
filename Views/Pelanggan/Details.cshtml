@@ -3,9 +3,17 @@
 @{
     ViewData["Title"] = Model.Nama;
     ViewData["BackHref"] = Url.Action("Index", "Pelanggan");
+
+    var penggunaId = ViewData["PenggunaId"] as int?;
+    var penggunaStatus = TempData["PenggunaStatus"] as string;
 }
 
 <hr class="page-rule" />
+
+@if (!string.IsNullOrWhiteSpace(penggunaStatus))
+{
+    <p class="pelanggan-notice" role="status">@penggunaStatus</p>
+}
 
 <div class="pelanggan-form">
     <div class="pelanggan-field">
@@ -23,6 +31,30 @@
     <div class="pelanggan-field">
         <div class="pelanggan-field-label">Alamat</div>
         <p class="pelanggan-field-value">@(Model.Alamat ?? "—")</p>
+        <hr class="page-rule" />
+    </div>
+
+    <div class="pelanggan-field">
+        <div class="pelanggan-field-label">Akun masuk</div>
+        @if (penggunaId is not null)
+        {
+            <p class="pelanggan-field-value">Sudah punya akun.</p>
+            <div class="pelanggan-form-actions">
+                <a class="pelanggan-btn pelanggan-btn-batal"
+                   asp-controller="Pengguna"
+                   asp-action="Index">Kelola akun</a>
+            </div>
+        }
+        else
+        {
+            <p class="pelanggan-field-value">Belum punya akun.</p>
+            <div class="pelanggan-form-actions">
+                <a class="pelanggan-btn pelanggan-btn-simpan"
+                   asp-controller="Pengguna"
+                   asp-action="Create"
+                   asp-route-pelangganId="@Model.Id">Buatkan akun</a>
+            </div>
+        }
         <hr class="page-rule" />
     </div>
 

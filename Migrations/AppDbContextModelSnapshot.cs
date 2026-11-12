@@ -254,6 +254,75 @@ namespace MyBon.Migrations
                     b.ToTable("pelanggan", (string)null);
                 });
 
+            modelBuilder.Entity("MyBon.Domain.Entities.Pengguna", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Aktif")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("aktif");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Nama")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("nama");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("password_hash");
+
+                    b.Property<int?>("PelangganId")
+                        .HasColumnType("integer")
+                        .HasColumnName("pelanggan_id");
+
+                    b.Property<string>("Peran")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("peran");
+
+                    b.Property<DateTime?>("TerakhirMasuk")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("terakhir_masuk");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("username");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PelangganId")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("pengguna", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_pengguna_peran", "peran IN ('Admin', 'Pelanggan')");
+
+                            t.HasCheckConstraint("ck_pengguna_peran_pelanggan", "(peran = 'Pelanggan' AND pelanggan_id IS NOT NULL) OR (peran = 'Admin' AND pelanggan_id IS NULL)");
+                        });
+                });
+
             modelBuilder.Entity("MyBon.Domain.Entities.Bon", b =>
                 {
                     b.HasOne("MyBon.Domain.Entities.Pelanggan", "Pelanggan")
@@ -292,6 +361,16 @@ namespace MyBon.Migrations
                         .IsRequired();
 
                     b.Navigation("Bon");
+                });
+
+            modelBuilder.Entity("MyBon.Domain.Entities.Pengguna", b =>
+                {
+                    b.HasOne("MyBon.Domain.Entities.Pelanggan", "Pelanggan")
+                        .WithMany()
+                        .HasForeignKey("PelangganId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Pelanggan");
                 });
 
             modelBuilder.Entity("MyBon.Domain.Entities.Bon", b =>

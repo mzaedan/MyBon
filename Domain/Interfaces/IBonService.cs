@@ -20,11 +20,24 @@ public interface IBonService
     Task<ErrorOr<PagedResult<BonListItemDto>>> SearchAsync(string? keyword, int page);
 
     /// <summary>
+    /// The same list as <see cref="SearchAsync"/>, narrowed in the database to the bons written for
+    /// <paramref name="pelangganId"/>. A customer request can never load another customer's page.
+    /// </summary>
+    Task<ErrorOr<PagedResult<BonListItemDto>>> SearchMineAsync(int pelangganId, string? keyword, int page);
+
+    /// <summary>
     /// Reads one page back for Details: the customer, the note, every line at the price it was
     /// written at, and every payment oldest first. A missing id is reported as not found, so the
     /// sheet never paints a page that is not in the notebook.
     /// </summary>
     Task<ErrorOr<BonDetailDto>> GetDetailAsync(int id);
+
+    /// <summary>
+    /// The same page as <see cref="GetDetailAsync"/>, with the ownership check inside the query. A bon
+    /// that belongs to another customer answers exactly like a missing bon, so the page cannot be used
+    /// to probe which ids exist. Its stock picker rows stay empty.
+    /// </summary>
+    Task<ErrorOr<BonDetailDto>> GetMineDetailAsync(int bonId, int pelangganId);
 
     /// <summary>
     /// Returns the rows the Create form paints: every customer with what they still owe, and the first

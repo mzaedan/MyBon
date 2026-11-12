@@ -40,12 +40,27 @@ public class BonService(
     private readonly AppDbContext _dbContext = dbContext;
     private readonly ILogger<BonService> _logger = logger;
 
-    public async Task<ErrorOr<PagedResult<BonListItemDto>>> SearchAsync(string? keyword, int page)
+    public async Task<ErrorOr<PagedResult<BonListItemDto>>> SearchAsync(string? keyword, int page) =>
+        await SearchCoreAsync(null, keyword, page);
+
+    public async Task<ErrorOr<PagedResult<BonListItemDto>>> SearchMineAsync(
+        int pelangganId, string? keyword, int page) =>
+        await SearchCoreAsync(pelangganId, keyword, page);
+
+    /// <summary>
+    /// Shared list query. <paramref name="pelangganId"/> narrows it to one customer in the database,
+    /// so a customer request never loads a page it may not read.
+    /// </summary>
+    private async Task<ErrorOr<PagedResult<BonListItemDto>>> SearchCoreAsync(
+        int? pelangganId, string? keyword, int page)
     {
         var term = Normalize(keyword);
         var currentPage = page < 1 ? 1 : page;
 
         var query = _dbContext.Bons.AsNoTracking();
+
+        if (pelangganId is int customerId)
+            query = query.Where(b => b.PelangganId == customerId);
 
         if (term is not null)
         {
@@ -95,11 +110,26 @@ public class BonService(
             });
     }
 
-    public async Task<ErrorOr<BonDetailDto>> GetDetailAsync(int id)
+    public async Task<ErrorOr<BonDetailDto>> GetDetailAsync(int id) =>
+        await GetDetailCoreAsync(id, null);
+
+    public async Task<ErrorOr<BonDetailDto>> GetMineDetailAsync(int bonId, int pelangganId) =>
+        await GetDetailCoreAsync(bonId, pelangganId);
+
+    /// <summary>
+    /// Shared detail read. A customer's ownership check runs inside the query, so another customer's
+    /// page is indistinguishable from a missing one.
+    /// </summary>
+    private async Task<ErrorOr<BonDetailDto>> GetDetailCoreAsync(int id, int? pelangganId)
     {
-        var bon = await _dbContext.Bons
+        var query = _dbContext.Bons
             .AsNoTracking()
-            .Where(b => b.Id == id)
+            .Where(b => b.Id == id);
+
+        if (pelangganId is int customerId)
+            query = query.Where(b => b.PelangganId == customerId);
+
+        var bon = await query
             .Select(b => new BonDetailDto
             {
                 Id = b.Id,
@@ -141,8 +171,10 @@ public class BonService(
             return ErrorOr<BonDetailDto>.CreateFailure("Bon tidak ditemukan.", ErrorType.NotFound);
 
         // The Tambah barang sheet paints this first page and asks for the rest through SearchBarangAsync,
-        // so the detail page never carries the whole stock list.
-        bon.Barangs = await ReadBarangPageAsync(null, 1);
+        // so the detail page never carries the whole stock list. A customer page has no picker, so its
+        // stock rows stay empty and the price list never leaves the admin screens.
+        if (pelangganId is null)
+            bon.Barangs = await ReadBarangPageAsync(null, 1);
 
         return ErrorOr<BonDetailDto>.CreateSuccess("Berhasil memuat detail bon", bon);
     }
