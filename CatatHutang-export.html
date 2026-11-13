@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      tailwind = { config: { corePlugins: { preflight: false } } };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree%3Awght%40300..900&family=Fraunces%3Awght%40100..900&family=Inter%3Awght%40100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *, ::before, ::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+      }
+    </style>
+
+    <style>
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body style="background-color: #FFFFFF">
+    <div
+      data-pencil-name="Kelola Pengguna - Atur Ulang Kata Sandi"
+      class="box-border w-[390px] h-[1000px] flex flex-col gap-0 justify-start items-start bg-[#FFFFFF] overflow-hidden"
+    >
+      <div
+        data-pencil-name="Status Bar"
+        class="box-border w-full h-[54px] shrink-0 flex flex-row gap-0 p-[0px_20px] justify-between items-center"
+      >
+        <div
+          data-pencil-name="Waktu"
+          class="text-[15px]/[normal] box-border text-[#111111] font-[Inter,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+        >
+          09.41
+        </div>
+        <div
+          data-pencil-name="Status Icons"
+          class="box-border w-fit shrink-0 h-fit flex flex-row gap-[6px] justify-start items-center"
+        >
+          <svg
+            data-pencil-name="Sinyal"
+            viewBox="0 0 16 16"
+            preserveAspectRatio="xMidYMid meet"
+            data-icon-name="cell-signal-full"
+            data-icon-set="phosphor"
+            xmlns="http://www.w3.org/2000/svg"
+            class="box-border w-[16px] shrink-0 h-[16px] overflow-visible"
+          >
+            <path
+              d="M12.375 1.75q-.25-.062-.562 0-.313 .063-.5 .25l-10.313 10.313q-.187 .187-.25 .5-.062 .312 .031 .593 .094 .282 .344 .438 .25 .156 .563 .156h10.312q.438 0 .719-.281 .281-.281 .281-.719v-10.312q0-.313-.156-.563-.156-.25-.469-.375zM5.5 9.188l1.5-1.5v5.312h-1.5zM4.5 13h-2.812l2.812-2.812zM8 6.688l1.5-1.5v7.812h-1.5zM12 13h-1.5v-8.812l1.5-1.5z"
+              fill="#111111"
+            />
+          </svg>
+          <svg
+            data-pencil-name="Wi-Fi"
+            viewBox="0 0 16 16"
+            preserveAspectRatio="xMidYMid meet"
+            data-icon-name="wifi-high"
+            data-icon-set="phosphor"
+            xmlns="http://www.w3.org/2000/svg"
+            class="box-border w-[16px] shrink-0 h-[16px] overflow-visible"
+          >
+            <path
+              d="M10.563 10q.125 .188 .125 .375 0 .188-.157 .344-.156 .156-.343 .156-.188 0-.375-.125-.75-.75-1.813-.75-1.062 0-1.812 .75-.25 .188-.532 .125-.281-.062-.343-.375-.063-.312 .125-.5 .75-.625 1.656-.875 .906-.25 1.812 0 .907 .25 1.657 .875zM8 6q-1.312 0-2.531 .5-1.219 .5-2.156 1.375-.188 .25-.125 .531 .062 .282 .343 .344 .282 .063 .532-.125 1.062-1.062 2.5-1.437 1.437-.375 2.875 0 1.437 .375 2.5 1.437 .187 .125 .437 .125 .25 0 .375-.312 .125-.313-.062-.563-.938-.875-2.157-1.375-1.218-.5-2.531-.5zM14.813 5.75q-1.875-1.812-4.344-2.437-2.469-.625-4.938 0-2.468 .625-4.343 2.5-.125 .125-.125 .312 0 .188 .156 .344 .156 .156 .344 .156 .187 0 .375-.125 1.625-1.625 3.843-2.219 2.219-.593 4.438 0 2.219 .594 3.844 2.219 .187 .125 .437 .125 .25 0 .375-.312 .125-.313-.062-.5zM8 11.75q-.312 0-.531 .219-.219 .219-.219 .531 0 .313 .219 .531 .219 .219 .531 .219 .313 0 .531-.219 .219-.218 .219-.531 0-.312-.219-.531-.218-.219-.531-.219z"
+              fill="#111111"
+            />
+          </svg>
+          <svg
+            data-pencil-name="Baterai"
+            viewBox="0 0 22 16"
+            preserveAspectRatio="xMidYMid meet"
+            data-icon-name="battery-full"
+            data-icon-set="phosphor"
+            xmlns="http://www.w3.org/2000/svg"
+            class="box-border w-[22px] shrink-0 h-[16px] overflow-visible"
+          >
+            <path
+              d="M19 6v4q0 .188-.156 .344-.156 .156-.344 .156-.187 0-.344-.156-.156-.156-.156-.344v-4q0-.187 .156-.344 .157-.156 .344-.156 .188 0 .344 .156 .156 .157 .156 .344zM17 4.5v7q0 .625-.437 1.063-.438 .437-1.063 .437h-9.5q-.625 0-1.062-.437-.438-.438-.438-1.063v-7q0-.625 .438-1.062 .437-.438 1.062-.438h9.5q.625 0 1.063 .438 .437 .437 .437 1.062zM16 4.5q0-.187-.156-.344-.156-.156-.344-.156h-9.5q-.187 0-.344 .156-.156 .157-.156 .344v7q0 .188 .156 .344 .157 .156 .344 .156h9.5q.188 0 .344-.156 .156-.156 .156-.344zM11.875 5q-.187 0-.344 .156-.156 .157-.156 .344v5q0 .188 .156 .344 .157 .156 .375 .156 .219 0 .344-.156 .125-.156 .125-.344v-5q0-.187-.125-.344-.125-.156-.375-.156zM9.625 5q-.25 0-.375 .156-.125 .157-.125 .344v5q0 .188 .125 .344 .125 .156 .344 .156 .219 0 .375-.156 .156-.156 .156-.344v-5q0-.187-.156-.344-.156-.156-.344-.156zM7.313 5q-.25 0-.375 .156-.125 .157-.125 .344v5q0 .188 .125 .344 .125 .156 .343 .156 .219 0 .375-.156 .157-.156 .157-.344v-5q0-.187-.157-.344-.156-.156-.343-.156zM14.188 5q-.188 0-.344 .156-.156 .157-.156 .344v5q0 .188 .156 .344 .156 .156 .375 .156 .219 0 .344-.156 .125-.156 .125-.344v-5q0-.187-.125-.344-.125-.156-.375-.156z"
+              fill="#111111"
+            />
+          </svg>
+        </div>
+      </div>
+      <div
+        data-pencil-name="Konten Kelola Pengguna"
+        class="box-border w-full [flex:1_1_0] flex flex-col gap-[10px] p-[6px_18px_12px_18px] justify-start items-start"
+      >
+        <div
+          data-pencil-name="Header Pengguna"
+          class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-between items-center"
+        >
+          <div
+            data-pencil-name="Identitas MY BON"
+            class="box-border w-fit shrink-0 h-fit flex flex-col gap-0 justify-start items-start"
+          >
+            <div
+              data-pencil-name="Nama Merek"
+              class="text-[21px]/[normal] box-border text-[#111111] font-[Fraunces,system-ui,sans-serif] font-bold text-left [white-space:nowrap]"
+            >
+              MY BON
+            </div>
+            <div
+              data-pencil-name="Judul Halaman"
+              class="text-[14px]/[normal] box-border text-[#4F5968] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+            >
+              Kelola pengguna
+            </div>
+          </div>
+          <div
+            data-pencil-name="Aksi Admin"
+            class="box-border w-fit shrink-0 h-fit flex flex-row gap-[8px] justify-end items-center"
+          >
+            <div
+              data-pencil-name="Area Sentuh Pengaturan"
+              class="box-border w-[44px] shrink-0 h-[44px] flex flex-row gap-0 justify-center items-center"
+            >
+              <svg
+                data-pencil-name="Pengaturan"
+                viewBox="0 0 20 20"
+                preserveAspectRatio="xMidYMid meet"
+                data-icon-name="gear"
+                data-icon-set="phosphor"
+                xmlns="http://www.w3.org/2000/svg"
+                class="box-border w-[20px] shrink-0 h-[20px] overflow-visible"
+              >
+                <path
+                  d="M10 5.625q-1.172 0-2.187 .586-1.016 .586-1.602 1.602-.586 1.015-.586 2.187 0 1.172 .586 2.188 .586 1.015 1.602 1.601 1.015 .586 2.187 .586 1.172 0 2.188-.586 1.015-.586 1.601-1.601 .586-1.016 .586-2.188 0-1.172-.586-2.187-.586-1.016-1.601-1.602-1.016-.586-2.188-.586zM10 13.125q-1.328 0-2.227-.898-.898-.899-.898-2.227 0-1.328 .898-2.227 .899-.898 2.227-.898 1.328 0 2.227 .898 .898 .899 .898 2.227 0 1.328-.898 2.227-.899 .898-2.227 .898zM18.359 11.719l-1.171-1.485v-.39l1.171-1.563q.157-.312 .079-.547-.313-1.093-.86-2.109-.156-.234-.469-.312l-1.875-.235-.312-.312-.234-1.875q-.079-.313-.313-.469-1.016-.547-2.109-.859-.235-.079-.547 .078l-1.485 1.172h-.468l-1.485-1.172q-.312-.157-.547-.078-1.093 .312-2.109 .859-.234 .156-.312 .469l-.235 1.875-.312 .312-1.875 .235q-.313 .078-.469 .312-.547 1.016-.859 2.109-.079 .235 .078 .547l1.172 1.485v.39l-1.172 1.563q-.157 .312-.078 .547 .312 1.093 .859 2.109 .156 .234 .469 .313l1.875 .234 .312 .312 .235 1.875q.078 .313 .312 .469 1.016 .547 2.109 .86h.157q.156 0 .39-.079l1.485-1.171h.468l1.485 1.171q.312 .157 .547 .079 1.093-.313 2.109-.86 .234-.156 .313-.469l.234-1.875 .312-.312 1.875-.234q.313-.079 .469-.313 .547-1.016 .86-2.109 .078-.235-.079-.547zM16.641 13.438l-1.797 .312q-.235 0-.391 .156l-.547 .547q-.156 .156-.156 .391l-.312 1.797q-.547 .312-1.172 .547l-1.485-1.172q-.156-.078-.39-.078h-.782q-.234 0-.39 .078l-1.485 1.172q-.625-.235-1.171-.547l-.313-1.797q0-.235-.234-.43-.235-.195-.43-.43-.195-.234-.43-.234l-1.797-.312q-.312-.547-.546-1.172l1.171-1.485q.079-.156 .079-.39v-.782q0-.234-.079-.39l-1.171-1.485q.234-.625 .546-1.171l1.797-.313q.235 0 .43-.234 .195-.235 .43-.43 .234-.195 .234-.43l.313-1.797q.546-.312 1.171-.546l1.485 1.171q.156 .079 .39 .079h.782q.234 0 .39-.079l1.485-1.171q.625 .234 1.172 .546l.312 1.797q0 .235 .234 .43 .235 .195 .43 .43 .195 .234 .43 .234l1.797 .313q.312 .546 .547 1.171l-1.172 1.485q-.078 .156-.078 .39v.782q0 .234 .078 .39l1.172 1.485q-.235 .625-.547 1.172z"
+                  fill="#17324d"
+                />
+              </svg>
+            </div>
+            <div
+              data-pencil-name="Area Sentuh Kata sandi"
+              class="box-border w-[44px] shrink-0 h-[44px] flex flex-row gap-0 justify-center items-center"
+            >
+              <svg
+                data-pencil-name="Kata sandi"
+                viewBox="0 0 20 20"
+                preserveAspectRatio="xMidYMid meet"
+                data-icon-name="key"
+                data-icon-set="phosphor"
+                xmlns="http://www.w3.org/2000/svg"
+                class="box-border w-[20px] shrink-0 h-[20px] overflow-visible"
+              >
+                <path
+                  d="M12.5 1.25q-1.484 0-2.812 .664-1.329 .664-2.227 1.914-.898 1.25-1.133 2.735-.234 1.484 .235 2.89l-4.532 4.453q-.156 .235-.156 .469v3.125q0 .234 .195 .43 .196 .195 .43 .195h3.125q.234 0 .43-.195 .195-.196 .195-.43v-1.25h1.25q.234 0 .43-.195 .195-.196 .195-.43v-1.25h1.25q.234 0 .469-.156l.703-.781q1.797 .546 3.555 .078 1.757-.469 3.007-1.836 1.25-1.367 1.563-3.203 .312-1.836-.469-3.516-.781-1.68-2.305-2.695-1.523-1.016-3.398-1.016zM12.5 12.5q-.937 0-1.875-.312-.391-.235-.625 .078l-.859 .859h-1.641q-.234 0-.43 .195-.195 .196-.195 .43v1.25h-1.25q-.234 0-.43 .195-.195 .196-.195 .43v1.25h-1.875v-2.266l4.609-4.609q.313-.234 .157-.625-.625-1.562-.235-3.164 .391-1.602 1.68-2.617 1.289-1.016 2.93-1.094 1.64-.078 3.007 .859 1.368 .938 1.915 2.5 .546 1.563 .078 3.125-.469 1.563-1.797 2.539-1.328 .977-2.969 .977zM15 5.938q0 .39-.273 .664-.274 .273-.664 .273-.391 0-.665-.273-.273-.274-.273-.664 0-.391 .273-.665 .274-.273 .665-.273 .39 0 .664 .273 .273 .274 .273 .665z"
+                  fill="#17324d"
+                />
+              </svg>
+            </div>
+            <div
+              data-pencil-name="Area Sentuh Keluar"
+              class="box-border w-[44px] shrink-0 h-[44px] flex flex-row gap-0 justify-center items-center"
+            >
+              <svg
+                data-pencil-name="Keluar"
+                viewBox="0 0 20 20"
+                preserveAspectRatio="xMidYMid meet"
+                data-icon-name="sign-out"
+                data-icon-set="phosphor"
+                xmlns="http://www.w3.org/2000/svg"
+                class="box-border w-[20px] shrink-0 h-[20px] overflow-visible"
+              >
+                <path
+                  d="M17.344 10.469l-3.281 3.281q-.235 .156-.547 .156-.313 0-.469-.39-.156-.391 .078-.703l2.266-2.188h-7.266q-.234 0-.43-.195-.195-.196-.195-.43 0-.234 .195-.43 .196-.195 .43-.195h7.266l-2.266-2.187q-.156-.235-.156-.469 0-.235 .195-.43 .195-.195 .43-.195 .234 0 .469 .156l3.281 3.281q.156 .235 .156 .469 0 .234-.156 .469zM8.125 16.25h-4.375v-12.5h4.375q.234 0 .43-.195 .195-.196 .195-.43 0-.234-.195-.43-.196-.195-.43-.195h-4.375q-.547 0-.898 .352-.352 .351-.352 .898v12.5q0 .547 .352 .898 .351 .352 .898 .352h4.375q.234 0 .43-.195 .195-.196 .195-.43 0-.234-.195-.43-.196-.195-.43-.195z"
+                  fill="#17324d"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div
+          data-pencil-name="Pemisah Header"
+          class="box-border w-full h-[1px] shrink-0 bg-[#E5E8ED]"
+        ></div>
+        <div
+          data-pencil-name="Daftar Akun"
+          class="box-border w-full h-fit shrink-0 flex flex-col gap-0 justify-start items-start"
+        >
+          <div
+            data-pencil-name="Akun Admin Toko"
+            class="box-border w-full h-fit shrink-0 flex flex-col gap-[6px] p-[9px_0px] justify-start items-start"
+          >
+            <div
+              data-pencil-name="Identitas Admin Toko"
+              class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-between items-center"
+            >
+              <div
+                data-pencil-name="Nama Admin Toko"
+                class="text-[16px]/[normal] box-border text-[#111111] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+              >
+                Admin Toko
+              </div>
+              <div
+                data-pencil-name="Status Admin Toko"
+                class="box-border w-[44px] shrink-0 h-[24px] flex flex-row gap-0 justify-center items-center bg-[#FFFFFF] [outline:1px_solid_#1877F2] [outline-offset:-0.5px] rounded-[12px]"
+              >
+                <div
+                  data-pencil-name="Label Aktif Admin Toko"
+                  class="text-[11px]/[normal] box-border text-[#145FBD] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+                >
+                  Aktif
+                </div>
+              </div>
+            </div>
+            <div
+              data-pencil-name="Peran Admin Toko"
+              class="text-[13px]/[normal] box-border text-[#4F5968] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              @admin · Admin
+            </div>
+            <div
+              data-pencil-name="Aktivitas Admin Toko"
+              class="text-[12px]/[normal] box-border text-[#4F5968] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Terakhir masuk 12 Nov 2026 20:48
+            </div>
+            <div
+              data-pencil-name="Form Reset Kata Sandi Admin"
+              class="box-border w-full h-fit shrink-0 flex flex-col gap-[8px] justify-start items-start"
+            >
+              <div
+                data-pencil-name="Judul Reset Kata Sandi"
+                class="text-[14px]/[normal] box-border text-[#111111] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+              >
+                Atur ulang kata sandi
+              </div>
+              <div
+                data-pencil-name="Kolom Kata Sandi Baru"
+                class="box-border w-full h-[48px] shrink-0 flex flex-row gap-0 p-[0px_12px] justify-start items-center bg-[#FFFFFF] [outline:1px_solid_#BFC7D1] [outline-offset:-0.5px] rounded-[8px]"
+              >
+                <div
+                  data-pencil-name="Placeholder Kata Sandi Baru"
+                  class="text-[14px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+                >
+                  Kata sandi baru (min. 8)
+                </div>
+              </div>
+              <div
+                data-pencil-name="Aksi Form Reset"
+                class="box-border w-full h-fit shrink-0 flex flex-row gap-[8px] justify-start items-start"
+              >
+                <div
+                  data-pencil-name="Batal Reset Kata Sandi"
+                  class="box-border [flex:1_1_0] h-[44px] flex flex-row gap-0 justify-center items-center bg-[#FFFFFF] [outline:1px_solid_#BFC7D1] [outline-offset:-0.5px] rounded-[8px]"
+                >
+                  <div
+                    data-pencil-name="Label Batal Reset"
+                    class="text-[14px]/[normal] box-border text-[#17324D] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+                  >
+                    Batal
+                  </div>
+                </div>
+                <div
+                  data-pencil-name="Simpan Kata Sandi Baru"
+                  class="box-border [flex:1_1_0] h-[44px] flex flex-row gap-0 justify-center items-center bg-[#1877F2] rounded-[8px]"
+                >
+                  <div
+                    data-pencil-name="Label Simpan Kata Sandi"
+                    class="text-[14px]/[normal] box-border text-[#FFFFFF] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+                  >
+                    Simpan
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            data-pencil-name="Pemisah Akun Admin Toko"
+            class="box-border w-full h-[1px] shrink-0 bg-[#E8EBEF]"
+          ></div>
+          <div
+            data-pencil-name="Akun Amba"
+            class="box-border w-full h-fit shrink-0 flex flex-col gap-[6px] p-[9px_0px] justify-start items-start"
+          >
+            <div
+              data-pencil-name="Identitas Amba"
+              class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-between items-center"
+            >
+              <div
+                data-pencil-name="Nama Amba"
+                class="text-[16px]/[normal] box-border text-[#111111] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+              >
+                Amba
+              </div>
+              <div
+                data-pencil-name="Status Amba"
+                class="box-border w-[44px] shrink-0 h-[24px] flex flex-row gap-0 justify-center items-center bg-[#FFFFFF] [outline:1px_solid_#1877F2] [outline-offset:-0.5px] rounded-[12px]"
+              >
+                <div
+                  data-pencil-name="Label Aktif Amba"
+                  class="text-[11px]/[normal] box-border text-[#145FBD] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+                >
+                  Aktif
+                </div>
+              </div>
+            </div>
+            <div
+              data-pencil-name="Peran Amba"
+              class="text-[13px]/[normal] box-border text-[#4F5968] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              @amba · Pelanggan
+            </div>
+            <div
+              data-pencil-name="Aktivitas Amba"
+              class="text-[12px]/[normal] box-border text-[#4F5968] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Terakhir masuk 12 Nov 2026 20:47
+            </div>
+            <div
+              data-pencil-name="Aksi Akun Amba"
+              class="box-border w-full h-fit shrink-0 flex flex-row gap-[10px] justify-start items-center"
+            >
+              <div
+                data-pencil-name="Atur Ulang Kata Sandi Amba"
+                class="box-border [flex:1_1_0] h-[44px] flex flex-row gap-0 justify-start items-center"
+              >
+                <div
+                  data-pencil-name="Label Atur Ulang Amba"
+                  class="text-[13px]/[normal] box-border text-[#145FBD] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+                >
+                  Atur ulang kata sandi
+                </div>
+              </div>
+              <div
+                data-pencil-name="Nonaktifkan Amba"
+                class="box-border w-[98px] shrink-0 h-[44px] flex flex-row gap-0 justify-center items-center bg-[#FFFFFF] [outline:1px_solid_#B9002A] [outline-offset:-0.5px] rounded-[8px]"
+              >
+                <div
+                  data-pencil-name="Label Nonaktifkan Amba"
+                  class="text-[12px]/[normal] box-border text-[#A40024] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+                >
+                  Nonaktifkan
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            data-pencil-name="Pemisah Akun Amba"
+            class="box-border w-full h-[1px] shrink-0 bg-[#E8EBEF]"
+          ></div>
+          <div
+            data-pencil-name="Akun Listiyo Sadap"
+            class="box-border w-full h-fit shrink-0 flex flex-col gap-[6px] p-[9px_0px] justify-start items-start"
+          >
+            <div
+              data-pencil-name="Identitas Listiyo Sadap"
+              class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-between items-center"
+            >
+              <div
+                data-pencil-name="Nama Listiyo Sadap"
+                class="text-[16px]/[normal] box-border text-[#111111] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+              >
+                Listiyo Sadap
+              </div>
+              <div
+                data-pencil-name="Status Listiyo Sadap"
+                class="box-border w-[44px] shrink-0 h-[24px] flex flex-row gap-0 justify-center items-center bg-[#FFFFFF] [outline:1px_solid_#1877F2] [outline-offset:-0.5px] rounded-[12px]"
+              >
+                <div
+                  data-pencil-name="Label Aktif Listiyo Sadap"
+                  class="text-[11px]/[normal] box-border text-[#145FBD] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+                >
+                  Aktif
+                </div>
+              </div>
+            </div>
+            <div
+              data-pencil-name="Peran Listiyo Sadap"
+              class="text-[13px]/[normal] box-border text-[#4F5968] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              @listiyo · Pelanggan
+            </div>
+            <div
+              data-pencil-name="Aktivitas Listiyo Sadap"
+              class="text-[12px]/[normal] box-border text-[#4F5968] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Belum pernah masuk
+            </div>
+            <div
+              data-pencil-name="Aksi Akun Listiyo Sadap"
+              class="box-border w-full h-fit shrink-0 flex flex-row gap-[10px] justify-start items-center"
+            >
+              <div
+                data-pencil-name="Atur Ulang Kata Sandi Listiyo Sadap"
+                class="box-border [flex:1_1_0] h-[44px] flex flex-row gap-0 justify-start items-center"
+              >
+                <div
+                  data-pencil-name="Label Atur Ulang Listiyo Sadap"
+                  class="text-[13px]/[normal] box-border text-[#145FBD] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+                >
+                  Atur ulang kata sandi
+                </div>
+              </div>
+              <div
+                data-pencil-name="Nonaktifkan Listiyo Sadap"
+                class="box-border w-[98px] shrink-0 h-[44px] flex flex-row gap-0 justify-center items-center bg-[#FFFFFF] [outline:1px_solid_#B9002A] [outline-offset:-0.5px] rounded-[8px]"
+              >
+                <div
+                  data-pencil-name="Label Nonaktifkan Listiyo Sadap"
+                  class="text-[12px]/[normal] box-border text-[#A40024] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+                >
+                  Nonaktifkan
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            data-pencil-name="Pemisah Akun Listiyo Sadap"
+            class="box-border w-full h-[1px] shrink-0 bg-[#E8EBEF]"
+          ></div>
+          <div
+            data-pencil-name="Akun Windah"
+            class="box-border w-full h-fit shrink-0 flex flex-col gap-[6px] p-[9px_0px] justify-start items-start"
+          >
+            <div
+              data-pencil-name="Identitas Windah"
+              class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-between items-center"
+            >
+              <div
+                data-pencil-name="Nama Windah"
+                class="text-[16px]/[normal] box-border text-[#111111] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+              >
+                Windah
+              </div>
+              <div
+                data-pencil-name="Status Windah"
+                class="box-border w-[44px] shrink-0 h-[24px] flex flex-row gap-0 justify-center items-center bg-[#FFFFFF] [outline:1px_solid_#1877F2] [outline-offset:-0.5px] rounded-[12px]"
+              >
+                <div
+                  data-pencil-name="Label Aktif Windah"
+                  class="text-[11px]/[normal] box-border text-[#145FBD] font-[Figtree,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+                >
+                  Aktif
+                </div>
+              </div>
+            </div>
+            <div
+              data-pencil-name="Peran Windah"
+              class="text-[13px]/[normal] box-border text-[#4F5968] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              @windah · Pelanggan
+            </div>
+            <div
+              data-pencil-name="Aktivitas Windah"
+              class="text-[12px]/[normal] box-border text-[#4F5968] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Belum pernah masuk
+            </div>
+            <div
+              data-pencil-name="Aksi Akun Windah"
+              class="box-border w-full h-fit shrink-0 flex flex-row gap-[10px] justify-start items-center"
+            >
+              <div
+                data-pencil-name="Atur Ulang Kata Sandi Windah"
+                class="box-border [flex:1_1_0] h-[44px] flex flex-row gap-0 justify-start items-center"
+              >
+                <div
+                  data-pencil-name="Label Atur Ulang Windah"
+                  class="text-[13px]/[normal] box-border text-[#145FBD] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+                >
+                  Atur ulang kata sandi
+                </div>
+              </div>
+              <div
+                data-pencil-name="Nonaktifkan Windah"
+                class="box-border w-[98px] shrink-0 h-[44px] flex flex-row gap-0 justify-center items-center bg-[#FFFFFF] [outline:1px_solid_#B9002A] [outline-offset:-0.5px] rounded-[8px]"
+              >
+                <div
+                  data-pencil-name="Label Nonaktifkan Windah"
+                  class="text-[12px]/[normal] box-border text-[#A40024] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+                >
+                  Nonaktifkan
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          data-pencil-name="Buat Akun Admin"
+          class="box-border w-full h-[48px] shrink-0 flex flex-row gap-0 justify-center items-center bg-[#1877F2] rounded-[8px]"
+        >
+          <div
+            data-pencil-name="Label Buat Akun Admin"
+            class="text-[15px]/[normal] box-border text-[#FFFFFF] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+          >
+            Buat akun admin
+          </div>
+        </div>
+      </div>
+      <div
+        data-pencil-name="Navigasi Bawah"
+        class="box-border w-full h-fit shrink-0 flex flex-row gap-0 p-[0px_16px_10px_16px] justify-start items-start"
+      >
+        <div
+          data-pencil-name="Tab Bar"
+          class="box-border [flex:1_1_0] h-fit flex flex-row gap-0 p-[6px_4px] justify-start items-start bg-[#FFFFFF] [outline:1px_solid_#E5E5E5] [outline-offset:-0.5px] rounded-[16px]"
+        >
+          <div
+            data-pencil-name="Navigasi Dashboard"
+            class="box-border [flex:1_1_0] h-fit flex flex-col gap-[3px] p-[10px_4px] justify-center items-center"
+          >
+            <svg
+              data-pencil-name="Icon"
+              viewBox="0 0 22 22"
+              preserveAspectRatio="xMidYMid meet"
+              data-icon-name="house"
+              data-icon-set="phosphor"
+              xmlns="http://www.w3.org/2000/svg"
+              class="box-border w-[22px] h-[22px] shrink-0 overflow-visible"
+            >
+              <path
+                d="M17.875 19.25h-4.125q-.602 0-.988-.387-.387-.386-.387-.988v-4.125h-2.75v4.125q0 .602-.387 .988-.386 .387-.988 .387h-4.125q-.602 0-.988-.387-.387-.386-.387-.988v-7.992q0-.602 .43-.945l6.875-6.274q.429-.344 .945-.344 .516 0 .945 .344l6.875 6.274q.43 .343 .43 .945v7.992q0 .602-.387 .988-.386 .387-.988 .387zM9.625 12.375h2.75q.602 0 .988 .387 .387 .386 .387 .988v4.125h4.125v-7.992l-6.875-6.188-6.875 6.188v7.992h4.125v-4.125q0-.602 .387-.988 .386-.387 .988-.387z"
+                fill="#5c5c5c"
+              />
+            </svg>
+            <div
+              data-pencil-name="Label"
+              class="text-[10px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Dashboard
+            </div>
+          </div>
+          <div
+            data-pencil-name="Navigasi Pelanggan"
+            class="box-border [flex:1_1_0] h-fit flex flex-col gap-[3px] p-[10px_4px] justify-center items-center"
+          >
+            <svg
+              data-pencil-name="Icon"
+              viewBox="0 0 22 22"
+              preserveAspectRatio="xMidYMid meet"
+              data-icon-name="users"
+              data-icon-set="phosphor"
+              xmlns="http://www.w3.org/2000/svg"
+              class="box-border w-[22px] h-[22px] shrink-0 overflow-visible"
+            >
+              <path
+                d="M10.398 13.578q1.461-.945 2.02-2.535 .559-1.59 .086-3.223-.473-1.632-1.848-2.664-1.375-1.031-3.093-1.031-1.719 0-3.094 1.031-1.375 1.032-1.848 2.664-.473 1.633 .086 3.223 .559 1.59 2.02 2.535-2.407 .86-3.868 3.008-.343 .344-.171 .73 .171 .387 .601 .387 .43 0 .602-.344 1.031-1.375 2.492-2.148 1.461-.773 3.18-.773 1.718 0 3.179 .773 1.461 .773 2.406 2.148 .258 .344 .688 .344 .43 0 .602-.387 .171-.386-.086-.73-1.547-2.148-3.954-3.008zM3.781 9.281q0-1.547 1.117-2.664 1.118-1.117 2.665-1.117 1.546 0 2.664 1.117 1.117 1.117 1.117 2.664 0 1.547-1.117 2.664-1.118 1.118-2.664 1.118-1.547 0-2.665-1.118-1.117-1.117-1.117-2.664zM21.141 17.531q-.258 .172-.516 .129-.258-.043-.43-.301-.945-1.375-2.449-2.148-1.504-.773-3.137-.773-.343 0-.515-.215-.172-.215-.172-.473 0-.258 .172-.473 .172-.214 .515-.214 1.547 0 2.664-1.118 1.118-1.117 1.075-2.664-.043-1.547-1.118-2.664-1.074-1.117-2.707-1.117-.515 0-.945 .172-.344 .086-.558-.086-.215-.172-.301-.43-.086-.258 .043-.515 .129-.258 .386-.344 .688-.172 1.461-.172 1.633 0 3.008 1.031 1.375 1.032 1.891 2.664 .515 1.633-.086 3.223-.602 1.59-1.977 2.535 2.407 .86 3.868 3.008 .171 .258 .128 .516-.043 .257-.3 .429z"
+                fill="#5c5c5c"
+              />
+            </svg>
+            <div
+              data-pencil-name="Label"
+              class="text-[10px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Pelanggan
+            </div>
+          </div>
+          <div
+            data-pencil-name="Navigasi Barang"
+            class="box-border [flex:1_1_0] h-fit flex flex-col gap-[3px] p-[10px_4px] justify-center items-center"
+          >
+            <svg
+              data-pencil-name="Icon"
+              viewBox="0 0 22 22"
+              preserveAspectRatio="xMidYMid meet"
+              data-icon-name="package"
+              data-icon-set="phosphor"
+              xmlns="http://www.w3.org/2000/svg"
+              class="box-border w-[22px] h-[22px] shrink-0 overflow-visible"
+            >
+              <path
+                d="M19.766 6.102q-.172-.344-.516-.516l-7.562-4.297q-.688-.344-1.375 0l-7.563 4.297q-.258 .172-.516 .516-.171 .343-.171 .687v8.422q0 .43 .214 .73 .215 .301 .473 .473l7.563 4.297q.343 .172 .601 .172h.172q.344 0 .602-.172l7.562-4.297q.344-.172 .516-.473 .172-.3 .172-.73v-8.422q0-.43-.172-.687zM11 2.492l6.875 3.867-2.664 1.461-6.875-3.781zM11.086 10.227l-6.875-3.868 2.664-1.546 6.961 3.867zM3.438 7.563l6.96 3.867-.085 7.648-6.875-3.867zM11.688 19.078l.085-7.648 2.75-1.633v3.266q0 .343 .215 .515 .215 .172 .473 .172 .258 0 .473-.172 .214-.172 .214-.43v-4.125l2.665-1.46v7.648z"
+                fill="#5c5c5c"
+              />
+            </svg>
+            <div
+              data-pencil-name="Label"
+              class="text-[10px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Barang
+            </div>
+          </div>
+          <div
+            data-pencil-name="Navigasi Catat Bon"
+            class="box-border [flex:1_1_0] h-fit flex flex-col gap-[3px] p-[10px_4px] justify-center items-center"
+          >
+            <svg
+              data-pencil-name="Icon"
+              viewBox="0 0 22 22"
+              preserveAspectRatio="xMidYMid meet"
+              data-icon-name="notepad"
+              data-icon-set="phosphor"
+              xmlns="http://www.w3.org/2000/svg"
+              class="box-border w-[22px] h-[22px] shrink-0 overflow-visible"
+            >
+              <path
+                d="M14.438 11q0 .258-.215 .473-.215 .215-.473 .215h-5.5q-.258 0-.473-.215-.214-.215-.214-.473 0-.258 .214-.473 .215-.214 .473-.214h5.5q.258 0 .473 .214 .215 .215 .215 .473zM13.75 13.063h-5.5q-.258 0-.473 .214-.214 .215-.214 .473 0 .258 .214 .473 .215 .215 .473 .215h5.5q.258 0 .473-.215 .215-.215 .215-.473 0-.258-.215-.473-.215-.214-.473-.214zM18.563 4.125v13.063q0 1.117-.817 1.933-.816 .817-1.933 .817h-9.625q-1.118 0-1.934-.817-.816-.816-.816-1.933v-13.063q0-.602 .386-.988 .387-.387 .989-.387h1.375v-.687q0-.258 .214-.473 .215-.215 .473-.215 .258 0 .473 .215 .215 .215 .215 .473v.687h2.75v-.687q0-.258 .214-.473 .215-.215 .473-.215 .258 0 .473 .215 .215 .215 .215 .473v.687h2.75v-.687q0-.258 .214-.473 .215-.215 .473-.215 .258 0 .473 .215 .215 .215 .215 .473v.687h1.375q.601 0 .988 .387 .387 .386 .387 .988zM17.188 4.125h-1.375v.688q0 .257-.215 .472-.215 .215-.473 .215-.258 0-.473-.215-.214-.215-.214-.472v-.688h-2.75v.688q0 .257-.215 .472-.215 .215-.473 .215-.258 0-.473-.215-.214-.215-.214-.472v-.688h-2.75v.688q0 .257-.215 .472-.215 .215-.473 .215-.258 0-.473-.215-.214-.215-.214-.472v-.688h-1.375v13.063q0 .601 .386 .988 .387 .387 .989 .387h9.625q.601 0 .988-.387 .387-.387 .387-.988z"
+                fill="#5c5c5c"
+              />
+            </svg>
+            <div
+              data-pencil-name="Label"
+              class="text-[10px]/[normal] box-border text-[#5C5C5C] font-[Figtree,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+            >
+              Catat Bon
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

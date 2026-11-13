@@ -2766,88 +2766,265 @@ a.bon-action--hapus {
   color: #b42318;
 }
 
+/* Kelola pengguna */
+
+.pengguna-page {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 24px;
+}
+
 .pengguna-list {
   display: flex;
   flex-direction: column;
 }
 
+.pengguna-rule {
+  background: #E8EBEF;
+}
+
 .pengguna-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px 0;
+  gap: 6px;
+  padding: 9px 0;
 }
 
 .pengguna-card-top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 
 .pengguna-card-name {
-  font-size: 15px;
-  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
 }
 
-.pengguna-card-meta {
+.pengguna-card-role {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: normal;
+}
+
+.pengguna-card-activity {
   color: var(--muted);
   font-size: 12px;
-  line-height: 17px;
+  line-height: normal;
 }
 
 .pengguna-badge {
   flex-shrink: 0;
-  padding: 2px 8px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 12px;
+  outline: 1px solid var(--border);
+  outline-offset: -0.5px;
   color: var(--muted);
   font-size: 11px;
+  font-weight: 600;
+  line-height: normal;
 }
 
 .pengguna-badge--aktif {
-  border-color: var(--accent);
-  color: var(--accent);
+  outline-color: var(--accent);
+  color: #145FBD;
+}
+
+.pengguna-badge--nonaktif {
+  outline-color: var(--border);
+  color: var(--muted);
 }
 
 .pengguna-card-actions {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 10px;
 }
 
-.pengguna-inline-form {
+/* Open state: the export swaps the whole action row for the reset form. */
+.pengguna-card-actions:has(.pengguna-reset[open]) {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+.pengguna-card-actions:has(.pengguna-reset[open]) .pengguna-status-form {
+  display: none;
+}
+
+.pengguna-reset {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.pengguna-reset[open] {
+  flex: none;
+  width: 100%;
+}
+
+/* Closed, the summary is the export's text link; open, it becomes the form title. */
+.pengguna-reset summary {
   display: flex;
   align-items: center;
+  height: 44px;
+  color: #145FBD;
+  font-size: 13px;
+  line-height: normal;
+  white-space: nowrap;
+  cursor: pointer;
+  list-style: none;
+}
+
+.pengguna-reset[open] summary {
+  height: auto;
+  margin-bottom: 8px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pengguna-reset summary::-webkit-details-marker {
+  display: none;
+}
+
+.pengguna-reset summary:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.pengguna-reset-form {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
   margin: 0;
 }
 
-.pengguna-inline-form .pelanggan-field-input {
-  width: 168px;
+.pengguna-reset-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--surface);
+  outline: 1px solid #BFC7D1;
+  outline-offset: -0.5px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: normal;
 }
 
-.pengguna-inline-form .pelanggan-btn {
-  width: auto;
-  min-height: 36px;
-  padding: 8px 12px;
-  font-size: 13px;
-}
-
-.pengguna-reset summary {
-  display: inline-flex;
-  align-items: center;
-  min-height: 36px;
+.pengguna-reset-input::placeholder {
   color: var(--muted);
-  font-size: 13px;
+  opacity: 1;
+}
+
+.pengguna-reset-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -0.5px;
+}
+
+.pengguna-reset-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.pengguna-reset-cancel,
+.pengguna-reset-save {
+  flex: 1 1 0;
+  height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
 }
 
-.pengguna-reset[open] summary {
-  color: var(--text);
+.pengguna-reset-cancel {
+  background: var(--surface);
+  outline: 1px solid #BFC7D1;
+  outline-offset: -0.5px;
+  color: #17324D;
 }
 
-.pengguna-reset form {
-  margin-top: 8px;
+.pengguna-reset-save {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.pengguna-reset-cancel:active,
+.pengguna-reset-save:active {
+  opacity: 0.9;
+}
+
+.pengguna-reset-cancel:focus-visible,
+.pengguna-reset-save:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.pengguna-status-form {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.pengguna-status-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 98px;
+  height: 44px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--surface);
+  outline: 1px solid var(--border);
+  outline-offset: -0.5px;
+  color: var(--muted);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: normal;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.pengguna-status-btn--nonaktif {
+  outline-color: #B9002A;
+  color: #A40024;
+}
+
+.pengguna-status-btn--aktif {
+  outline-color: var(--accent);
+  color: #145FBD;
+}
+
+.pengguna-status-btn:active {
+  opacity: 0.9;
+}
+
+.pengguna-status-btn:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.pengguna-cta {
+  font-size: 15px;
+  font-weight: 400;
 }

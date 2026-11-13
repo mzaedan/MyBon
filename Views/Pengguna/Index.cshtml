@@ -4,74 +4,84 @@
     ViewData["Title"] = "Kelola pengguna";
 }
 
-<hr class="page-rule" />
+<div class="pengguna-page">
+    <hr class="page-rule" />
 
-@if (!string.IsNullOrWhiteSpace(Model.Status))
-{
-    <p class="pelanggan-notice" role="status">@Model.Status</p>
-}
-
-@if (!string.IsNullOrWhiteSpace(Model.Error))
-{
-    <p class="pelanggan-notice pelanggan-notice--error" role="alert">@Model.Error</p>
-}
-
-<div class="pengguna-list">
-    @foreach (var item in Model.Items)
+    @if (!string.IsNullOrWhiteSpace(Model.Status))
     {
-        var terakhir = item.TerakhirMasuk;
-
-        <div class="pengguna-card">
-            <div class="pengguna-card-top">
-                <div>
-                    <div class="pengguna-card-name">@item.Nama</div>
-                    <div class="pengguna-card-meta">@("@" + item.Username) · @item.Peran</div>
-                </div>
-                <span class="pengguna-badge @(item.Aktif ? "pengguna-badge--aktif" : string.Empty)">
-                    @(item.Aktif ? "Aktif" : "Nonaktif")
-                </span>
-            </div>
-
-            <div class="pengguna-card-meta">
-                @(terakhir is null
-                    ? "Belum pernah masuk"
-                    : $"Terakhir masuk {terakhir.Value.ToLocalTime():d MMM yyyy HH:mm}")
-            </div>
-
-            <div class="pengguna-card-actions">
-                <details class="pengguna-reset">
-                    <summary>Atur ulang kata sandi</summary>
-                    <form method="post" asp-action="ResetPassword" class="pengguna-inline-form">
-                        <input type="hidden" name="PenggunaId" value="@item.Id" />
-                        <input type="password"
-                               name="Password"
-                               class="pelanggan-field-input"
-                               placeholder="Kata sandi baru (min. 8)"
-                               minlength="8"
-                               autocomplete="new-password"
-                               required />
-                        <button type="submit" class="pelanggan-btn pelanggan-btn-simpan">Simpan</button>
-                    </form>
-                </details>
-
-                <form method="post"
-                      asp-action="SetAktif"
-                      class="pengguna-inline-form"
-                      data-confirm="@(item.Aktif ? "Nonaktifkan akun ini?" : "Aktifkan akun ini?")">
-                    <input type="hidden" name="id" value="@item.Id" />
-                    <input type="hidden" name="aktif" value="@((!item.Aktif).ToString().ToLowerInvariant())" />
-                    <button type="submit" class="pelanggan-btn @(item.Aktif ? "pelanggan-btn-hapus" : "pelanggan-btn-batal")">
-                        @(item.Aktif ? "Nonaktifkan" : "Aktifkan")
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <hr class="page-rule" />
+        <p class="pelanggan-notice" role="status">@Model.Status</p>
     }
-</div>
 
-<a class="cta-catat-bon" asp-action="Create">Buat akun admin</a>
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <p class="pelanggan-notice pelanggan-notice--error" role="alert">@Model.Error</p>
+    }
+
+    <div class="pengguna-list">
+        @for (var index = 0; index < Model.Items.Count; index++)
+        {
+            var item = Model.Items[index];
+            var terakhir = item.TerakhirMasuk;
+
+            <div class="pengguna-card">
+                <div class="pengguna-card-top">
+                    <div class="pengguna-card-name">@item.Nama</div>
+                    <div class="pengguna-badge @(item.Aktif ? "pengguna-badge--aktif" : "pengguna-badge--nonaktif")">
+                        @(item.Aktif ? "Aktif" : "Nonaktif")
+                    </div>
+                </div>
+
+                <div class="pengguna-card-role">@("@" + item.Username) · @item.Peran</div>
+
+                <div class="pengguna-card-activity">
+                    @(terakhir is null
+                        ? "Belum pernah masuk"
+                        : $"Terakhir masuk {terakhir.Value.ToLocalTime():d MMM yyyy HH:mm}")
+                </div>
+
+                <div class="pengguna-card-actions">
+                    <details class="pengguna-reset">
+                        <summary>Atur ulang kata sandi</summary>
+                        <form method="post" asp-action="ResetPassword" class="pengguna-reset-form">
+                            <input type="hidden" name="PenggunaId" value="@item.Id" />
+                            <input type="password"
+                                   name="Password"
+                                   class="pengguna-reset-input"
+                                   placeholder="Kata sandi baru (min. 8)"
+                                   minlength="8"
+                                   autocomplete="new-password"
+                                   required />
+                            <div class="pengguna-reset-actions">
+                                <button type="button"
+                                        class="pengguna-reset-cancel"
+                                        data-pengguna-reset-cancel>Batal</button>
+                                <button type="submit" class="pengguna-reset-save">Simpan</button>
+                            </div>
+                        </form>
+                    </details>
+
+                    <form method="post"
+                          asp-action="SetAktif"
+                          class="pengguna-status-form"
+                          data-confirm="@(item.Aktif ? "Nonaktifkan akun ini?" : "Aktifkan akun ini?")">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <input type="hidden" name="aktif" value="@((!item.Aktif).ToString().ToLowerInvariant())" />
+                        <button type="submit" class="pengguna-status-btn @(item.Aktif ? "pengguna-status-btn--nonaktif" : "pengguna-status-btn--aktif")">
+                            @(item.Aktif ? "Nonaktifkan" : "Aktifkan")
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            @if (index < Model.Items.Count - 1)
+            {
+                <hr class="page-rule pengguna-rule" />
+            }
+        }
+    </div>
+
+    <a class="cta-catat-bon pengguna-cta" asp-action="Create">Buat akun admin</a>
+</div>
 
 @section Scripts {
     <script src="~/custom/features/pengguna/index.js" asp-append-version="true"></script>
