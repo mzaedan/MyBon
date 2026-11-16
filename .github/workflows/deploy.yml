@@ -1,0 +1,50 @@
+name: Deploy MyBon
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish
+        run: dotnet publish -c Release -o ./publish
+
+      - name: Siapkan SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Stop service
+        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo systemctl stop mybon"
+
+      - name: Upload file
+        run: |
+          rsync -az --delete \
+            --exclude 'appsettings.Production.json' \
+            --exclude 'web.config' \
+            --exclude '*.pdb' \
+            --exclude 'appsettings.Development.json' \
+            ./publish/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/ubuntu/app/
+
+      - name: Start service
+        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo systemctl start mybon"
+
+      - name: Cek status
+        run: |
+          sleep 5
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "systemctl is-active mybon"
