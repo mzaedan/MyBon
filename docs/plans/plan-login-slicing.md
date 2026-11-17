@@ -52,7 +52,6 @@ wwwroot/css/site.css    .auth-* block at the end, reusing .page-rule and .pelang
 - [ ] **Step 3:** Fields **Username** (`type="text"`, `autocomplete="username"`) and **Kata sandi** (`type="password"`), each reusing `.pelanggan-field*` and `.page-rule`.
 - [ ] **Step 4:** **Lupa kata sandi?** right aligned.
 - [ ] **Step 5:** Primary **Masuk ke buku hutang** and secondary **Buat akun toko baru**.
-- [ ] **Step 6:** Spacer, bottom rule, note **Lupa kata sandi atau username? Hubungi pemilik toko untuk atur ulang akun.**
 
 ## Slice 3: styling
 
@@ -78,3 +77,5 @@ Cookie authentication, the `pengguna` table, username/password validation, redir
 - `docs/plans/plan-perbaikan-scrollbar-login.md` — the frame scrollbar is hidden (`scrollbar-width: none` + `.auth-main::-webkit-scrollbar`), so no bar paints on the frame edge on a short window.
 - `docs/plans/plan-perbaikan-header-login.md` — supersedes Slice 2 Step 1 and the `8px` top padding in Slice 3 Step 1: the header now reuses the shell's `.app-wordmark` / `.app-screen-title` at the shell header's offset, and `.auth-shop` / `.auth-title` are gone.
 - Sign-in now asks for **Username**, not an email: Slice 2 Steps 3 and 6 paint `login-username` (`name="Username"`, `type="text"`, `autocomplete="username"`, `autocapitalize="none"`, `spellcheck="false"`) and the bottom note reads **Lupa kata sandi atau username?**. The account key is `pengguna.username` in `docs/plans/plan-login.md`, so the field matches the credential the app will actually verify.
+- The **Kata sandi** field carries an eye toggle: `login.js` swaps the input between `password` and `text`, flips `bi-eye` / `bi-eye-slash`, and keeps `aria-pressed` + `aria-label` on the 44px `.auth-password-toggle` so the state is announced. The toggle hangs over the field's 12px padding with a negative block margin, so the row keeps the username row's height.
+- `docs/plans/plan-perbaikan-responsive-login.md` — `.app-shell` drops its 390px cap below 768px (`max-width: none`), so the white shell fills a 427px Pixel 9 Pro / 430px iPhone Pro Max instead of showing grey gutters; the framed card is now desktop-only, as this plan's Constraints line intended. `.auth-page` gains a 480px column cap so the fields stay proportional on a wide phone in landscape.

@@ -59,11 +59,22 @@
 
         <div class="pelanggan-field auth-field">
             <label class="pelanggan-field-label" asp-for="Password">Kata sandi</label>
-            <input class="pelanggan-field-input"
-                   asp-for="Password"
-                   type="password"
-                   placeholder="Tulis kata sandi"
-                   autocomplete="current-password" />
+            <div class="auth-password">
+                <input class="pelanggan-field-input"
+                       asp-for="Password"
+                       type="password"
+                       placeholder="Tulis kata sandi"
+                       autocomplete="current-password" />
+                <button type="button"
+                        class="auth-password-toggle"
+                        data-password-toggle
+                        aria-controls="Password"
+                        aria-pressed="false"
+                        aria-label="Tampilkan kata sandi"
+                        title="Tampilkan kata sandi">
+                    <i class="bi bi-eye" aria-hidden="true"></i>
+                </button>
+            </div>
             <span asp-validation-for="Password" class="pelanggan-field-error"></span>
             <hr class="page-rule" />
         </div>
@@ -85,10 +96,6 @@
     <div class="auth-spacer"></div>
 
     <hr class="page-rule" />
-
-    <p class="auth-note">
-        Lupa kata sandi atau username? Hubungi pemilik toko untuk atur ulang akun.
-    </p>
 </form>
 
 @section Scripts {

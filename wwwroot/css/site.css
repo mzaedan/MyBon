@@ -65,6 +65,15 @@ textarea {
   overflow: hidden;
 }
 
+/* The 390px frame is the desktop presentation (the card below). A real phone is often wider
+   than that — Pixel 9 Pro is 427px, iPhone Pro Max 430px — so on mobile the shell must fill the
+   viewport instead of showing the grey body in gutters on both sides. */
+@media (max-width: 767.98px) {
+  .app-shell {
+    max-width: none;
+  }
+}
+
 @media (min-width: 768px) {
   body.app-body {
     display: flex;
@@ -2488,6 +2497,12 @@ a.bon-action--hapus {
   flex: 1 0 auto;
   flex-direction: column;
   gap: 24px;
+  /* Fluid on a phone, but the column stops growing at 480px so the fields and the button do not
+     stretch across a wide phone/landscape viewport now that the shell is full width. */
+  width: 100%;
+  max-width: 480px;
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .auth-head {
@@ -2591,6 +2606,54 @@ a.bon-action--hapus {
 
 .auth-field:focus-within .page-rule {
   background: var(--text);
+}
+
+/* The eye sits at the end of the password line; its 44px tap target hangs over the field's
+   12px vertical padding so the row keeps the same height as the username row. */
+.auth-password {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-password .pelanggan-field-input {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.auth-password-toggle {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: -11px 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.auth-password-toggle .bi {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.auth-password-toggle[aria-pressed="true"] {
+  color: var(--text);
+}
+
+.auth-password-toggle:active {
+  opacity: 0.9;
+}
+
+.auth-password-toggle:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 .auth-forgot-row {
