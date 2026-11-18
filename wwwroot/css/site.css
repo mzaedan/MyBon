@@ -9,11 +9,6 @@
   --text: #000000;
   --muted: #5C5C5C;
   --border: #E5E5E5;
-  /* env() only reports the notch and the iOS home indicator. A CSS pixel is not a CSS viewport
-     pixel on a phone (a 1080px-wide Android screen is ~412 CSS px), so guessing the system bar's
-     height here reserved far more room than the bar takes: the shell stopped short of the screen
-     bottom and the body's grey filled the rest. 100dvh already excludes the bar, so the inset is
-     whatever the device itself reports and nothing more. */
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   /* The nav's own rows measure 60px; the reserved space under the content is that plus its
