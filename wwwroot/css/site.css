@@ -2525,12 +2525,16 @@ a.bon-action--hapus {
   flex: 1 0 auto;
   flex-direction: column;
   gap: 24px;
+  /* The browser gives a <form> block margins of 0.67em. In this column those also became side
+     margins, and centred they took 148px off each side and left the fields 60px wide. Only the sides
+     stay auto, so the column centres without losing width. */
+  margin: 0 auto;
+  /* Absorbs the frame's own colour, so the column reads as part of the same surface. */
+  background: transparent;
   /* Fluid on a phone, but the column stops growing at 480px so the fields and the button do not
      stretch across a wide phone/landscape viewport now that the shell is full width. */
   width: 100%;
   max-width: 480px;
-  margin-right: auto;
-  margin-left: auto;
 }
 
 .auth-head {
@@ -2763,6 +2767,12 @@ a.bon-action--hapus {
 .auth-spacer {
   flex: 1 1 auto;
   min-height: 24px;
+}
+
+/* The closing rule is the column's last edge, so no 24px gap may reappear below it: with the frame's
+   24px bottom padding that gap would leave a strip of the body colour under the line. */
+.auth-page > .auth-spacer + .page-rule {
+  margin-bottom: 0;
 }
 
 .auth-note {
