@@ -9,9 +9,16 @@
   --text: #000000;
   --muted: #5C5C5C;
   --border: #E5E5E5;
-  --bottom-nav-h: 88px;
+  /* env() only reports the notch and the iOS home indicator. An Android system navigation bar
+     reports 0, yet a standalone app's 100dvh still reaches behind it, so the bottom nav ended up
+     under the bar. Reserving the bar's usual height here keeps the nav above it, and the value
+     costs nothing where a device reports its own inset (iOS, a notch) because max() picks the
+     larger one; a bar thinner than 48px only leaves a small strip below the nav. */
   --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), 48px);
+  /* The nav's own rows measure 60px; the reserved space under the content is that plus its
+     padding, so the last row of a list never hides behind the bar. */
+  --bottom-nav-h: calc(60px + 8px + var(--safe-bottom));
   --max-w: 390px;
   --radius: 12px;
   --font: Figtree, system-ui, sans-serif;
@@ -74,6 +81,9 @@ textarea {
      standalone viewport and the document itself starts scrolling. */
   height: 100vh;
   height: 100dvh;
+  /* Leaves the Android system bar out of the frame: the nav below sits on the bar's edge, not
+     behind it, so every sheet that pins to the shell's bottom stays reachable too. */
+  height: calc(100dvh - var(--safe-bottom));
   margin: 0 auto;
   background: var(--bg);
   overflow: hidden;
@@ -102,6 +112,11 @@ textarea {
     border-radius: 20px;
     border: 1px solid var(--border);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  }
+
+  /* A tablet or a desktop browser has no system bar, so the bottom keeps the old padding. */
+  body.app-body {
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
 
@@ -176,7 +191,7 @@ textarea {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  padding: 24px 20px calc(var(--bottom-nav-h) + var(--safe-bottom) + 8px);
+  padding: 24px 20px calc(var(--bottom-nav-h) + 8px);
 }
 
 .bottom-nav {
@@ -2488,7 +2503,7 @@ a.bon-action--hapus {
   min-height: 0;
   /* Mirrors the shell header offset (.app-header padding-top + .app-header-inner's 8px) so the
      login wordmark sits on the same line as the wordmark on every other page. */
-  padding: calc(max(24px, calc(var(--safe-top) + 8px)) + 8px) 20px calc(24px + var(--safe-bottom));
+  padding: calc(max(24px, calc(var(--safe-top) + 8px)) + 8px) 20px 24px;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
