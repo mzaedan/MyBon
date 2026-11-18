@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mybon-v4';
+const CACHE_VERSION = 'mybon-v5';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const OFFLINE_URL = '/offline.html';
 const PRECACHE_URLS = [
