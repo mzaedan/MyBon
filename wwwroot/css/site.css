@@ -40,6 +40,16 @@ body.app-body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Only the screen's own scroll areas scroll. On mobile the document must never scroll: standalone
+   iOS keeps a rubber-band offset and the keyboard scrolls the page to the focused field, which
+   reads as "too much scroll" and drags the sticky header out of place. */
+@media (max-width: 767.98px) {
+  body.app-body {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+}
+
 a {
   color: var(--accent);
   text-decoration: none;
@@ -59,7 +69,11 @@ textarea {
   flex-direction: column;
   width: 100%;
   max-width: var(--max-w);
-  min-height: 100dvh;
+  /* The shell is the app's frame: it must be exactly one viewport tall so the sticky header and
+     the absolute bottom nav/sheets pin to the screen. With min-height the shell outgrows the
+     standalone viewport and the document itself starts scrolling. */
+  height: 100vh;
+  height: 100dvh;
   margin: 0 auto;
   background: var(--bg);
   overflow: hidden;
@@ -84,7 +98,6 @@ textarea {
   }
 
   .app-shell {
-    min-height: min(860px, calc(100dvh - 48px));
     height: min(860px, calc(100dvh - 48px));
     border-radius: 20px;
     border: 1px solid var(--border);
