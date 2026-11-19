@@ -21,6 +21,15 @@
   --font-display: Fraunces, Georgia, serif;
 }
 
+/* Installed app (standalone): Android often reports env(safe-area-inset-bottom) as 0 even when the
+   system navigation bar is drawn over the page, so the bottom nav would sit under it. Reserve a
+   fallback strip for the 3-button bar. Browser tabs keep the env() value only, so they stay unchanged. */
+@media (display-mode: standalone), (display-mode: fullscreen) {
+  :root {
+    --safe-bottom: max(env(safe-area-inset-bottom, 0px), 48px);
+  }
+}
+
 *,
 *::before,
 *::after {
